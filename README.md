@@ -1,177 +1,145 @@
-# Plantilla Express + SQLite
+# SEMA · Sistema de Evaluación y Monitoreo Académico
 
-Plantilla base para crear aplicaciones web **de un solo usuario** con el mismo stack que *My Best DataBase*, pero con **SQLite** en lugar de MySQL:
+Sistema de seguimiento académico que permite monitorear las **calificaciones**, las **faltas** y la **evolución del desempeño** de los alumnos. Facilita la identificación temprana de alumnos en riesgo académico mediante indicadores, reportes y alertas configurables.
 
-- **Backend:** Node.js + Express, `better-sqlite3`, sesiones con JWT (`jsonwebtoken`) y contraseñas con `bcryptjs`.
-- **Frontend:** HTML, CSS y JavaScript **sin frameworks** (sin React, sin Tailwind, sin paso de compilación). Cada pantalla es un módulo IIFE.
-- **Diseño:** estilo visual limpio inspirado en las interfaces que generan herramientas como Lovable (tarjetas, bordes suaves, acento violeta), **recreado con CSS propio**. Incluye tema claro y oscuro.
+SEMA es una aplicación web **local y de un solo usuario**: corre en la computadora de la escuela, se abre con un acceso directo y funciona **sin internet**.
 
-Ya trae funcionando:
-
-- Un **login** sencillo. La primera vez que se abre, pide crear la cuenta; después solo pide usuario y contraseña.
-- Una **pantalla principal** tras iniciar sesión, con menú lateral, saludo, tarjetas de resumen y actividad reciente.
-- Un **módulo de ejemplo (Notas)** con alta, edición, eliminación, búsqueda y filtro, para copiarlo como modelo.
+> **Estado:** en desarrollo. El código actual es la plantilla base (Express + SQLite); las funciones de SEMA se construyen en 2 sprints, del **26 de octubre al 6 de noviembre de 2026**. La documentación completa está en [`context/`](context/).
 
 ---
 
-## 1. Requisitos
+## ¿Qué hace?
 
-- **Node.js 20 o superior** (recomendado 22 LTS) y npm.
-- Nada más: SQLite no se instala aparte, viene dentro de `better-sqlite3`.
+| Necesidad del cliente | Cómo la resuelve SEMA |
+|---|---|
+| Filtrar a los alumnos de último año | **Listas de seguimiento**: se sube un Excel con Matrícula y Nombre y se elige «Mostrar: Todos / 6.º semestre». |
+| Ver por alumno sus faltas y promedios | **Tabla de alumnos** con promedio, faltas y estado; buscador, orden de peor a mejor y **detalle por materia**. |
+| Usar colores rojo, amarillo y verde | **Semáforo** en tabla, detalle y gráficas, siempre con texto e ícono. |
 
-> En Windows, `better-sqlite3` descarga un binario ya compilado para tu versión de Node. Si `npm install` falla al compilarlo, usa una versión LTS de Node o instala las "Herramientas de compilación de C++" de Visual Studio.
+Además: carga del **Excel de monitoreo** de la escuela con previsualización, **Menú principal** con indicadores y gráficas, **evolución del desempeño** entre cargas, **alertas**, **umbrales configurables**, **exportación** a Excel/CSV y tema claro/oscuro.
 
-## 2. Instalación y arranque
+### Semáforo
+
+| Estado | Promedio | Faltas (% del límite de la materia) |
+|---|---|---|
+| ✓ Correcto | ≥ 80 | menos de 50 % |
+| ! Preventivo | 70 – 79.9 | 50 % a 79 % |
+| ✕ Crítico | < 70 | 80 % o más |
+
+El estado del alumno es **el peor entre promedio y faltas**. La calificación oficial de cada materia es la columna **Ponderado** del Excel. Detalle en [`context/07_Reglas_Negocio_Indicadores.md`](context/07_Reglas_Negocio_Indicadores.md).
+
+---
+
+## Tecnologías
+
+| Capa | Tecnología |
+|---|---|
+| Servidor | Node.js ≥ 20 · Express 4 |
+| Base de datos | SQLite con `better-sqlite3` (archivo `data/app.db`) |
+| Autenticación | `jsonwebtoken` (JWT, 8 h) · `bcryptjs` |
+| Frontend | HTML, CSS y JavaScript **sin frameworks** (módulos IIFE y UI kit propio) |
+| Excel y gráficas | `exceljs` · `multer` · Chart.js 4 (servido localmente) |
+| Pruebas | `node:test` |
+
+---
+
+## Instalación y arranque
+
+**Requisitos:** Node.js 20 o superior (recomendado 22 LTS). SQLite no se instala aparte.
 
 ```bash
+git clone https://github.com/CalixtoIsaac/SEMA-Sistema-de-Evaluacion-y-Monitoreo-Academico.git
+cd SEMA-Sistema-de-Evaluacion-y-Monitoreo-Academico
 npm install
-cp .env.example .env        # en Windows: copy .env.example .env
-npm run dev                 # se reinicia solo al guardar cambios del servidor
+copy .env.example .env      # macOS / Linux: cp .env.example .env
+npm run dev                 # desarrollo: se reinicia al guardar cambios
 ```
 
-Abre **http://localhost:3000**, crea tu cuenta y listo.
-
-Genera un valor para `JWT_SECRET` (así la sesión no se cierra cada vez que reinicias):
-
-```bash
-node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
-```
+Abre **http://localhost:3000**.
 
 | Script | Para qué |
 |---|---|
-| `npm run dev` | Desarrollo: reinicia el servidor al guardar (`node --watch`). |
+| `npm run dev` | Desarrollo: reinicia el servidor al guardar. |
 | `npm start` | Ejecución normal. |
+| `npm test` | Pruebas de reglas e importación *(se agrega en el Sprint 1)*. |
+| `npm run reset-password` | Restablece la cuenta por defecto *(se agrega en el Sprint 1)*. |
 
-Los cambios en `public/` no requieren reiniciar: basta con recargar el navegador.
+**Para el usuario final** (al terminar el Sprint 1): doble clic en **`SEMA.bat`**. Instala lo necesario la primera vez, arranca el servidor y abre el navegador.
 
-## 3. Estructura
+**Cuenta:** SEMA tiene una sola cuenta, creada automáticamente al primer arranque con el usuario `Chuchito` (credenciales en [`context/00_Indice_y_Decisiones.md`](context/00_Indice_y_Decisiones.md), D-04). Cambia la contraseña en **Perfil** después del primer inicio de sesión.
+
+---
+
+## Estructura del proyecto
 
 ```
-plantilla-express-sqlite/
-├── server.js              # Express: cabeceras de seguridad, rutas y páginas
-├── lib/
-│   ├── db.js              # Conexión a SQLite y creación de tablas
-│   └── auth.js            # JWT, middleware requireAuth y limitador de intentos
-├── routes/
-│   ├── auth.js            # /api/auth: status, setup, login, me
-│   └── notas.js           # /api/notas: CRUD de ejemplo
-├── data/                  # Aquí se crea app.db (no se sube a git)
-└── public/
-    ├── login.html         # Pantalla de inicio de sesión
-    ├── app.html           # Estructura de la app (menú + contenido)
-    ├── css/
-    │   ├── theme.css      # Colores del tema claro y oscuro (variables)
-    │   ├── base.css       # Botones, formularios, tarjetas, modales, toasts
-    │   ├── login.css
-    │   └── app.css        # Menú lateral, barra superior y vistas
-    └── js/
-        ├── theme.js       # Cambio de tema (se carga en el <head>)
-        ├── ui-kit.js      # UI.escape, UI.api, UI.toast, UI.confirm, UI.formModal…
-        ├── login.js
-        ├── app.js         # Sesión, menú y navegación entre vistas
-        ├── inicio.js      # Vista "Inicio"
-        └── notas.js       # Vista "Notas" (módulo modelo)
+├── SEMA.bat              # acceso directo (Sprint 1)
+├── server.js             # Express: seguridad, rutas y arranque
+├── lib/                  # db, auth, indicadores (reglas puras), nombres, texto
+├── services/             # importar Excel, alumnos, listas, resumen
+├── routes/               # API REST (/api/...)
+├── public/               # login.html, app.html, css/, js/, vendor/
+├── scripts/              # reset-password, anonimizar Excel, crear tablero de GitHub
+├── test/                 # pruebas y fixtures con datos FICTICIOS
+├── data/                 # app.db y jwt.secret (no se suben a git)
+└── context/              # documentación del proyecto (fuente de verdad)
 ```
 
-## 4. Cómo agregar un módulo nuevo
+Arquitectura por capas: `routes/` → `services/` → `lib/`. El frontend nunca calcula estados; usa los que manda la API. Más detalle en [`context/03_Arquitectura_Convenciones.md`](context/03_Arquitectura_Convenciones.md).
 
-Ejemplo: un módulo **Clientes**.
+---
 
-**1. La tabla** — en `lib/db.js`, dentro de `SCHEMA`:
+## Documentación (`context/`)
 
-```sql
-CREATE TABLE IF NOT EXISTS clientes (
-  id         INTEGER PRIMARY KEY AUTOINCREMENT,
-  usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
-  nombre     TEXT NOT NULL,
-  correo     TEXT NOT NULL DEFAULT '',
-  creado_en  TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
-);
-```
+| Documento | Contenido |
+|---|---|
+| [`00_Indice_y_Decisiones.md`](context/00_Indice_y_Decisiones.md) | Índice, equipo, glosario y decisiones D-01 a D-20 |
+| [`01_Requerimientos_Tecnicos.md`](context/01_Requerimientos_Tecnicos.md) | Alcance, requerimientos funcionales y no funcionales, stack |
+| [`02_Product_Backlog.md`](context/02_Product_Backlog.md) | Épicas, historias de usuario y criterios de aceptación |
+| [`03_Arquitectura_Convenciones.md`](context/03_Arquitectura_Convenciones.md) | Carpetas, capas, convenciones de código y flujo de Git |
+| [`04_Modelo_Datos.md`](context/04_Modelo_Datos.md) | Tablas SQLite, relaciones e integridad |
+| [`05_UI_UX.md`](context/05_UI_UX.md) | Pantallas, semáforo, componentes y mejoras aprobadas |
+| [`06_Especificacion_API.md`](context/06_Especificacion_API.md) | Endpoints, cuerpos, respuestas y errores |
+| [`07_Reglas_Negocio_Indicadores.md`](context/07_Reglas_Negocio_Indicadores.md) | Promedios, estados, faltas, orden, nombres y evolución |
+| [`08_Formato_Excel_Importacion.md`](context/08_Formato_Excel_Importacion.md) | Columnas del Excel de monitoreo y del Excel de lista |
+| [`Sprints.md`](context/Sprints.md) | Sprints, milestones, labels e issues del tablero |
 
-**2. Las rutas** — copia `routes/notas.js` como `routes/clientes.js`, cambia las consultas y la validación, y regístralo en `server.js` **después** de `app.use('/api', requireAuth)`:
+> **Regla de oro:** si un cambio contradice estos documentos, primero se actualiza el documento (con aprobación del Scrum Master) y después el código.
 
-```javascript
-app.use('/api/clientes', require('./routes/clientes'));
-```
+---
 
-**3. La vista** — copia `public/js/notas.js` como `public/js/clientes.js` (el objeto se llamará `Clientes`).
+## Plan de trabajo
 
-**4. Regístrala** — en `app.html`, agrega el `<script>` antes de `app.js` y el enlace del menú:
+Scrum con **2 sprints de 1 semana** (lunes a viernes). Planning el lunes; Review con el cliente, Retrospectiva y release a `main` el viernes.
 
-```html
-<a class="nav-link" href="#clientes" data-view="clientes"><span data-icon="notes"></span>Clientes</a>
-<script src="/js/clientes.js"></script>
-```
+| Sprint | Fechas | Entregas |
+|---|---|---|
+| **Sprint 1** | 26 – 30 oct 2026 | v0.1 Base del proyecto · v0.2 Carga de Excel · v0.3 Monitoreo de alumnos |
+| **Sprint 2** | 2 – 6 nov 2026 | v0.4 Seguimiento y cuenta · v0.5 Resumen administrativo · **v1.0 Entrega final** |
 
-y en `public/js/app.js`:
+Tablero: GitHub Project «SEMA · Tablero Scrum» (Backlog → Por hacer → En progreso → En revisión → Validación PO → Hecho).
 
-```javascript
-const VIEWS = {
-  inicio:   { title: 'Inicio',   module: () => Inicio },
-  notas:    { title: 'Notas',    module: () => Notas },
-  clientes: { title: 'Clientes', module: () => Clientes }
-};
-```
+---
 
-## 5. Componentes del UI kit
+## Cómo contribuir
 
-```javascript
-UI.escape(texto)                                  // escapa HTML: úsalo con TODO dato del usuario
-await UI.api('/clientes')                          // GET con el token de sesión
-await UI.api('/clientes', { method: 'POST', body: { nombre: 'Ana' } })
-UI.toast('Guardado.', 'success')                   // 'success' | 'error' | 'info'
-if (await UI.confirm({ title: '¿Eliminar?', message: '…', danger: true })) { … }
-const guardado = await UI.formModal({
-  title: 'Nuevo cliente',
-  fields: [{ name: 'nombre', label: 'Nombre', required: true }],
-  onSubmit: (values) => UI.api('/clientes', { method: 'POST', body: values })
-});
-UI.icon('plus')                                   // SVG del icono
-UI.formatDate('2026-10-19 09:30:00')              // fecha legible
-```
+1. Toma un issue asignado a ti en el tablero (máximo 2 en progreso por persona).
+2. Crea una rama desde `develop`: `feature/<n°issue>-<descripcion-corta>` (también `fix/`, `docs/`, `chore/`).
+3. Commits con [Conventional Commits](https://www.conventionalcommits.org/es/) en español: `feat(alumnos): ordenar por promedio y faltas`.
+4. Abre un Pull Request hacia **`develop`** con `Closes #<n°>` y llena la plantilla.
+5. Solo el **Scrum Master** revisa y hace *Squash and merge*. Después, la Product Owner valida y cierra el issue.
 
-## 6. Cambiar el diseño
+Antes de abrir el PR: probaste con `test/fixtures/monitoreo-muestra.xlsx`, `npm test` pasa, revisaste tema claro y oscuro, y actualizaste `context/` si cambió una regla o un endpoint.
 
-- **Colores y radios:** todos están en `public/css/theme.css`. Si tienes un diseño de referencia (por ejemplo, uno hecho en Lovable), copia sus colores a estas variables y toda la app se actualiza.
-- **Nombre de la app:** busca "Mi Proyecto" en `login.html`, `app.html` y `app.js`.
-- **Logotipo:** el icono `logo` está en `ICONS` dentro de `ui-kit.js`.
-- **Tipografía:** Inter desde Google Fonts. Sin internet se usa la fuente del sistema.
+> ⚠️ **Nunca subas Excel con datos reales de alumnos** (son menores de edad). Para pruebas usa solo los archivos anonimizados de `test/fixtures/`.
 
-## 7. API
+---
 
-Salvo `/api/health` y `/api/auth/*` (excepto `/me`), todas las rutas requieren la cabecera `Authorization: Bearer <token>`.
+## Equipo
 
-| Método | Ruta | Cuerpo | Respuesta |
-|---|---|---|---|
-| `GET` | `/api/health` | — | `{ status, timestamp }` |
-| `GET` | `/api/auth/status` | — | `{ hasUser }` |
-| `POST` | `/api/auth/setup` | `{ nombre, usuario, password }` | `{ token, user }` (solo sin cuentas) |
-| `POST` | `/api/auth/login` | `{ usuario, password }` | `{ token, user }` |
-| `GET` | `/api/auth/me` | — | `{ user }` |
-| `GET` | `/api/notas` | — | `{ notas, resumen }` |
-| `POST` | `/api/notas` | `{ titulo, contenido, estado }` | `{ nota }` |
-| `PUT` | `/api/notas/:id` | `{ titulo, contenido, estado }` | `{ nota }` |
-| `DELETE` | `/api/notas/:id` | — | `{ status, id }` |
-
-Errores: `{ "error": "mensaje" }` con código `400`, `401`, `404`, `409`, `429` o `500`.
-
-## 8. Seguridad incluida
-
-- Contraseñas con `bcrypt` (costo 10) y mensaje de error único en el login.
-- JWT de 8 horas verificado con `HS256`; en producción el servidor no arranca sin `JWT_SECRET`.
-- Límite de intentos: 10 logins y 5 altas de cuenta por IP cada 15 minutos.
-- Consultas SQL siempre con parámetros; escape de HTML en toda la interfaz.
-- Cabeceras `X-Frame-Options`, `X-Content-Type-Options` y `Referrer-Policy`.
-
-## 9. Respaldo y reinicio
-
-- **Respaldo:** detén el servidor y copia `data/app.db`.
-- **Empezar de cero:** detén el servidor y borra `data/app.db` (y los archivos `app.db-wal` / `app.db-shm` si existen). Al arrancar se crea vacío y el login vuelve a pedir crear la cuenta.
-- **Olvidé mi contraseña:** igual que "empezar de cero", o borra solo la fila de la tabla `usuarios` con cualquier visor de SQLite (por ejemplo, DB Browser for SQLite).
-
-## 10. Ideas para crecer
-
-- Varios usuarios: quitar la restricción de `/setup` y agregar una pantalla de registro.
-- Empaquetar como app de escritorio con Electron (SQLite encaja muy bien).
-- Pruebas automáticas de las rutas con `node:test`.
+| Rol | Integrante |
+|---|---|
+| Product Owner | Saraí Cecilio Rascón |
+| Scrum Master · Frontend | Calixto Isaac Galeana Medrano |
+| Backend | Sebastián Huesca Ramírez |
+| Base de datos y estructura | Uziel Armando García Duarte |
