@@ -140,6 +140,7 @@ Antes de abrir el PR: probaste con `test/fixtures/monitoreo-muestra.xlsx`, `npm 
 | Rol | Integrante |
 |---|---|
 | Product Owner | Saraí Cecilio Rascón |
-| Scrum Master · Frontend | Calixto Isaac Galeana Medrano |
+| Scrum Master | Calixto Isaac Galeana Medrano |
 | Backend | Sebastián Huesca Ramírez |
 | Base de datos y estructura | Uziel Armando García Duarte |
+| Frontend | Matías Hernández Garrido |

@@ -109,12 +109,12 @@ Repositorio → *Issues* → *Milestones* → *New milestone*.
 ## 6. Issues
 
 Formato de cada issue: título (copiar tal cual) · metadatos para llenar en la barra lateral · cuerpo dentro del bloque (copiar en la descripción).
-Responsables por especialidad: **Calixto** (frontend + apoyo back), **Sebastián** (backend / Excel), **Uziel** (BD / estructura), **Saraí** (PO).
+Responsables por especialidad: **Calixto** (Scrum Master; apoyo reducido y suplente), **Matías** (frontend), **Sebastián** (backend / Excel), **Uziel** (BD / estructura), **Saraí** (PO).
 
 ### 🟦 Sprint 0 · v0.1 · Base del proyecto
 
 #### 1 · `[T-01] Limpiar el repositorio, renombrar la plantilla a SEMA y aplicar la paleta azul`
-**Labels:** `tipo: tarea` `área: infraestructura` `área: frontend` `prioridad: alta` · **Asignado:** Calixto · **Estimación:** 3 · **Épica:** E1
+**Labels:** `tipo: tarea` `área: infraestructura` `área: frontend` `prioridad: alta` · **Asignado:** Matías · **Estimación:** 3 · **Épica:** E1
 ```markdown
 Dejar el repositorio listo para empezar a construir SEMA sobre la plantilla Express + SQLite.
 
@@ -139,7 +139,7 @@ El Scrum Master es el único que acepta cambios en GitHub.
 - [ ] `.github/pull_request_template.md` (texto en `context/03` §5)
 - [ ] Settings → Branches: proteger `main` y `develop` (requerir PR, 1 aprobación de Code Owners, sin push directo, sin borrar)
 - [ ] Permitir solo *Squash and merge*
-- [ ] Invitar a Saraí, Sebastián y Uziel como colaboradores con permiso *Write*
+- [ ] Invitar a Saraí, Sebastián, Uziel y Matías como colaboradores con permiso *Write*
 - [ ] Explicar al equipo el flujo de ramas `feature/<n°issue>-<descripcion>` y Conventional Commits
 ```
 
@@ -171,7 +171,7 @@ Referencia: `context/06_Especificacion_API.md` §1–2
 ```
 
 #### 5 · `[HU-02] Iniciar sesión con usuario y contraseña`
-**Labels:** `tipo: historia` `área: frontend` `prioridad: alta` · **Asignado:** Calixto · **Estimación:** 2 · **Épica:** E2
+**Labels:** `tipo: historia` `área: frontend` `prioridad: alta` · **Asignado:** Matías · **Estimación:** 2 · **Épica:** E2
 ```markdown
 **Como** líder de generación **quiero** entrar con usuario y contraseña **para** que una persona ajena no vea información confidencial.
 
@@ -199,7 +199,7 @@ Depende de: #4
 ```
 
 #### 7 · `[T-10] Sidebar con Menú principal, Cargar datos, Alumnos y Perfil`
-**Labels:** `tipo: tarea` `área: frontend` `prioridad: alta` · **Asignado:** Calixto · **Estimación:** 2 · **Épica:** E1
+**Labels:** `tipo: tarea` `área: frontend` `prioridad: alta` · **Asignado:** Matías · **Estimación:** 2 · **Épica:** E1
 ```markdown
 - [ ] Enlaces del sidebar: Menú principal (`#resumen`), Cargar datos (`#cargar`), Alumnos (`#alumnos`), Perfil (`#perfil`) + Cerrar sesión
 - [ ] Una vista vacía por sección registrada en `VIEWS` de `app.js` ("Próximamente")
@@ -211,7 +211,7 @@ Referencia: `context/05_UI_UX.md` §2–3
 ```
 
 #### 8 · `[T-07] Servir Chart.js y la fuente Inter de forma local (sin internet)`
-**Labels:** `tipo: tarea` `área: frontend` `área: infraestructura` `prioridad: media` · **Asignado:** Calixto · **Estimación:** 1 · **Épica:** E1
+**Labels:** `tipo: tarea` `área: frontend` `área: infraestructura` `prioridad: media` · **Asignado:** Matías · **Estimación:** 1 · **Épica:** E1
 ```markdown
 - [ ] `public/vendor/chart.umd.min.js` (Chart.js 4.x, anotar la versión en el README)
 - [ ] `public/vendor/inter/` con los `.woff2` y `@font-face` en `base.css`
@@ -299,7 +299,7 @@ Depende de: #3, #12, #13 · Referencia: `context/06` §4
 ```
 
 #### 15 · `[HU-05] Zona para arrastrar o seleccionar el Excel`
-**Labels:** `tipo: historia` `área: frontend` `prioridad: alta` · **Asignado:** Calixto · **Estimación:** 3 · **Épica:** E3
+**Labels:** `tipo: historia` `área: frontend` `prioridad: alta` · **Asignado:** Matías · **Estimación:** 3 · **Épica:** E3
 ```markdown
 **Como** líder de generación **quiero** arrastrar el Excel o buscarlo en mis documentos **para** cargar a todos los alumnos de una vez.
 
@@ -311,7 +311,7 @@ Depende de: #3, #12, #13 · Referencia: `context/06` §4
 ```
 
 #### 16 · `[HU-06] Previsualización del Excel antes de guardar`
-**Labels:** `tipo: historia` `área: frontend` `prioridad: alta` · **Asignado:** Calixto · **Estimación:** 5 · **Épica:** E3
+**Labels:** `tipo: historia` `área: frontend` `prioridad: alta` · **Asignado:** Matías · **Estimación:** 5 · **Épica:** E3
 ```markdown
 **Como** líder de generación **quiero** ver una vista previa **para** asegurarme de que subí el archivo correcto.
 
@@ -324,7 +324,7 @@ Depende de: #14, #15
 ```
 
 #### 17 · `[HU-07] Notificación "Datos cargados correctamente"`
-**Labels:** `tipo: historia` `área: frontend` `prioridad: alta` · **Asignado:** Calixto · **Estimación:** 1 · **Épica:** E3
+**Labels:** `tipo: historia` `área: frontend` `prioridad: alta` · **Asignado:** Matías · **Estimación:** 1 · **Épica:** E3
 ```markdown
 - [ ] Toast verde "Datos cargados correctamente · N alumnos" con botón "Ver alumnos"
 - [ ] Toast rojo con el motivo si falla (no se guarda nada)
@@ -360,7 +360,7 @@ Depende de: #14, #15
 ```
 
 #### 21 · `[HU-13] Tabla de alumnos`
-**Labels:** `tipo: historia` `área: frontend` `prioridad: alta` · **Asignado:** Calixto · **Estimación:** 3 · **Épica:** E5
+**Labels:** `tipo: historia` `área: frontend` `prioridad: alta` · **Asignado:** Matías · **Estimación:** 3 · **Épica:** E5
 ```markdown
 **Como** líder de generación **quiero** ver por cada alumno sus faltas y promedios **para** identificar a los alumnos en riesgo de reprobar.
 
@@ -385,7 +385,7 @@ Depende de: #14, #15
 ```
 
 #### 23 · `[HU-14] Buscador por nombre y matrícula`
-**Labels:** `tipo: historia` `área: frontend` `prioridad: alta` · **Asignado:** Calixto · **Estimación:** 2 · **Épica:** E5
+**Labels:** `tipo: historia` `área: frontend` `prioridad: alta` · **Asignado:** Matías · **Estimación:** 2 · **Épica:** E5
 ```markdown
 - [ ] Caja de búsqueda arriba de la tabla, filtra al teclear (debounce 150 ms)
 - [ ] Búsqueda **por palabras** en cualquier orden (M-11): "perez mariana" encuentra "Pérez López Mariana"
@@ -408,7 +408,7 @@ Depende de: #14, #15
 ```
 
 #### 25 · `[HU-17] Vista de detalle del alumno`
-**Labels:** `tipo: historia` `área: frontend` `prioridad: alta` · **Asignado:** Calixto · **Estimación:** 5 · **Épica:** E5
+**Labels:** `tipo: historia` `área: frontend` `prioridad: alta` · **Asignado:** Matías · **Estimación:** 5 · **Épica:** E5
 ```markdown
 **Como** líder de generación **quiero** ver toda la información de un alumno **para** entender en qué materias está fallando.
 
@@ -447,7 +447,7 @@ Probado también en local con el Excel de matrículas del cliente: 173 matrícul
 ```
 
 #### 28 · `[HU-10] Cargar una lista de seguimiento desde Alumnos`
-**Labels:** `tipo: historia` `área: frontend` `prioridad: alta` · **Asignado:** Calixto · **Estimación:** 3 · **Épica:** E4
+**Labels:** `tipo: historia` `área: frontend` `prioridad: alta` · **Asignado:** Matías · **Estimación:** 3 · **Épica:** E4
 ```markdown
 - [ ] Botón "Cargar lista" → modal con nombre de la lista (sugerido: nombre del archivo) + dropzone
 - [ ] Previsualización con total, encontrados, tabla de no encontrados y tabla de nombres distintos
@@ -455,7 +455,7 @@ Probado también en local con el Excel de matrículas del cliente: 173 matrícul
 ```
 
 #### 29 · `[HU-11] Selector "Mostrar: Todos / lista"`
-**Labels:** `tipo: historia` `área: frontend` `prioridad: alta` · **Asignado:** Calixto · **Estimación:** 2 · **Épica:** E4
+**Labels:** `tipo: historia` `área: frontend` `prioridad: alta` · **Asignado:** Matías · **Estimación:** 2 · **Épica:** E4
 ```markdown
 - [ ] Selector arriba de la tabla de Alumnos (y en el Resumen en el Sprint 4, M-03)
 - [ ] La lista elegida se recuerda (sessionStorage con try/catch)
@@ -490,7 +490,7 @@ Probado también en local con el Excel de matrículas del cliente: 173 matrícul
 ```
 
 #### 33 · `[HU-03] [HU-04] Vista Perfil: cuenta y contraseña`
-**Labels:** `tipo: historia` `área: frontend` `prioridad: alta` · **Asignado:** Calixto · **Estimación:** 3 · **Épica:** E2
+**Labels:** `tipo: historia` `área: frontend` `prioridad: alta` · **Asignado:** Matías · **Estimación:** 3 · **Épica:** E2
 ```markdown
 **Como** líder de generación **quiero** cambiar mi usuario y mi contraseña **para** personalizar y proteger mi acceso.
 
@@ -525,7 +525,7 @@ Referencia: `context/05` §9, `context/07` §8 · Depende de: #13, #33
 ```
 
 #### 35 · `[HU-18] [HU-20] Tarjetas de indicadores y estado vacío del Menú principal`
-**Labels:** `tipo: historia` `área: frontend` `prioridad: alta` · **Asignado:** Calixto · **Estimación:** 2 · **Épica:** E6
+**Labels:** `tipo: historia` `área: frontend` `prioridad: alta` · **Asignado:** Matías · **Estimación:** 2 · **Épica:** E6
 ```markdown
 - [ ] Saludo, "Última actualización" y 5 tarjetas (alumnos, promedio, crítico, preventivo, correcto)
 - [ ] Sin datos: gráficas vacías, "Aún no hay datos en el sistema" y botón **Cargar datos**
@@ -534,7 +534,7 @@ Referencia: `context/05` §9, `context/07` §8 · Depende de: #13, #33
 ```
 
 #### 36 · `[HU-19] Gráficas del Menú principal con Chart.js`
-**Labels:** `tipo: historia` `área: frontend` `prioridad: alta` · **Asignado:** Calixto · **Estimación:** 5 · **Épica:** E6
+**Labels:** `tipo: historia` `área: frontend` `prioridad: alta` · **Asignado:** Matías · **Estimación:** 5 · **Épica:** E6
 ```markdown
 - [ ] `public/js/graficas.js`: helpers que leen colores de las variables CSS y se redibujan al cambiar de tema
 - [ ] Dona por estado · barras por rango de promedio · barras horizontales de materias con menor promedio · barras por estado de faltas
@@ -582,7 +582,7 @@ Mejora aprobada M-05. Explicación en `context/05_UI_UX.md` §12; criterios en `
 ### 🟥 Sprint 5 · v1.0 · Entrega final
 
 #### 41 · `[HU-23] Umbrales configurables en Perfil`
-**Labels:** `tipo: historia` `área: backend` `área: frontend` `prioridad: media` · **Asignado:** Sebastián, Calixto · **Estimación:** 3 · **Épica:** E7
+**Labels:** `tipo: historia` `área: backend` `área: frontend` `prioridad: media` · **Asignado:** Sebastián, Matías · **Estimación:** 3 · **Épica:** E7
 ```markdown
 Mejora aprobada M-08.
 
@@ -658,14 +658,14 @@ Mejora aprobada M-07.
 
 ## 7. Resumen de carga por persona
 
-| Sprint | Calixto | Sebastián | Uziel | Saraí | Total |
-|---|---|---|---|---|---|
-| 0 | 9 (#1, #2, #5, #7, #8) | 3 (#4) | 13 (#3, #6, #9) | 4 (#10, #11) | **29** |
-| 1 | 9 (#15, #16, #17) | 10 (#12, #14) | 5 (#13) | 1 (#18) | **25** |
-| 2 | 10 (#21, #23, #25) | 6 (#19, #20) | 7 (#22, #24, #26) | — (valida) | **23** |
-| 3 | 8 (#28, #29, #33) | 9 (#27, #30, #32) | 10 (#31, #49) | — (valida) | **27** |
-| 4 | 7 (#35, #36) | 8 (#34, #39) | 6 (#37, #38) | 3 (#40) | **24** |
-| 5 | 1 (#48) + apoyo en #41 | 5 (#41, #43) | 5 (#42, #44) | 6 (#45, #46) | **22** (incluye #47 = 5, compartido) |
+| Sprint | Calixto | Matías | Sebastián | Uziel | Saraí | Total |
+|---|---|---|---|---|---|---|
+| 0 | 1 (#2) | 8 (#1, #5, #7, #8) | 3 (#4) | 13 (#3, #6, #9) | 4 (#10, #11) | **29** |
+| 1 | — | 9 (#15, #16, #17) | 10 (#12, #14) | 5 (#13) | 1 (#18) | **25** |
+| 2 | — | 10 (#21, #23, #25) | 6 (#19, #20) | 7 (#22, #24, #26) | — (valida) | **23** |
+| 3 | — | 8 (#28, #29, #33) | 9 (#27, #30, #32) | 10 (#31, #49) | — (valida) | **27** |
+| 4 | — | 7 (#35, #36) | 8 (#34, #39) | 6 (#37, #38) | 3 (#40) | **24** |
+| 5 | 1 (#48) | apoyo en #41 | 5 (#41, #43) | 5 (#42, #44) | 6 (#45, #46) | **22** (incluye #47 = 5, compartido) |
 
 > Si en la Planning alguien queda con más de ~10 puntos, el Scrum Master reasigna (las tareas pueden reacomodarse). El único issue con `propuesta` es #43 (respaldo, Could): se hace solo si queda tiempo en el Sprint 5.
 
@@ -701,7 +701,7 @@ Mejora aprobada M-07.
    gh api -X PUT repos/CalixtoIsaac/SEMA-Sistema-de-Evaluacion-y-Monitoreo-Academico/collaborators/USUARIO -f permission=push
    ```
    Cada persona debe **aceptar la invitación** (le llega por correo o en github.com/notifications).
-4. Abrir `scripts/github/crear-tablero.mjs` y llenar `CONFIG.usuarios` con el usuario de GitHub de Sebastián, Uziel y Saraí. Si alguno queda vacío, sus issues se crean sin asignar y se asignan después.
+4. Abrir `scripts/github/crear-tablero.mjs` y llenar `CONFIG.usuarios` con el usuario de GitHub de Matías, Sebastián, Uziel y Saraí. Si alguno queda vacío, sus issues se crean sin asignar y se asignan después.
 
 ### 8.2 Ejecutar
 
@@ -835,6 +835,7 @@ const CONFIG = {
   // Déjalo vacío ('') si aún no aceptó la invitación al repositorio: el issue se crea sin asignar.
   usuarios: {
     'Calixto': 'CalixtoIsaac',
+    'Matías': '',
     'Sebastián': '',
     'Uziel': '',
     'Saraí': ''

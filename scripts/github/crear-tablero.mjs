@@ -35,6 +35,7 @@ const CONFIG = {
   // Déjalo vacío ('') si aún no aceptó la invitación al repositorio: el issue se crea sin asignar.
   usuarios: {
     'Calixto': 'CalixtoIsaac',
+    'Matías': '',
     'Sebastián': '',
     'Uziel': '',
     'Saraí': ''

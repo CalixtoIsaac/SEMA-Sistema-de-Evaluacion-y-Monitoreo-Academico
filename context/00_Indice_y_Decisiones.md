@@ -29,10 +29,10 @@ Esta carpeta es la **fuente de verdad** del proyecto. Antes de abrir un Pull Req
 | Rol | Nombre | Responsabilidad |
 |---|---|---|
 | Product Owner | Saraí Cecilio Rascón | Comunicación con el cliente, mostrar prototipos de vistas para validación constante, entrega del producto final |
-| Scrum Master | Calixto Isaac Galeana Medrano | Elegir tecnologías, generar Sprints, dar seguimiento y supervisar que los cambios se alineen al producto; **único que acepta cambios en GitHub** |
+| Scrum Master | Calixto Isaac Galeana Medrano | Elegir tecnologías, generar Sprints, dar seguimiento y supervisar que los cambios se alineen al producto; **único que acepta cambios en GitHub**. Apoyo muy reducido en el código de todos; suple a un integrante solo si surgen inconvenientes o si alguien sale del equipo de desarrollo |
 | Backend | Sebastián Huesca Ramírez | API, procesamiento de Excel, cálculo de indicadores |
 | Base de datos y estructura | Uziel Armando García Duarte | Modelo de datos, estructura del programa |
-| Frontend (apoyo en Back) | Calixto Isaac Galeana Medrano | Interfaz, gráficas; apoyo a Sebastián en backend |
+| Frontend | Matías Hernández Garrido | Interfaz, gráficas |
 
 > Las tareas pueden reacomodarse; esta es la especialización de cada integrante.
 
@@ -91,3 +91,4 @@ Todas las decisiones están **cerradas**; no hay preguntas pendientes. No se cam
 | D-18 | Contraseña por defecto | Aviso no bloqueante en el Menú principal hasta que se cambie. | `05` §5 |
 | D-19 | "Lógica de descuentos" en el brief | Era texto accidental de otro proyecto. Backend = API + Excel + indicadores. | — |
 | D-20 | Mejoras de diseño | Aprobadas **todas: M-01 a M-13**, incluida M-05 (evolución del desempeño) tras su explicación. | `05` §11–12 · `07` §9 |
+| D-21 | Responsable de Frontend | Se integra **Matías Hernández Garrido** como responsable de Frontend. Calixto queda solo como Scrum Master (apoyo reducido en código y suplente en caso de inconvenientes o bajas). | `Sprints.md` §6–7 |
