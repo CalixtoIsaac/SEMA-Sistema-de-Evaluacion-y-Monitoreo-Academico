@@ -1,12 +1,13 @@
 {
-  "name": "plantilla-express-sqlite",
+  "name": "sema",
   "version": "1.0.0",
-  "description": "Plantilla base para proyectos web con Node.js, Express, SQLite y JavaScript sin frameworks.",
+  "description": "SEMA · Sistema de Evaluación y Monitoreo Académico: seguimiento de calificaciones, faltas y evolución del desempeño estudiantil, con indicadores y alertas para detectar alumnos en riesgo.",
   "main": "server.js",
   "private": true,
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "cross-env OPEN_BROWSER=false node --watch server.js",
+    "test": "node --test"
   },
   "engines": {
     "node": ">=20"
@@ -17,5 +18,8 @@
     "dotenv": "^16.4.5",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3"
   }
 }

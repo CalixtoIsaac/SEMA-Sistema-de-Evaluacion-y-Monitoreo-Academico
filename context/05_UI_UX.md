@@ -63,14 +63,16 @@ Se cambia solo el acento; el semáforo (`--success-*`, `--warning-*`, `--danger-
 
 | Variable | Tema claro | Tema oscuro |
 |---|---|---|
-| `--primary` | `#1d4ed8` | `#3b82f6` |
-| `--primary-hover` | `#1e40af` | `#2563eb` |
+| `--primary` | `#1d4ed8` | `#2563eb` ¹ |
+| `--primary-hover` | `#1e40af` | `#1d4ed8` ¹ |
 | `--primary-soft` | `#eff6ff` | `rgba(59, 130, 246, 0.14)` |
 | `--primary-text` | `#1d4ed8` | `#93c5fd` |
 | `--ring` | `#3b82f6` | `#60a5fa` |
 | `--focus-ring` | `0 0 0 3px rgba(59, 130, 246, 0.35)` | `0 0 0 3px rgba(96, 165, 250, 0.40)` |
 | `--brand-gradient` | `linear-gradient(135deg, #1d4ed8 0%, #0891b2 100%)` | igual |
 | `--glow-1` / `--glow-2` | `rgba(59,130,246,.16)` / `rgba(8,145,178,.12)` | igual |
+
+¹ Ajuste de T-01: con `#3b82f6` el texto blanco de los botones queda en 3.7:1 (no pasa WCAG AA); con `#2563eb` sube a 5.2:1. Contraste del semáforo verificado (≥ 4.7:1 en claro, ≥ 8.7:1 en oscuro).
 
 ## 4. Login
 

@@ -45,7 +45,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
   display: grid; place-items: center;
   width: 40px; height: 40px; border-radius: 12px;
   background: var(--brand-gradient); color: #fff;
-  box-shadow: 0 6px 16px -6px rgba(124, 58, 237, 0.6);
+  box-shadow: var(--brand-shadow);
 }
 .brand-mark .icon { width: 22px; height: 22px; }
 .brand-mark.sm { width: 32px; height: 32px; border-radius: 9px; }

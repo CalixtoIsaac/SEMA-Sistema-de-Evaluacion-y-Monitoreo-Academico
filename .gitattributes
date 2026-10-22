@@ -1,0 +1,7 @@
+# Finales de línea: el repositorio guarda LF; Git convierte al hacer checkout.
+# Evita que `git status` marque todos los archivos como modificados en Windows.
+* text=auto eol=lf
+*.bat text eol=crlf
+*.xlsx binary
+*.png binary
+*.ico binary

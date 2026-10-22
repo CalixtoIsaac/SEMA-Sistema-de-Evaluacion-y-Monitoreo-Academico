@@ -3,14 +3,13 @@
  *
  * Cada vista es un módulo con un método mount(contenedor).
  * Para agregar una pantalla nueva:
- *   1. Crea public/js/mi-modulo.js (copia notas.js como modelo).
+ *   1. Crea public/js/mi-modulo.js (IIFE con mount(contenedor), como inicio.js).
  *   2. Cárgalo en app.html antes de app.js.
  *   3. Regístralo en VIEWS y agrega su enlace en el menú de app.html.
  */
 (() => {
   const VIEWS = {
-    inicio: { title: 'Inicio', module: () => Inicio },
-    notas:  { title: 'Notas',  module: () => Notas }
+    inicio: { title: 'Inicio', module: () => Inicio }
   };
   const DEFAULT_VIEW = 'inicio';
 
@@ -83,7 +82,7 @@
     });
 
     $('pageTitle').textContent = view.title;
-    document.title = `${view.title} · Mi Proyecto`;
+    document.title = `${view.title} · SEMA`;
 
     const container = $('view');
     container.innerHTML = '';

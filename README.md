@@ -4,7 +4,7 @@ Sistema de seguimiento académico que permite monitorear las **calificaciones**,
 
 SEMA es una aplicación web **local y de un solo usuario**: corre en la computadora de la escuela, se abre con un acceso directo y funciona **sin internet**.
 
-> **Estado:** en desarrollo. El código actual es la plantilla base (Express + SQLite); las funciones de SEMA se construyen en 2 sprints, del **26 de octubre al 6 de noviembre de 2026**. La documentación completa está en [`context/`](context/).
+> **Estado:** en desarrollo. El repositorio ya tiene la base de SEMA (Express + SQLite, inicio de sesión, tema claro/oscuro con la paleta institucional azul); las funciones se construyen en 2 sprints, del **26 de octubre al 6 de noviembre de 2026**. La documentación completa está en [`context/`](context/).
 
 ---
 
@@ -55,13 +55,15 @@ copy .env.example .env      # macOS / Linux: cp .env.example .env
 npm run dev                 # desarrollo: se reinicia al guardar cambios
 ```
 
-Abre **http://localhost:3000**.
+Abre **http://localhost:3000**. La primera vez que entras, la pantalla de inicio te pide crear la cuenta *(en el Sprint 1 se reemplaza por la cuenta por defecto, D-04)*.
+
+Variables de entorno (`.env`): `PORT` (3000), `JWT_SECRET`, `NODE_ENV`, `DB_PATH` y `OPEN_BROWSER`. Ver `.env.example`.
 
 | Script | Para qué |
 |---|---|
-| `npm run dev` | Desarrollo: reinicia el servidor al guardar. |
+| `npm run dev` | Desarrollo: reinicia el servidor al guardar y no abre el navegador (`OPEN_BROWSER=false`). |
 | `npm start` | Ejecución normal. |
-| `npm test` | Pruebas de reglas e importación *(se agrega en el Sprint 1)*. |
+| `npm test` | Pruebas con `node:test` (archivos `test/*.test.js`). |
 | `npm run reset-password` | Restablece la cuenta por defecto *(se agrega en el Sprint 1)*. |
 
 **Para el usuario final** (al terminar el Sprint 1): doble clic en **`SEMA.bat`**. Instala lo necesario la primera vez, arranca el servidor y abre el navegador.
@@ -80,7 +82,7 @@ Abre **http://localhost:3000**.
 ├── routes/               # API REST (/api/...)
 ├── public/               # login.html, app.html, css/, js/, vendor/
 ├── scripts/              # reset-password, anonimizar Excel, crear tablero de GitHub
-├── test/                 # pruebas y fixtures con datos FICTICIOS
+├── test/                 # pruebas (node:test) y fixtures con datos FICTICIOS
 ├── data/                 # app.db y jwt.secret (no se suben a git)
 └── context/              # documentación del proyecto (fuente de verdad)
 ```

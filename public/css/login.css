@@ -16,6 +16,7 @@
 }
 
 .auth-brand { display: flex; align-items: center; gap: 10px; }
+.auth-tagline { margin-top: -16px; font-size: 14px; text-align: center; }
 
 .auth-card { width: 100%; padding: 28px; box-shadow: var(--shadow-md); }
 .auth-header { margin-bottom: 20px; }

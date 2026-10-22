@@ -84,7 +84,7 @@ SEMA-Sistema-de-Evaluacion-y-Monitoreo-Academico/
 
 > **Tema (M-13):** `theme.js` sigue aplicando el tema desde `localStorage` antes de pintar (evita el parpadeo). Al iniciar sesión, `app.js` lee `user.tema` de `/api/auth/me`, lo aplica y lo guarda en `localStorage`; Perfil y el botón ◐ lo cambian con `PUT /api/cuenta/preferencias`.
 
-> **Limpieza pendiente (T-01):** hoy la raíz y la carpeta `plantilla-express-sqlite/` tienen el mismo código. Se borra la carpeta duplicada y el módulo de ejemplo *Notas* (`routes/notas.js`, `public/js/notas.js`, tabla `notas`).
+> **Limpieza (T-01, hecha):** se borró la carpeta duplicada `plantilla-express-sqlite/` y el módulo de ejemplo *Notas* (`routes/notas.js`, `public/js/notas.js`, tabla `notas`).
 
 ## 3. Arranque y acceso directo
 
@@ -196,6 +196,6 @@ data/jwt.secret
 
 ## 7. Pruebas
 
-- `npm test` → `node --test test/`.
+- `npm test` → `node --test` (busca solo los `*.test.js` de `test/`; desde Node 22 `node --test test/` ya no acepta una carpeta).
 - Obligatorio probar: `lib/indicadores.js` (todos los umbrales, % del límite de faltas, estado combinado, tendencia y empates de orden), `lib/nombres.js` (partículas y compuestos) y `services/excel-monitoreo.js` (columnas faltantes, celdas con espacios, códigos NE/SD/SC/DA, BT, columna `Modalidad` duplicada).
 - Prueba de rendimiento manual con el Excel real (no se sube): importar < 5 s.

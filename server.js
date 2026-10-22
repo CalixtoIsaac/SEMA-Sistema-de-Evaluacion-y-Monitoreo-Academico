@@ -39,9 +39,8 @@ app.use('/api/auth', require('./routes/auth'));
 
 // ---------- API protegida: todo lo que sigue requiere sesión ----------
 app.use('/api', requireAuth);
-app.use('/api/notas', require('./routes/notas'));
-// Registra aquí tus módulos nuevos, por ejemplo:
-// app.use('/api/clientes', require('./routes/clientes'));
+// Registra aquí los módulos de SEMA (ver context/06_Especificacion_API.md), por ejemplo:
+// app.use('/api/alumnos', require('./routes/alumnos'));
 
 app.use('/api', (req, res) => res.status(404).json({ error: 'Ruta de la API no encontrada.' }));
 

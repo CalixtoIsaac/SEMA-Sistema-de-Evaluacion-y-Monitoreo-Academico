@@ -1,8 +1,13 @@
 /*
- * Tokens de diseño (tema claro y oscuro).
- * TODOS los colores de la aplicación salen de estas variables.
- * Para usar la paleta de un diseño de referencia (por ejemplo, uno hecho en
- * Lovable), cambia aquí los valores y toda la interfaz se actualiza.
+ * Tokens de diseño de SEMA (tema claro y oscuro).
+ * TODOS los colores de la aplicación salen de estas variables; ningún color
+ * se escribe directo en el código (context/05_UI_UX.md).
+ *
+ * Acento: paleta institucional azul (M-10, context/05 §3.1).
+ * Semáforo (--success-*, --warning-*, --danger-*): sin cambios. Contraste
+ * texto/fondo verificado (WCAG AA ≥ 4.5:1) en ambos temas:
+ *   claro  → correcto 4.8 · preventivo 4.9 · crítico 5.9
+ *   oscuro → correcto 8.8 · preventivo 9.0 · crítico 8.7
  */
 :root,
 :root[data-theme="light"] {
@@ -18,13 +23,13 @@
   --input: #d4d4d8;
   --sidebar: #ffffff;
 
-  --primary: #6d28d9;
-  --primary-hover: #5b21b6;
+  --primary: #1d4ed8;
+  --primary-hover: #1e40af;
   --primary-foreground: #ffffff;
-  --primary-soft: #f3efff;
-  --primary-text: #6d28d9;
-  --ring: #8b5cf6;
-  --focus-ring: 0 0 0 3px rgba(139, 92, 246, 0.35);
+  --primary-soft: #eff6ff;
+  --primary-text: #1d4ed8;
+  --ring: #3b82f6;
+  --focus-ring: 0 0 0 3px rgba(59, 130, 246, 0.35);
 
   --destructive: #dc2626;
   --destructive-hover: #b91c1c;
@@ -40,9 +45,10 @@
   --shadow-md: 0 4px 16px -4px rgba(16, 16, 24, 0.10), 0 2px 4px -2px rgba(16, 16, 24, 0.06);
   --shadow-lg: 0 24px 48px -12px rgba(16, 16, 24, 0.25);
 
-  --brand-gradient: linear-gradient(135deg, #7c3aed 0%, #c026d3 55%, #ec4899 100%);
-  --glow-1: rgba(139, 92, 246, 0.18);
-  --glow-2: rgba(236, 72, 153, 0.14);
+  --brand-gradient: linear-gradient(135deg, #1d4ed8 0%, #0891b2 100%);
+  --brand-shadow: 0 6px 16px -6px rgba(29, 78, 216, 0.55);
+  --glow-1: rgba(59, 130, 246, 0.16);
+  --glow-2: rgba(8, 145, 178, 0.12);
 
   --radius-sm: 8px;
   --radius: 12px;
@@ -63,13 +69,15 @@
   --input: #3f3f46;
   --sidebar: #0c0c0f;
 
-  --primary: #7c3aed;
-  --primary-hover: #6d28d9;
+  /* En oscuro, --primary es el fondo de los botones con texto blanco:
+     #3b82f6 da 3.7:1 (no pasa AA), por eso se usa #2563eb (5.2:1). */
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
   --primary-foreground: #ffffff;
-  --primary-soft: rgba(139, 92, 246, 0.16);
-  --primary-text: #c4b5fd;
-  --ring: #a78bfa;
-  --focus-ring: 0 0 0 3px rgba(167, 139, 250, 0.35);
+  --primary-soft: rgba(59, 130, 246, 0.14);
+  --primary-text: #93c5fd;
+  --ring: #60a5fa;
+  --focus-ring: 0 0 0 3px rgba(96, 165, 250, 0.40);
 
   --destructive: #dc2626;
   --destructive-hover: #b91c1c;
@@ -85,6 +93,6 @@
   --shadow-md: 0 6px 20px -6px rgba(0, 0, 0, 0.6);
   --shadow-lg: 0 24px 48px -12px rgba(0, 0, 0, 0.7);
 
-  --glow-1: rgba(139, 92, 246, 0.22);
-  --glow-2: rgba(236, 72, 153, 0.14);
+  --glow-1: rgba(59, 130, 246, 0.16);
+  --glow-2: rgba(8, 145, 178, 0.12);
 }

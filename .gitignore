@@ -9,3 +9,10 @@ data/*.db-wal
 npm-debug.log*
 .DS_Store
 Thumbs.db
+
+# Datos reales de alumnos: NUNCA al repositorio
+*.xlsx
+*.xls
+*.csv
+!test/fixtures/*.xlsx
+data/jwt.secret

@@ -53,8 +53,8 @@ const UI = (() => {
   // ---------- API ----------
   /**
    * Llama a la API del servidor.
-   *   await UI.api('/notas')                                  → GET
-   *   await UI.api('/notas', { method: 'POST', body: {...} })  → POST con JSON
+   *   await UI.api('/alumnos')                                → GET
+   *   await UI.api('/alumnos', { method: 'POST', body: {...} }) → POST con JSON
    * Si el servidor responde con error, lanza un Error con su mensaje.
    * Si la sesión ya no es válida, vuelve al login.
    */
@@ -97,6 +97,8 @@ const UI = (() => {
   // ---------- Iconos (trazos de 24×24) ----------
   const ICONS = {
     logo: '<path d="M12 3 3 8l9 5 9-5z"/><path d="m3 13 9 5 9-5"/>',
+    users: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.5a6.5 6.5 0 0 1 3.5 5.5"/>',
+    chart: '<path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 6-6"/>',
     home: '<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9.5 21v-6h5v6"/>',
     notes: '<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/>',
     plus: '<path d="M12 5v14M5 12h14"/>',
