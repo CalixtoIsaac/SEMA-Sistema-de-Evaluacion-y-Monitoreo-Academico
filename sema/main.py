@@ -7,6 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv
 from .db import ROOT, open_db
 from .auth import router as auth_router, load_secret, seed_user
+from .imports import router as imports_router
 
 load_dotenv(ROOT / '.env')
 
@@ -21,6 +22,7 @@ def create_app(db_path=None, secret_path=None):
     app.state.login_attempts = {}
     seed_user(app.state.db)
     app.include_router(auth_router)
+    app.include_router(imports_router)
     @app.get('/api/health')
     def health():
         return {'status':'online','app':'SEMA','version':'0.1.0','timestamp':datetime.now(timezone.utc).isoformat()}
