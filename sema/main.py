@@ -18,6 +18,7 @@ def create_app(db_path=None, secret_path=None):
         return JSONResponse(status_code=exc.status_code, content=exc.detail if isinstance(exc.detail,dict) else {'error':exc.detail})
     app.state.secret_path = secret_path
     app.state.jwt_secret = load_secret(secret_path)
+    app.state.login_attempts = {}
     seed_user(app.state.db)
     app.include_router(auth_router)
     @app.get('/api/health')

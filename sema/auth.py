@@ -10,7 +10,6 @@ from .db import ROOT, transaction
 
 INITIAL_PASSWORD = 'Administrador*Chuchito*123'
 router = APIRouter(prefix='/api/auth')
-_attempts = {}
 
 def load_secret(path=None):
     env = os.environ.get('JWT_SECRET', '')
@@ -66,11 +65,12 @@ class Login(BaseModel):
 def login(body:Login, request:Request):
     key = request.client.host if request.client else 'local'
     now = time.monotonic()
-    hits = [t for t in _attempts.get(key,[]) if now-t<900]
+    attempts = request.app.state.login_attempts
+    hits = [t for t in attempts.get(key,[]) if now-t<900]
     if len(hits) >= 10:
         raise HTTPException(429, 'Demasiados intentos.')
     hits.append(now)
-    _attempts[key] = hits
+    attempts[key] = hits
     row = request.app.state.db.execute('SELECT * FROM usuarios WHERE usuario=?',(body.usuario.strip(),)).fetchone()
     if not row or not bcrypt.checkpw(body.password.encode(), row['password_hash'].encode()):
         raise HTTPException(401, 'Usuario o contraseña incorrectos.')

@@ -31,3 +31,14 @@ def test_auth(tmp_path):
     reset(app2.state.db)
     assert app2.state.db.execute('SELECT count(*) FROM alumnos').fetchone()[0]==0
     app2.state.db.close()
+
+def test_rate_limit_scoped_to_application(tmp_path):
+    app=create_app(tmp_path/'one.db',tmp_path/'one.secret')
+    c=TestClient(app)
+    for _ in range(10):
+        assert c.post('/api/auth/login',json={'usuario':'Chuchito','password':'incorrecta'}).status_code==401
+    assert c.post('/api/auth/login',json={'usuario':'Chuchito','password':INITIAL_PASSWORD}).status_code==429
+    app.state.db.close()
+    other=create_app(tmp_path/'two.db',tmp_path/'two.secret')
+    assert TestClient(other).post('/api/auth/login',json={'usuario':'Chuchito','password':INITIAL_PASSWORD}).status_code==200
+    other.state.db.close()
