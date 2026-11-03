@@ -23,8 +23,8 @@ def open_db(path=None):
     if db.execute('PRAGMA user_version').fetchone()[0] < 1:
         # El bloque v1 publicado se conserva en lib/schema.sql. No ejecutamos
         # los DROP de lib/db.js: una base existente no debe perder usuarios.
-        db.executescript((ROOT / 'lib/schema.sql').read_text())
-        db.execute('PRAGMA user_version=1')
+        schema = (ROOT / 'lib/schema.sql').read_text()
+        db.executescript('BEGIN IMMEDIATE;\n' + schema + '\nPRAGMA user_version=1;\nCOMMIT;')
     with transaction(db):
         db.executemany('INSERT OR IGNORE INTO configuracion(clave,valor) VALUES (?,?)', DEFAULT_CONFIG.items())
         db.execute("DELETE FROM importaciones WHERE estado='previa' AND creado_en < datetime('now','localtime','-24 hours')")
