@@ -60,3 +60,19 @@ Las imágenes son **vistas de evidencia generadas a partir de respuestas HTTP re
 2. Saraí y Uziel: conciliar la asignación de #12 y revisar el port Python de las reglas del #13 cuando exista su código.
 3. Saraí: actualizar README y decisiones de stack/arranque. El servidor Node quedó como referencia de transición; su retiro es un cambio separado.
 4. El acceso SQLite usa una conexión compartida con escrituras serializadas; reevaluar aislamiento de lecturas si la aplicación deja de ser local y monousuario.
+
+## Estado de publicación remota
+
+El 3 nov 2026 se intentó publicar primero `chore/migracion-fastapi`; Git devolvió `fatal: could not read Username for 'https://github.com'`. La prueba SSH devolvió `Permission denied (publickey)`. La integración de GitHub disponible en el entorno no estaba conectada. **No se subió ninguna rama**. No se usó `--force`, no se hizo merge y no se abrió PR.
+
+Cuando haya autenticación, publicar y verificar en este orden, sin omitir ramas intermedias:
+
+```bash
+git push -u origin chore/migracion-fastapi
+git push -u origin feature/4-cuenta-jwt
+git push -u origin feature/12-lector-monitoreo
+git push -u origin feature/14-importacion-monitoreo
+git push -u origin feature/19-api-alumnos
+```
+
+Antes de reanudar, comprobar que `origin/develop` no haya avanzado y repetir las pruebas si cambia la base o se modifica alguna rama.
