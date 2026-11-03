@@ -89,3 +89,11 @@ def test_all_baja_cut_and_pagination(tmp_path):
     assert c.post(f'/api/importaciones/{ident}/confirmar',headers=h,json={'modo':'fusionar'}).status_code==200
     assert app.state.db.execute("SELECT count(*) FROM cortes_alumno WHERE estado='baja' AND materias_criticas=0").fetchone()[0]==52
     app.state.db.close()
+
+def test_upload_errors(tmp_path):
+    app=create_app(tmp_path/'app.db',tmp_path/'secret');c=TestClient(app)
+    token=c.post('/api/auth/login',json={'usuario':'Chuchito','password':INITIAL_PASSWORD}).json()['token'];h={'Authorization':'Bearer '+token}
+    assert c.post('/api/importaciones/monitoreo',headers=h,files={'archivo':('bad.txt',b'x')}).status_code==415
+    assert c.post('/api/importaciones/monitoreo',headers=h,files={'archivo':('bad.xlsx',b'x')}).status_code==422
+    assert c.post('/api/importaciones/monitoreo',headers=h,files={'archivo':('large.xlsx',b'x'*(15*1024*1024+1))}).status_code==413
+    app.state.db.close()

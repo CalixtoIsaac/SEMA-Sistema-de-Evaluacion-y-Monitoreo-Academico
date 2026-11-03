@@ -32,3 +32,17 @@ def test_period_and_list(tmp_path):
     assert len(c.get('/api/alumnos?periodo=202660&lista=1',headers=h).json()['alumnos'])==1
     assert not c.get('/api/alumnos?periodo=202710&lista=1',headers=h).json()['alumnos']
     db.close()
+
+def test_threshold_and_sd(tmp_path):
+    app=create_app(tmp_path/'app.db',tmp_path/'secret');c=TestClient(app)
+    t=c.post('/api/auth/login',json={'usuario':'Chuchito','password':INITIAL_PASSWORD}).json()['token'];h={'Authorization':'Bearer '+t}
+    data=workbook([['202660','T00000001','Ruiz Soto Eva','Física','F1','1',0,90,'SD',5,'RW']])
+    p=c.post('/api/importaciones/monitoreo',headers=h,files={'archivo':('x.xlsx',data)}).json()
+    c.post(f"/api/importaciones/{p['importacion']['id']}/confirmar",headers=h,json={'modo':'fusionar'})
+    a=c.get('/api/alumnos',headers=h).json()['alumnos'][0]
+    assert a['estado']=='critico' and a['promedioGeneral'] is None and 'sin_derecho' in a['alertas']
+    db=app.state.db
+    db.execute("UPDATE inscripciones SET calificacion=75,calificacion_codigo=NULL")
+    db.execute("UPDATE configuracion SET valor='75' WHERE clave='calificacion.correcto_min'")
+    assert c.get('/api/alumnos',headers=h).json()['alumnos'][0]['estadoPromedio']=='correcto'
+    db.close()

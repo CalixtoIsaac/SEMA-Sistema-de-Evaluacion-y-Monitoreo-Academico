@@ -42,3 +42,17 @@ def test_rate_limit_scoped_to_application(tmp_path):
     other=create_app(tmp_path/'two.db',tmp_path/'two.secret')
     assert TestClient(other).post('/api/auth/login',json={'usuario':'Chuchito','password':INITIAL_PASSWORD}).status_code==200
     other.state.db.close()
+def test_existing_and_corrupt_secret(tmp_path):
+    db_path=tmp_path/'app.db';secret=tmp_path/'secret'
+    app=create_app(db_path,secret)
+    db=app.state.db
+    db.execute("UPDATE usuarios SET nombre='Nombre cambiado'")
+    db.close()
+    again=create_app(db_path,secret)
+    assert again.state.db.execute('SELECT count(*) FROM usuarios').fetchone()[0]==1
+    assert again.state.db.execute('SELECT nombre FROM usuarios').fetchone()[0]=='Nombre cambiado'
+    again.state.db.close()
+    secret.write_text('corto')
+    try:create_app(db_path,secret)
+    except RuntimeError:pass
+    else:assert False

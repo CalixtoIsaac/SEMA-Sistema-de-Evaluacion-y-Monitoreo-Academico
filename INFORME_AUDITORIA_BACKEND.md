@@ -32,9 +32,9 @@ Entorno: Linux Fedora kernel 7.1.12, x86_64, Python 3.14.7. Instalación en `.ve
 git diff --check
 ```
 
-Pruebas finales: ver salida registrada al cierre de esta rama. En ensayo previo: 8 pruebas pasaron (advertencias de deprecación de FastAPI/Starlette en Python 3.14). La copia **temporal** de `alumnosPrepa.db` abrió con `user_version=1` y FK activas; `data/app.db` se creó desde `lib/schema.sql` y está ignorada por Git. Nunca se usó la base externa como base de la aplicación.
+Pruebas finales: ver salida registrada al cierre de esta rama. Prueba final: 14 pruebas pasaron (advertencias de deprecación de FastAPI/Starlette en Python 3.14). La copia **temporal** de `alumnosPrepa.db` abrió con `user_version=1` y FK activas; `data/app.db` se creó desde `lib/schema.sql` y está ignorada por Git. Nunca se usó la base externa como base de la aplicación.
 
-Excel real leído **solo localmente**, sin registrar filas: 3,664 filas válidas, 490 matrículas, 1.192 s de lectura; 92 columnas permitidas. En BD temporal: previa HTTP 1.211 s, confirmación 0.235 s, 490 alumnos y 3,664 inscripciones. GET `/api/alumnos` con 5,000 alumnos sintéticos: 0.137 s, código 200. Los tiempos son de una ejecución en la máquina descrita, no garantía de otras máquinas.
+Excel real leído **solo localmente**, sin registrar filas: 3,664 filas válidas, 490 matrículas, 1.192 s de lectura; 92 columnas permitidas. En BD temporal: previa HTTP 1.211 s, confirmación 0.235 s, 490 alumnos y 3,664 inscripciones. GET `/api/alumnos` con 5,000 alumnos sintéticos: 0.142 s, código 200. Los tiempos son de una ejecución en la máquina descrita, no garantía de otras máquinas.
 
 ## Riesgos y pendientes de revisión
 
@@ -42,4 +42,4 @@ Excel real leído **solo localmente**, sin registrar filas: 3,664 filas válidas
 2. La pantalla de login todavía depende de `status` y `setup`; requiere cambio de frontend antes de uso manual completo. No se modificó fuera del alcance backend.
 3. La transición conserva Node para comparación. Saraí debe actualizar README, D-01, `context/03`, `06`, `08`, Sprints, comandos de instalación y referencia a `reset-password.js`; retirar Node después en un cambio separado.
 4. El backend usa una conexión SQLite compartida en el proceso con escrituras serializadas. Revisar aislamiento de lecturas ante cargas simultáneas si la app deja de ser monousuario.
-5. La verificación de 413 con archivo real mayor a 15 MB y todas las variantes de encabezados no se ejecutó; ampliar fixtures antes de integrar. Tampoco se probó una migración v2, pues no existe aún.
+5. Se verificó 413 con carga sintética mayor a 15 MB, además de 415 y 422. Quedan variantes adicionales de encabezados y una migración v2 futura por probar; la v2 aún no existe.
