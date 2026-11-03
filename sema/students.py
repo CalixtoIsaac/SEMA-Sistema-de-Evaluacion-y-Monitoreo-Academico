@@ -39,6 +39,7 @@ def list_students(request:Request,lista:int|None=None,periodo:str|None=None):
     out=[]
     for aid,items in grouped.items():
         r=people[aid];s=summary(items,u)
+        s.pop('materiasCriticas',None)
         history=cuts[aid]
         s['tendencia']=trend(history[0][1],history[1][1] if len(history)>1 else None,u['evolucion.umbral_puntos']) if history else 'sin_historial'
         if s['tendencia']=='empeora':s['alertas'].append('empeora')
