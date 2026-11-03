@@ -50,3 +50,42 @@ def test_replace_and_rollback(tmp_path):
     assert r.status_code==500
     assert db.execute('SELECT estado FROM importaciones WHERE id=?',(ident,)).fetchone()[0]=='previa'
     db.execute('DROP TRIGGER fail_cut');db.close()
+
+def test_manual_enrollment_unchanged(tmp_path):
+    app=create_app(tmp_path/'app.db',tmp_path/'secret')
+    c=TestClient(app)
+    token=c.post('/api/auth/login',json={'usuario':'Chuchito','password':INITIAL_PASSWORD}).json()['token']
+    h={'Authorization':'Bearer '+token}
+    db=app.state.db
+    with db:
+        db.execute("INSERT INTO periodos(clave,nombre) VALUES ('202660','Prueba')")
+        db.execute("INSERT INTO materias(clave,nombre) VALUES ('Q1','Química')")
+        db.execute("INSERT INTO cursos(crn,periodo_id,materia_id) VALUES ('1',1,1)")
+        db.execute("INSERT INTO alumnos(matricula,nombre,apellidos,nombres,nombre_busqueda,origen) VALUES ('T00000001','Pérez López Ana','Pérez López','Ana','perez lopez ana','manual')")
+        db.execute("INSERT INTO inscripciones(alumno_id,curso_id,faltas,calificacion,origen) VALUES (1,1,2,95,'manual')")
+        db.execute("INSERT INTO actividades(inscripcion_id,numero,valor) VALUES (1,1,95)")
+    row=['202660','T00000001','Pérez López Ana','Química','Q1','1',4,40,40,5,'RW']
+    p=c.post('/api/importaciones/monitoreo',headers=h,files={'archivo':('x.xlsx',workbook([row]))})
+    assert p.status_code==201,p.text
+    ident=p.json()['importacion']['id']
+    applied=c.post(f'/api/importaciones/{ident}/confirmar',headers=h,json={'modo':'reemplazar'})
+    assert applied.status_code==200,applied.text
+    record=db.execute('SELECT origen,faltas,calificacion FROM inscripciones WHERE id=1').fetchone()
+    assert tuple(record)==('manual',2,95)
+    assert db.execute('SELECT valor FROM actividades WHERE inscripcion_id=1').fetchone()[0]==95
+    db.close()
+
+def test_all_baja_cut_and_pagination(tmp_path):
+    app=create_app(tmp_path/'app.db',tmp_path/'secret');c=TestClient(app)
+    token=c.post('/api/auth/login',json={'usuario':'Chuchito','password':INITIAL_PASSWORD}).json()['token']
+    h={'Authorization':'Bearer '+token}
+    rows=[['202660',f'T{i:08d}','Ruiz Soto Eva','Física','F1',str(i),0,80,None,5,'BT'] for i in range(52)]
+    p=c.post('/api/importaciones/monitoreo',headers=h,files={'archivo':('x.xlsx',workbook(rows))})
+    assert p.status_code==201,p.text
+    ident=p.json()['importacion']['id']
+    assert len(p.json()['muestra'])==20
+    sample=c.get(f'/api/importaciones/{ident}/muestra?todas=1&pagina=2',headers=h).json()
+    assert sample['total']==52 and len(sample['filas'])==2
+    assert c.post(f'/api/importaciones/{ident}/confirmar',headers=h,json={'modo':'fusionar'}).status_code==200
+    assert app.state.db.execute("SELECT count(*) FROM cortes_alumno WHERE estado='baja' AND materias_criticas=0").fetchone()[0]==52
+    app.state.db.close()

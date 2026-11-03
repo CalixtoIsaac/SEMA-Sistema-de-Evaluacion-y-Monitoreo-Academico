@@ -90,7 +90,7 @@ def apply_rows(db,ident,rows,mode):
     p=rows[0]
     db.execute('INSERT INTO periodos(clave,nombre,parte,modalidad,campus) VALUES (?,?,?,?,?) ON CONFLICT(clave) DO UPDATE SET nombre=excluded.nombre,parte=excluded.parte,modalidad=excluded.modalidad,campus=excluded.campus',(p['periodo'],p['periodo_nombre'] or p['periodo'],p['parte'],p['modalidad_periodo'],p['campus']))
     period=existing(db,'periodos','clave',p['periodo'])
-    ids={};incoming=set();activities=0
+    ids={};incoming=set();activities=0;applied_count=0
     for r in rows:
         mat=r['materia_clave'];student=r['matricula'];crn=r['crn']
         if mat not in ids:
@@ -111,9 +111,12 @@ def apply_rows(db,ident,rows,mode):
         cid=scalar(db,'SELECT id FROM cursos WHERE periodo_id=? AND crn=?',(period,crn))
         g=r['ponderado'] or {};value=g.get('valor');code=g.get('codigo')
         db.execute('''INSERT INTO inscripciones(alumno_id,curso_id,estatus,estatus_descripcion,faltas,ne,calificacion,calificacion_codigo,ultima_actividad,actualizado_escuela,origen,es_baja,importacion_id) VALUES (?,?,?,?,?,?,?,?,?,?,'excel',?,?)
-         ON CONFLICT(alumno_id,curso_id) DO UPDATE SET estatus=excluded.estatus,estatus_descripcion=excluded.estatus_descripcion,faltas=excluded.faltas,ne=excluded.ne,calificacion=excluded.calificacion,calificacion_codigo=excluded.calificacion_codigo,ultima_actividad=excluded.ultima_actividad,actualizado_escuela=excluded.actualizado_escuela,es_baja=excluded.es_baja,importacion_id=excluded.importacion_id''',
-         (aid,cid,r['estatus'],r['estatus_descripcion'],r['faltas'],r['ne'],value,code,r['ultima_actividad'],r['actualizado_escuela'],int(r['es_baja']),ident))
-        iid=scalar(db,'SELECT id FROM inscripciones WHERE alumno_id=? AND curso_id=?',(aid,cid))
+         ON CONFLICT(alumno_id,curso_id) DO UPDATE SET estatus=excluded.estatus,estatus_descripcion=excluded.estatus_descripcion,faltas=excluded.faltas,ne=excluded.ne,calificacion=excluded.calificacion,calificacion_codigo=excluded.calificacion_codigo,ultima_actividad=excluded.ultima_actividad,actualizado_escuela=excluded.actualizado_escuela,es_baja=excluded.es_baja,importacion_id=excluded.importacion_id WHERE inscripciones.origen=?''',
+         (aid,cid,r['estatus'],r['estatus_descripcion'],r['faltas'],r['ne'],value,code,r['ultima_actividad'],r['actualizado_escuela'],int(r['es_baja']),ident,'excel'))
+        current=db.execute('SELECT id,origen FROM inscripciones WHERE alumno_id=? AND curso_id=?',(aid,cid)).fetchone()
+        if current['origen']=='manual':
+            continue
+        iid=current['id'];applied_count+=1
         db.execute('DELETE FROM actividades WHERE inscripcion_id=?',(iid,))
         acts=[(iid,int(n),v.get('codigo'),v.get('valor')) for n,v in r['actividades'].items()]
         db.executemany('INSERT INTO actividades(inscripcion_id,numero,codigo,valor) VALUES (?,?,?,?)',acts)
@@ -130,5 +133,5 @@ def apply_rows(db,ident,rows,mode):
     for aid,items in grouped.items():
         s=summary(items,u)
         db.execute('INSERT INTO cortes_alumno(importacion_id,alumno_id,promedio,faltas_total,estado,estado_faltas,materias_criticas) VALUES (?,?,?,?,?,?,?)',
-                   (ident,aid,s['promedioGeneral'],s['faltasTotal'],s['estado'],s['estadoFaltas'],s['materiasReprobando']))
-    return {'periodo_id':period,'alumnos':len({r['matricula'] for r in rows}),'inscripciones':len(rows),'actividades':activities,'eliminadas':deleted}
+                   (ident,aid,s['promedioGeneral'],s['faltasTotal'],s['estado'],s['estadoFaltas'],s['materiasCriticas']))
+    return {'periodo_id':period,'alumnos':len({r['matricula'] for r in rows}),'inscripciones':applied_count,'actividades':activities,'eliminadas':deleted}
