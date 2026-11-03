@@ -1,17 +1,25 @@
 from datetime import datetime, timezone
 from pathlib import Path
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv
 from .db import ROOT, open_db
+from .auth import router as auth_router, load_secret, seed_user
 
 load_dotenv(ROOT / '.env')
 
 def create_app(db_path=None, secret_path=None):
     app = FastAPI(title='SEMA', version='0.1.0')
     app.state.db = open_db(db_path)
+    @app.exception_handler(HTTPException)
+    def http_error(request: Request, exc: HTTPException):
+        return JSONResponse(status_code=exc.status_code, content=exc.detail if isinstance(exc.detail,dict) else {'error':exc.detail})
     app.state.secret_path = secret_path
+    app.state.jwt_secret = load_secret(secret_path)
+    seed_user(app.state.db)
+    app.include_router(auth_router)
     @app.get('/api/health')
     def health():
         return {'status':'online','app':'SEMA','version':'0.1.0','timestamp':datetime.now(timezone.utc).isoformat()}

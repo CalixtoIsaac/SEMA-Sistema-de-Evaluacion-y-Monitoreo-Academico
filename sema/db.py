@@ -15,7 +15,7 @@ DEFAULT_CONFIG = {
 def open_db(path=None):
     path = Path(path or os.environ.get('DB_PATH') or ROOT / 'data/app.db')
     path.parent.mkdir(parents=True, exist_ok=True)
-    db = sqlite3.connect(path, timeout=30, isolation_level=None)
+    db = sqlite3.connect(path, timeout=30, isolation_level=None, check_same_thread=False)
     db.row_factory = sqlite3.Row
     db.execute('PRAGMA foreign_keys=ON')
     db.execute('PRAGMA journal_mode=WAL')
