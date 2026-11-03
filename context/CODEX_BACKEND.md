@@ -42,3 +42,9 @@ Mantener esta sección en 10–20 líneas y quitar entradas obsoletas. Al termin
 - [Aprobado] Backend Python/FastAPI por comunicación de Saraí. Ella actualizará la documentación; coordinar la transición y registrar los enlaces/commits cuando estén listos.
 - [Pendiente] Definir caso de uso y contrato de WebSockets si el equipo los requiere en una historia futura.
 - [Pendiente] Comprobar las dependencias #3 y #13 y los números reales de issue en el tablero.
+
+- [Local] Transición FastAPI `d9caef9`; esquema v1, health y páginas; prueba base OK.
+- [Local] #4 `c6ca200`; bcrypt/JWT persistente y reset; pruebas de arranque/login OK; frontend debe retirar setup/status.
+- [Local] #12 `afca8ba`; lector puro y columnas prohibidas excluidas; Excel local 3664 filas/490 alumnos en 1.192 s.
+- [Local] #14 `daf2b80`; previa/confirmación atómica y rollback; importación local en BD temporal <5 s; paridad #13 por revisar con Uziel.
+- [Local] #19 en rama `feature/19-api-alumnos`; listado y prueba de 5000 alumnos en 0.137 s; detalles en `INFORME_AUDITORIA_BACKEND.md`.

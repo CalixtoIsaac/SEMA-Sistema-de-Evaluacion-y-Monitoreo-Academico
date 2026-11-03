@@ -1,6 +1,7 @@
 import os
 import secrets
 import time
+import stat
 from pathlib import Path
 import bcrypt
 import jwt
@@ -24,6 +25,7 @@ def load_secret(path=None):
     else:
         with os.fdopen(fd, 'w') as f:
             f.write(secrets.token_hex(48))
+    os.chmod(path, stat.S_IRUSR | stat.S_IWUSR)
     value = path.read_text().strip()
     if len(value) < 32:
         raise RuntimeError('El secreto JWT persistente es inválido')

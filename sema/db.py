@@ -3,6 +3,9 @@ import sqlite3
 from contextlib import contextmanager
 from pathlib import Path
 import os
+import threading
+
+_write_lock = threading.RLock()
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CONFIG = {
@@ -32,11 +35,12 @@ def open_db(path=None):
 
 @contextmanager
 def transaction(db):
-    db.execute('BEGIN IMMEDIATE')
-    try:
-        yield db
-    except BaseException:
-        db.execute('ROLLBACK')
-        raise
-    else:
-        db.execute('COMMIT')
+    with _write_lock:
+        db.execute('BEGIN IMMEDIATE')
+        try:
+            yield db
+        except BaseException:
+            db.execute('ROLLBACK')
+            raise
+        else:
+            db.execute('COMMIT')

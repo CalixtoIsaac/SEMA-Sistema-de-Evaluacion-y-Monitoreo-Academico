@@ -122,7 +122,7 @@ def parse(data:bytes):
             if g is not None: acts[str(n)]=g
         record['actividades']=acts
         record['dias']=','.join(code for label,code in [('Dom','D'),('Lun','L'),('Mar','M'),('Mier','Mi'),('Jue','J'),('Vier','V'),('Sáb','S')] if (val(label) or '').upper()=='SI')
-        if not record['matricula'] or not record['materia_clave'] or not record['crn'] or not record['periodo']:
+        if not record['matricula'] or not record['materia_clave'] or not record['materia'] or not record['crn'] or not record['periodo']:
             omitted+=1; warnings.append({'fila':rownum,'tipo':'omitida','mensaje':'Fila sin identificador obligatorio'}); continue
         if not re.fullmatch(r'[A-Z]\d{8}',record['matricula']):
             warnings.append({'fila':rownum,'tipo':'matricula','mensaje':'Matrícula atípica'})
