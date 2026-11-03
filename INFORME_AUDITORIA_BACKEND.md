@@ -1,5 +1,7 @@
 # Informe local de auditoría · backend SEMA · 3 nov 2026
 
+> Histórico previo al rebase. La auditoría y los commits vigentes están en [INFORME_CIERRE_SPRINT_BACKEND.md](INFORME_CIERRE_SPRINT_BACKEND.md).
+
 ## Estado de partida y ramas
 
 `develop` y `origin/develop` apuntaban a `553c82a` (esquema SQLite v1); había dos archivos de instrucciones locales sin seguimiento. Express, `lib/schema.sql` y las pruebas Node eran la base. No había código de #13 integrado. Los issues [#4](https://github.com/CalixtoIsaac/SEMA-Sistema-de-Evaluacion-y-Monitoreo-Academico/issues/4), [#12](https://github.com/CalixtoIsaac/SEMA-Sistema-de-Evaluacion-y-Monitoreo-Academico/issues/12), [#14](https://github.com/CalixtoIsaac/SEMA-Sistema-de-Evaluacion-y-Monitoreo-Academico/issues/14) y [#19](https://github.com/CalixtoIsaac/SEMA-Sistema-de-Evaluacion-y-Monitoreo-Academico/issues/19) coinciden en número y propósito con el prompt. #12 aparece asignado en GitHub a otra persona; verificar reparto antes de integrar.

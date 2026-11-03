@@ -48,3 +48,4 @@ Mantener esta sección en 10–20 líneas y quitar entradas obsoletas. Al termin
 - [Local] #12 `afca8ba`; lector puro y columnas prohibidas excluidas; Excel local 3664 filas/490 alumnos en 1.192 s.
 - [Local] #14 `daf2b80`; previa/confirmación atómica y rollback; importación local en BD temporal <5 s; paridad #13 por revisar con Uziel.
 - [Local] #19 en rama `feature/19-api-alumnos`; listado y prueba de 5000 alumnos en 0.142 s; detalles en `INFORME_AUDITORIA_BACKEND.md`.
+- [Auditoría] Cinco ramas apiladas reubicadas sobre `origin/develop` 20ad569; pruebas aisladas 2/4/7/15/25 OK. Informe vigente: `INFORME_CIERRE_SPRINT_BACKEND.md`.
