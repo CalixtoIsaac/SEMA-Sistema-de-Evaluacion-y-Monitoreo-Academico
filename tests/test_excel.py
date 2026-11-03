@@ -23,3 +23,11 @@ def test_missing():
     try:parse(make([['Matrícula'],['T00000001']]))
     except FormatError as e:assert any('Ponderado' in x for x in e.missing)
     else:assert False
+
+def test_header_later_and_repeated_normalized():
+    head=['Año - periodo','Matrícula','Nombre del alumno','Nombre de la materia','Clave de materia','CRN','Faltas del alumno','A1','Ponderado','Matricula']
+    row=['202660','T00000001','Ruiz Soto Eva','Física','F1','1','1','90','80','T99999999']
+    out=parse(make([['Reporte de prueba'],head,row]))
+    assert len(out['rows'])==1
+    assert out['rows'][0]['matricula']=='T00000001'
+    assert out['columns'][-1]=='Matricula (2)'

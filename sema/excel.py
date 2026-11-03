@@ -67,29 +67,34 @@ def parse(data:bytes):
     missing=REQUIRED
     for ws in wb.worksheets:
         it=ws.iter_rows(values_only=True)
-        header=next(it,())
-        names=[clean(x) or '' for x in header]
-        keys=[key(x) for x in names]
-        absent=[x for x in REQUIRED if key(x) not in keys]
-        if len(absent)<len(missing): missing=absent
-        if not absent:
-            selected=(ws,names,keys,it)
-            break
+        for header_row,header in enumerate(it,1):
+            if header_row>10: break
+            names=[clean(x) or '' for x in header]
+            keys=[key(x) for x in names]
+            absent=[x for x in REQUIRED if key(x) not in keys]
+            if len(absent)<len(missing): missing=absent
+            if not absent:
+                selected=(ws,names,keys,it,header_row)
+                break
+        if selected: break
     if not selected:
         wb.close()
         raise FormatError([f'Falta la columna «{x}»' for x in missing])
-    ws,names,keys,it=selected
+    ws,names,keys,it,header_row=selected
     allowed=[i for i,k in enumerate(keys) if k and k not in FORBIDDEN]
     columns=[]
     seen={}
     for i in allowed:
         label=names[i]
-        seen[label]=seen.get(label,0)+1
-        columns.append(label if seen[label]==1 else f'{label} ({seen[label]})')
-    indices={key(k):i for i,k in enumerate(names) if key(k) not in FORBIDDEN}
+        normalized=keys[i]
+        seen[normalized]=seen.get(normalized,0)+1
+        columns.append(label if seen[normalized]==1 else f'{label} ({seen[normalized]})')
+    indices={}
+    for i,k in enumerate(names):
+        if key(k) not in FORBIDDEN: indices.setdefault(key(k),i)
     modalities=[i for i,k in enumerate(keys) if k=='modalidad']
     warnings=[]; rows=[]; previews=[]; duplicates={}; total=0; omitted=0
-    for rownum,cells in enumerate(it,2):
+    for rownum,cells in enumerate(it,header_row+1):
         if not any(clean(v) for i,v in enumerate(cells) if i in allowed): continue
         total+=1
         def val(label):
