@@ -8,10 +8,29 @@
  *   3. Regístralo en VIEWS y agrega su enlace en el menú de app.html.
  */
 (() => {
+  // Pantalla temporal mientras se construye cada sección
+  function proximamente(titulo) {
+    return {
+      mount(container) {
+        container.innerHTML = `
+          <section class="card">
+            <div class="empty-state">
+              <span class="empty-icon">${UI.icon('clock')}</span>
+              <h3>${UI.escape(titulo)}</h3>
+              <p class="muted">Esta sección estará disponible próximamente.</p>
+            </div>
+          </section>`;
+      }
+    };
+  }
+
   const VIEWS = {
-    inicio: { title: 'Inicio', module: () => Inicio }
+    resumen: { title: 'Menú principal', module: () => Inicio },
+    cargar: { title: 'Cargar datos', module: () => Cargar },
+    alumnos: { title: 'Alumnos', module: () => Alumnos },
+    perfil: { title: 'Perfil', module: () => proximamente('Perfil') }
   };
-  const DEFAULT_VIEW = 'inicio';
+  const DEFAULT_VIEW = 'resumen';
 
   const $ = (id) => document.getElementById(id);
 
@@ -70,7 +89,7 @@
 
   // ---------- Navegación ----------
   function navigate() {
-    const requested = location.hash.slice(1);
+    const [requested, param] = location.hash.slice(1).split('/');
     const key = VIEWS[requested] ? requested : DEFAULT_VIEW;
     const view = VIEWS[key];
 
@@ -86,7 +105,7 @@
 
     const container = $('view');
     container.innerHTML = '';
-    view.module().mount(container);
+    view.module().mount(container, param ? decodeURIComponent(param) : undefined);
     setSidebar(false);
     window.scrollTo(0, 0);
   }

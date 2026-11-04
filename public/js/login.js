@@ -1,14 +1,16 @@
 /**
  * Pantalla de inicio de sesión.
- * Si todavía no existe ninguna cuenta, muestra el formulario "Crea tu cuenta".
+ * La cuenta por defecto (Chuchito) la crea el servidor al arrancar,
+ * así que aquí solo se muestra el formulario para entrar.
  */
 (() => {
   const $ = (id) => document.getElementById(id);
   const alertBox = $('authAlert');
+  const DESTINO = '/app#resumen';
 
-  // Si ya hay sesión, directo a la aplicación (app.js la valida con el servidor).
+  // Si ya hay sesión, directo al Menú principal (app.js la valida con el servidor).
   if (UI.getToken()) {
-    location.replace('/app');
+    location.replace(DESTINO);
     return;
   }
 
@@ -21,10 +23,11 @@
   }
   function hideAlert() { alertBox.hidden = true; }
 
+  // Mensaje pendiente, por ejemplo: "Tu sesión expiró".
   const pendingMessage = UI.takeAuthMessage();
   if (pendingMessage) showAlert(pendingMessage, 'info');
 
-  // Botones para mostrar / ocultar la contraseña
+  // Botón para mostrar / ocultar la contraseña
   document.querySelectorAll('[data-toggle-password]').forEach((btn) => {
     const input = $(btn.dataset.togglePassword);
     const update = () => {
@@ -40,61 +43,30 @@
     update();
   });
 
-  function setMode(mode) {
-    const setup = mode === 'setup';
-    $('authLoading').hidden = true;
-    $('loginForm').hidden = setup;
-    $('setupForm').hidden = !setup;
-    $('authTitle').textContent = setup ? 'Crea tu cuenta' : 'Inicia sesión';
-    $('authSubtitle').textContent = setup
-      ? 'Es la primera vez que se abre la aplicación. Crea la cuenta con la que vas a entrar.'
-      : 'Escribe tus datos para entrar a tu espacio de trabajo.';
-    (setup ? $('setupName') : $('loginUser')).focus();
-  }
-
-  async function submit(form, path, body) {
+  // Enviar el formulario (con el botón o con Enter)
+  $('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
     hideAlert();
+
+    const form = e.currentTarget;
     const button = form.querySelector('[type="submit"]');
+    const data = new FormData(form);
+
     UI.setBusy(button, true);
+    button.innerHTML = '<span class="spinner" aria-hidden="true"></span>Entrando…';
+
     try {
-      const { token, user } = await UI.api(path, { method: 'POST', body });
+      const { token, user } = await UI.api('/auth/login', {
+        method: 'POST',
+        body: { usuario: data.get('usuario'), password: data.get('password') }
+      });
       UI.setSession(token, user);
-      location.replace('/app');
+      location.replace(DESTINO);
     } catch (err) {
       UI.setBusy(button, false);
-      showAlert(err.message);
-      if (err.status === 409) setMode('login'); // la cuenta ya existía
+      showAlert(err.status === 401 ? 'Usuario o contraseña incorrectos.' : err.message);
+      $('loginPass').value = '';
+      $('loginPass').focus();
     }
-  }
-
-  $('loginForm').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const data = new FormData(e.currentTarget);
-    submit(e.currentTarget, '/auth/login', {
-      usuario: data.get('usuario'),
-      password: data.get('password')
-    });
   });
-
-  $('setupForm').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const data = new FormData(e.currentTarget);
-    if (data.get('password') !== data.get('confirm')) {
-      showAlert('Las contraseñas no coinciden.');
-      $('setupConfirm').focus();
-      return;
-    }
-    submit(e.currentTarget, '/auth/setup', {
-      nombre: data.get('nombre'),
-      usuario: data.get('usuario'),
-      password: data.get('password')
-    });
-  });
-
-  UI.api('/auth/status')
-    .then(({ hasUser }) => setMode(hasUser ? 'login' : 'setup'))
-    .catch((err) => {
-      $('authLoading').hidden = true;
-      showAlert(err.message);
-    });
 })();

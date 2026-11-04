@@ -1,0 +1,75 @@
+/*
+ * Semáforo de SEMA (HU-16 · #22).
+ * Los mismos colores en tabla, detalle y gráficas. Solo usa las variables de
+ * theme.css (--success-*, --warning-*, --danger-*): contraste AA verificado en
+ * ambos temas. El color nunca va solo: UI.badgeEstado() agrega ícono y texto.
+ *
+ *   Correcto   verde    calificación ≥ 80 · faltas < 50 % del límite
+ *   Preventivo amarillo 70–79.9           · faltas 50–79 %
+ *   Crítico    rojo     < 70 o SD         · faltas ≥ 80 %
+ *   Sin datos  gris     sin calificaciones ni faltas
+ *   Baja       gris     todas sus materias en baja (BT)
+ */
+
+/* ---------- Insignia de estado ---------- */
+.badge-estado { gap: 5px; padding: 0 9px 0 7px; font-weight: 600; }
+.badge-estado::before { content: none; }
+.badge-estado .icon { width: 13px; height: 13px; stroke-width: 2.4; }
+
+.badge-correcto   { background: var(--success-bg); color: var(--success-text); }
+.badge-preventivo { background: var(--warning-bg); color: var(--warning-text); }
+.badge-critico    { background: var(--danger-bg);  color: var(--danger-text); }
+.badge-sin-datos  { background: var(--muted);      color: var(--muted-foreground); }
+.badge-baja       { background: var(--muted);      color: var(--muted-foreground); text-decoration: line-through; text-decoration-thickness: 1px; }
+.badge-baja .icon { text-decoration: none; }
+
+/* ---------- Número con color de estado (faltas, promedio) ---------- */
+.estado-num {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-variant-numeric: tabular-nums; font-weight: 600;
+}
+.estado-num::before {
+  content: ""; width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  background: currentColor;
+}
+.estado-correcto   { color: var(--success-text); }
+.estado-preventivo { color: var(--warning-text); }
+.estado-critico    { color: var(--danger-text); }
+.estado-sin-datos,
+.estado-baja       { color: var(--muted-foreground); }
+.estado-sin-datos::before,
+.estado-baja::before { background: transparent; box-shadow: inset 0 0 0 1.5px currentColor; }
+
+/* ---------- Tendencia (M-05) ---------- */
+.tendencia { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 6px; vertical-align: middle; }
+.tendencia .icon { width: 14px; height: 14px; stroke-width: 2.4; }
+.tendencia-mejora  { color: var(--success-text); background: var(--success-bg); }
+.tendencia-empeora { color: var(--danger-text);  background: var(--danger-bg); }
+.tendencia-estable { color: var(--muted-foreground); }
+
+/* ---------- Chips de filtro por estado (M-02) ---------- */
+.chip-filtro {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 32px; padding: 0 12px; border-radius: 999px;
+  border: 1px solid var(--border); background: var(--card); color: var(--foreground);
+  font: inherit; font-size: 13px; font-weight: 500; cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.chip-filtro:hover { background: var(--muted); }
+.chip-filtro:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.chip-filtro .icon { width: 14px; height: 14px; }
+.chip-filtro .chip-count { font-variant-numeric: tabular-nums; color: var(--muted-foreground); font-weight: 600; }
+.chip-filtro[data-estado="critico"] .icon    { color: var(--danger-text); }
+.chip-filtro[data-estado="preventivo"] .icon { color: var(--warning-text); }
+.chip-filtro[data-estado="correcto"] .icon   { color: var(--success-text); }
+.chip-filtro[data-estado="empeora"] .icon    { color: var(--danger-text); }
+
+.chip-filtro[aria-pressed="true"] { border-color: currentColor; }
+.chip-filtro[aria-pressed="true"][data-estado="todos"]      { background: var(--primary-soft); color: var(--primary-text); }
+.chip-filtro[aria-pressed="true"][data-estado="critico"],
+.chip-filtro[aria-pressed="true"][data-estado="empeora"]    { background: var(--danger-bg);  color: var(--danger-text); }
+.chip-filtro[aria-pressed="true"][data-estado="preventivo"] { background: var(--warning-bg); color: var(--warning-text); }
+.chip-filtro[aria-pressed="true"][data-estado="correcto"]   { background: var(--success-bg); color: var(--success-text); }
+.chip-filtro[aria-pressed="true"][data-estado="sin_datos"],
+.chip-filtro[aria-pressed="true"][data-estado="baja"]       { background: var(--muted); color: var(--foreground); }
+.chip-filtro[aria-pressed="true"] .chip-count { color: inherit; }

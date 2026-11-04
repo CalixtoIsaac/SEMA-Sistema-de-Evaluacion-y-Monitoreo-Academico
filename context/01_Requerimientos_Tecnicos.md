@@ -58,30 +58,30 @@ Que el líder de generación pueda, en pocos clics, **cargar el Excel de monitor
 | ID | Requerimiento |
 |---|---|
 | **RNF-01 Rendimiento** | Importar el Excel actual (≈3,700 filas × 94 columnas, 1.2 MB) en **menos de 5 s**. La tabla de alumnos responde al teclear en el buscador en **< 200 ms** con 5,000 alumnos. |
-| **RNF-02 Portabilidad** | Windows 10/11 con Node.js 20 LTS o superior. Sin servidores externos: la base de datos es el archivo `data/app.db`. |
+| **RNF-02 Portabilidad** | Windows 10/11 con Python 3.12 o superior. Sin servidores externos: la base de datos es el archivo `data/app.db`. |
 | **RNF-03 Sin internet** | Todo (fuente Inter, Chart.js) se sirve desde `public/vendor/`. La app debe funcionar con el cable desconectado. |
 | **RNF-04 Seguridad** | Contraseñas con bcrypt; JWT firmado con un secreto que se genera solo en `data/jwt.secret`; consultas SQL con parámetros; escape de HTML en toda la interfaz; límite de intentos de login; el servidor escucha solo en `127.0.0.1`. |
 | **RNF-05 Privacidad** | No se suben datos reales a GitHub, ni el Excel de monitoreo ni el de matrículas (`.gitignore` bloquea `*.xlsx`, `*.xls`, `*.csv` fuera de `test/fixtures/`). No se importa información financiera. |
 | **RNF-06 Usabilidad** | Español, lenguaje sencillo. El color nunca es la única señal: cada estado lleva texto ("Crítico") e ícono. Contraste AA. Funciona a 1366×768 y en tema claro y oscuro. |
 | **RNF-07 Confiabilidad** | Las importaciones se hacen en **una transacción**: si algo falla, no se guarda nada. Errores con mensaje claro y sin perder lo ya cargado. |
-| **RNF-08 Mantenibilidad** | Reglas de negocio en funciones puras (`lib/indicadores.js`) con pruebas `node:test`. Convenciones de `03_Arquitectura_Convenciones.md`. |
+| **RNF-08 Mantenibilidad** | Reglas de negocio en funciones puras (`sema/indicators.py`) con pruebas `pytest`. Convenciones de `03_Arquitectura_Convenciones.md`. |
 
 ## 5. Stack tecnológico
 
 | Capa | Tecnología | Estado |
 |---|---|---|
-| Runtime | Node.js ≥ 20 (recomendado 22 LTS) | Ya en la plantilla |
-| Servidor | Express 4 | Ya en la plantilla |
-| Base de datos | SQLite con `better-sqlite3` (modo WAL, llaves foráneas activas) | Ya en la plantilla |
-| Autenticación | `jsonwebtoken` (HS256, 8 h) + `bcryptjs` | Ya en la plantilla |
-| Configuración | `dotenv` | Ya en la plantilla |
+| Runtime | Python ≥ 3.12 | FastAPI local |
+| Servidor | FastAPI + Uvicorn | Implementado |
+| Base de datos | SQLite (`sqlite3`, modo WAL, llaves foráneas activas) | Implementado |
+| Autenticación | JWT (HS256, 8 h) + bcrypt | Implementado |
+| Configuración | `python-dotenv` | Implementado |
 | Frontend | HTML + CSS + JavaScript sin frameworks, módulos IIFE, UI kit propio | Ya en la plantilla |
-| **Subida de archivos** | **`multer`** (memoria, límite 15 MB, solo `.xlsx`) | **Agregar** |
-| **Lectura de Excel** | **`exceljs`** (lee `.xlsx` desde un buffer) | **Agregar** |
-| **Gráficas** | **Chart.js 4** (archivo `chart.umd.min.js` copiado a `public/vendor/`) | **Agregar** |
-| Pruebas | `node:test` + `node:assert` (incluidos en Node) | Agregar scripts |
+| **Subida de archivos** | **`python-multipart`** (límite 15 MB, solo `.xlsx`) | Implementado |
+| **Lectura de Excel** | **`openpyxl`** | Implementado |
+| **Gráficas** | **Chart.js** (`public/vendor/chart.umd.min.js`) | Integrado |
+| Pruebas | `pytest` para backend; `node:test` para herramientas auxiliares | Implementado |
 
-> Si el cliente necesitara subir `.xls` (formato viejo) o `.csv`, se cambiaría `exceljs` por SheetJS (`xlsx`) instalado desde `cdn.sheetjs.com` (la versión del registro npm está desactualizada). Decisión del Scrum Master.
+> Node.js se conserva para herramientas de desarrollo, como el anonimizador de Excel; no ejecuta el backend de la aplicación.
 
 ## 6. Flujo general
 

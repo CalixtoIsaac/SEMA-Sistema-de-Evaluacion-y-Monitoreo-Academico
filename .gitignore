@@ -16,3 +16,7 @@ Thumbs.db
 *.csv
 !test/fixtures/*.xlsx
 data/jwt.secret
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc

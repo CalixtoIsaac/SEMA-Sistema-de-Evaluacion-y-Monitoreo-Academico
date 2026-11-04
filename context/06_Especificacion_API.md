@@ -53,7 +53,7 @@
 |---|---|---|
 | GET | `/health` | `{ "status": "online", "app": "SEMA", "version": "0.1.0", "timestamp": "…" }` (lo usa `SEMA.bat` para saber si ya está corriendo) |
 
-## 2. Autenticación — `routes/auth.js`
+## 2. Autenticación — `sema/auth.py`
 
 | Método | Ruta | Cuerpo | Respuesta |
 |---|---|---|---|
@@ -72,7 +72,7 @@
 | PUT | `/cuenta/password` | `{ passwordActual, passwordNueva }` | `{ status: "ok" }` · `400` si < 8 o > 72 caracteres |
 | PUT | `/cuenta/preferencias` | `{ tema?: "claro" \| "oscuro" \| "sistema", formatoNombre?: "nombres_apellidos" \| "apellidos_nombres" }` | `{ user }` · `400` valor no válido (M-12, M-13; no pide contraseña) |
 
-## 4. Importaciones (Excel de monitoreo) — `routes/importaciones.js`
+## 4. Importaciones (Excel de monitoreo) — `sema/imports.py`
 
 ### `POST /importaciones/monitoreo`
 `multipart/form-data` con el campo **`archivo`** (.xlsx, máx. 15 MB). Crea una importación en estado `previa`.
@@ -127,7 +127,7 @@ Historial: `{ importaciones: [{ id, tipo, archivo, estado, modo, totalAlumnos, t
 | PUT | `/listas/:id` | `{ nombre?, descripcion?, matriculas? }` | `{ lista }` (si trae `matriculas`, reemplaza el contenido) |
 | DELETE | `/listas/:id` | — | `{ status: "ok", id }` (no borra alumnos) |
 
-## 6. Alumnos — `routes/alumnos.js`
+## 6. Alumnos — `sema/students.py`
 
 ### `GET /alumnos`
 | Parámetro | Ejemplo | Efecto |
