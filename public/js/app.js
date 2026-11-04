@@ -8,11 +8,11 @@
  *   3. Regístralo en VIEWS y agrega su enlace en el menú de app.html.
  */
 (() => {
-     // Pantalla temporal mientras se construye cada sección
+  // Pantalla temporal mientras se construye cada sección
   function proximamente(titulo) {
     return {
       mount(container) {
-                container.innerHTML = `
+        container.innerHTML = `
           <section class="card">
             <div class="empty-state">
               <span class="empty-icon">${UI.icon('clock')}</span>
@@ -26,9 +26,9 @@
 
   const VIEWS = {
     resumen: { title: 'Menú principal', module: () => Inicio },
-    cargar:  { title: 'Cargar datos',   module: () => proximamente('Cargar datos') },
-    alumnos: { title: 'Alumnos',        module: () => proximamente('Alumnos') },
-    perfil:  { title: 'Perfil',         module: () => proximamente('Perfil') }
+    cargar: { title: 'Cargar datos', module: () => proximamente('Cargar datos') },
+    alumnos: { title: 'Alumnos', module: () => proximamente('Alumnos') },
+    perfil: { title: 'Perfil', module: () => proximamente('Perfil') }
   };
   const DEFAULT_VIEW = 'resumen';
 
@@ -89,7 +89,7 @@
 
   // ---------- Navegación ----------
   function navigate() {
-        const [requested, param] = location.hash.slice(1).split('/');
+    const [requested, param] = location.hash.slice(1).split('/');
     const key = VIEWS[requested] ? requested : DEFAULT_VIEW;
     const view = VIEWS[key];
 
@@ -105,7 +105,7 @@
 
     const container = $('view');
     container.innerHTML = '';
-        view.module().mount(container, param ? decodeURIComponent(param) : undefined);
+    view.module().mount(container, param ? decodeURIComponent(param) : undefined);
     setSidebar(false);
     window.scrollTo(0, 0);
   }
