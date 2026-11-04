@@ -74,12 +74,14 @@ def login(body:Login, request:Request):
     attempts = request.app.state.login_attempts
     hits = [t for t in attempts.get(key,[]) if now-t<900]
     if len(hits) >= 10:
-        raise HTTPException(429, 'Demasiados intentos.')
-    hits.append(now)
-    attempts[key] = hits
+        raise HTTPException(429, 'Demasiados intentos. Espera unos minutos.')
     row = request.app.state.db.execute('SELECT * FROM usuarios WHERE usuario=?',(body.usuario.strip(),)).fetchone()
     if not row or not bcrypt.checkpw(body.password.encode(), row['password_hash'].encode()):
+        # Solo los intentos fallidos cuentan para el límite (C3).
+        hits.append(now)
+        attempts[key] = hits
         raise HTTPException(401, 'Usuario o contraseña incorrectos.')
+    attempts.pop(key, None)
     token = jwt.encode({'sub':str(row['id']),'exp':int(time.time())+8*3600}, request.app.state.jwt_secret, algorithm='HS256')
     return {'token':token,'user':public_user(row)}
 

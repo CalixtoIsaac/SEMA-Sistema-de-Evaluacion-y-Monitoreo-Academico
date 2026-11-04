@@ -1,4 +1,3 @@
-from collections import defaultdict
 from fastapi import APIRouter, Depends, HTTPException, Request
 from .auth import require_user
 from .indicators import records_for_period, summary, thresholds, SEVERITY
@@ -29,19 +28,26 @@ def list_students(request:Request,lista:int|None=None,periodo:str|None=None):
     if not grouped:return {'alumnos':[],'totales':totals,'periodo':{'clave':p['clave'],'nombre':p['nombre']}}
     # Una consulta delimitada por periodo, incluso cuando hay más de 999 alumnos.
     people={r['id']:r for r in db.execute('''SELECT DISTINCT a.id,a.matricula,a.nombre,a.apellidos,a.nombres,a.plan_clave,a.origen FROM alumnos a JOIN inscripciones i ON i.alumno_id=a.id JOIN cursos c ON c.id=i.curso_id WHERE c.periodo_id=?''',(p['id'],)) if r['id'] in grouped}
-    cuts=defaultdict(list)
-    for r in db.execute('''SELECT c.alumno_id,c.promedio,c.estado,i.aplicado_en,i.id AS importacion_id FROM cortes_alumno c JOIN importaciones i ON i.id=c.importacion_id WHERE i.periodo_id=? AND i.estado='aplicada' ORDER BY i.aplicado_en DESC,i.id DESC''',(p['id'],)):
+    # C2 (context/07 §9.2): se compara contra el corte anterior DEL PERIODO.
+    # Un corte por día: la última importación aplicada de cada día. Se toman los dos días más recientes.
+    days={}
+    for r in db.execute("SELECT id,aplicado_en FROM importaciones WHERE periodo_id=? AND estado='aplicada' ORDER BY aplicado_en DESC,id DESC",(p['id'],)):
         day=(r['aplicado_en'] or '')[:10]
-        if len(cuts[r['alumno_id']])<2 and day not in {x[0] for x in cuts[r['alumno_id']]}:
-            cuts[r['alumno_id']].append((day,dict(r)))
+        if day not in days:days[day]=r['id']
+        if len(days)==2:break
+    cut_ids=list(days.values())
+    cuts=[{},{}]
+    for n,imp in enumerate(cut_ids):
+        for r in db.execute('SELECT alumno_id,promedio,estado FROM cortes_alumno WHERE importacion_id=?',(imp,)):
+            cuts[n][r['alumno_id']]=dict(r)
     u=thresholds(db)
     preference=db.execute('SELECT formato_nombre FROM usuarios ORDER BY id LIMIT 1').fetchone()[0]
     out=[]
     for aid,items in grouped.items():
         r=people[aid];s=summary(items,u)
         s.pop('materiasCriticas',None)
-        history=cuts[aid]
-        s['tendencia']=trend(history[0][1],history[1][1] if len(history)>1 else None,u['evolucion.umbral_puntos']) if history else 'sin_historial'
+        current=cuts[0].get(aid)
+        s['tendencia']=trend(current,cuts[1].get(aid),u['evolucion.umbral_puntos']) if current else 'sin_historial'
         if s['tendencia']=='empeora':s['alertas'].append('empeora')
         s.update({'matricula':r['matricula'],'nombre':r['nombre'],'apellidos':r['apellidos'],'nombres':r['nombres'],
                   'nombreMostrar':(' '.join((r['nombres'],r['apellidos'])).strip() if preference=='nombres_apellidos' else ' '.join((r['apellidos'],r['nombres'])).strip()),

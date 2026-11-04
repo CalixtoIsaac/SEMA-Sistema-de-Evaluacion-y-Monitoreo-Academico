@@ -4,6 +4,8 @@
  *  Seguridad     UI.escape(texto)
  *  Sesión        UI.getToken() · UI.getUser() · UI.setSession() · UI.setUser() · UI.clearSession()
  *  API           UI.api('/ruta', { method, body })  → agrega el token y lanza Error si falla
+ *                UI.upload('/ruta', archivo, 'campo') → envía un archivo (multipart) con el token
+ *  Semáforo      UI.badgeEstado(estado, { motivo, titulo }) · UI.estadoTexto(estado) · UI.tendencia(valor)
  *  Componentes   UI.toast() · UI.confirm() · UI.formModal() · UI.setBusy()
  *  Iconos        UI.icon('nombre') · UI.hydrateIcons(raiz)
  *  Formato       UI.formatDate() · UI.initials()
@@ -62,14 +64,15 @@ const UI = (() => {
     const headers = {};
     const token = getToken();
     if (token) headers.Authorization = `Bearer ${token}`;
-    if (body !== undefined) headers['Content-Type'] = 'application/json';
+    const isForm = typeof FormData !== 'undefined' && body instanceof FormData;
+    if (body !== undefined && !isForm) headers['Content-Type'] = 'application/json';
 
     let res;
     try {
       res = await fetch('/api' + path, {
         method,
         headers,
-        body: body === undefined ? undefined : JSON.stringify(body)
+        body: body === undefined ? undefined : (isForm ? body : JSON.stringify(body))
       });
     } catch {
       throw new Error('No se pudo contactar al servidor. Revisa que esté en ejecución.');
@@ -94,6 +97,13 @@ const UI = (() => {
     return data;
   }
 
+  /** Sube un archivo como multipart/form-data. El navegador pone el Content-Type con su boundary. */
+  function upload(path, file, field = 'archivo') {
+    const form = new FormData();
+    form.append(field, file, file.name);
+    return api(path, { method: 'POST', body: form });
+  }
+
   // ---------- Iconos (trazos de 24×24) ----------
   const ICONS = {
     logo: '<path d="M12 3 3 8l9 5 9-5z"/><path d="m3 13 9 5 9-5"/>',
@@ -116,7 +126,21 @@ const UI = (() => {
     progress: '<path d="M12 3a9 9 0 1 0 9 9"/><path d="M12 8v4l2.5 2.5"/>',
     inbox: '<path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5h13L22 12v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6z"/>',
     alert: '<circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/>',
-    info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>'
+    info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
+    x: '<path d="M18 6 6 18M6 6l12 12"/>',
+    xCircle: '<circle cx="12" cy="12" r="9"/><path d="m15 9-6 6M9 9l6 6"/>',
+    checkCircle: '<circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/>',
+    warning: '<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/>',
+    minusCircle: '<circle cx="12" cy="12" r="9"/><path d="M8 12h8"/>',
+    help: '<circle cx="12" cy="12" r="9"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/>',
+    file: '<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h2M8 17h2M14 13h2M14 17h2"/>',
+    arrowUp: '<path d="M12 19V5M5 12l7-7 7 7"/>',
+    arrowDown: '<path d="M12 5v14M19 12l-7 7-7-7"/>',
+    minus: '<path d="M5 12h14"/>',
+    refresh: '<path d="M21 12a9 9 0 1 1-2.6-6.4L21 8"/><path d="M21 3v5h-5"/>',
+    chevronLeft: '<path d="m15 18-6-6 6-6"/>',
+    chevronRight: '<path d="m9 18 6-6-6-6"/>',
+    chevronDown: '<path d="m6 9 6 6 6-6"/>'
   };
 
   function icon(name, extraClass = '') {
@@ -139,6 +163,46 @@ const UI = (() => {
     return String(name || '?').trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase() || '?';
   }
 
+  // ---------- Semáforo (HU-16, context/07 §4) ----------
+  // El color nunca va solo: cada estado lleva ícono y texto (context/05 §1).
+  const ESTADOS = {
+    correcto:   { texto: 'Correcto',   icono: 'checkCircle' },
+    preventivo: { texto: 'Preventivo', icono: 'warning' },
+    critico:    { texto: 'Crítico',    icono: 'xCircle' },
+    sin_datos:  { texto: 'Sin datos',  icono: 'help' },
+    baja:       { texto: 'Baja',       icono: 'minusCircle' }
+  };
+  const MOTIVOS = {
+    promedio: 'Por promedio',
+    faltas: 'Por faltas',
+    sin_derecho: 'Sin derecho en una materia (SD)'
+  };
+  function estadoTexto(estado) { return (ESTADOS[estado] || ESTADOS.sin_datos).texto; }
+  function motivoTexto(motivo) { return MOTIVOS[motivo] || ''; }
+  /** Clase CSS del estado: badge-correcto, badge-sin-datos… (public/css/semaforo.css). */
+  function estadoClase(estado) { return 'estado-' + String(ESTADOS[estado] ? estado : 'sin_datos').replace('_', '-'); }
+  /**
+   * Insignia del semáforo.
+   *   UI.badgeEstado('critico', { motivo: 'faltas' }) → <span class="badge badge-estado badge-critico">✕ Crítico</span>
+   */
+  function badgeEstado(estado, { motivo, titulo } = {}) {
+    const e = ESTADOS[estado] || ESTADOS.sin_datos;
+    const tip = titulo || motivoTexto(motivo);
+    const key = ESTADOS[estado] ? estado : 'sin_datos';
+    return `<span class="badge badge-estado badge-${key.replace('_', '-')}"${tip ? ` title="${escape(tip)}"` : ''}>` +
+      `${icon(e.icono)}${escape(e.texto)}${tip ? `<span class="sr-only">. ${escape(tip)}</span>` : ''}</span>`;
+  }
+  /** Flecha de tendencia (M-05): ↑ mejora · ↓ empeora · – estable. Vacío si no hay historial. */
+  function tendencia(valor) {
+    const t = {
+      mejora: { icono: 'arrowUp', texto: 'Mejoró desde la carga anterior' },
+      empeora: { icono: 'arrowDown', texto: 'Empeoró desde la carga anterior' },
+      estable: { icono: 'minus', texto: 'Sin cambios desde la carga anterior' }
+    }[valor];
+    if (!t) return '';
+    return `<span class="tendencia tendencia-${valor}" title="${t.texto}">${icon(t.icono)}<span class="sr-only">${t.texto}</span></span>`;
+  }
+
   // ---------- Botón ocupado ----------
   function setBusy(button, busy) {
     if (!button) return;
@@ -159,7 +223,10 @@ const UI = (() => {
   }
 
   // ---------- Notificaciones ----------
-  function toast(message, type = 'info') {
+  /**
+   * Notificación breve. action opcional: { label: 'Ver alumnos', href: '#alumnos' }.
+   */
+  function toast(message, type = 'info', action) {
     let stack = document.querySelector('.toast-stack');
     if (!stack) {
       stack = document.createElement('div');
@@ -171,11 +238,19 @@ const UI = (() => {
     const el = document.createElement('div');
     el.className = `toast toast-${type}`;
     el.innerHTML = icon({ success: 'check', error: 'alert' }[type] || 'info') + `<span>${escape(message)}</span>`;
+    if (action && action.href) {
+      const link = document.createElement('a');
+      link.className = 'toast-action';
+      link.href = action.href;
+      link.textContent = action.label;
+      link.addEventListener('click', () => el.remove());
+      el.appendChild(link);
+    }
     stack.appendChild(el);
     setTimeout(() => {
       el.classList.add('leaving');
       setTimeout(() => el.remove(), 220);
-    }, type === 'error' ? 5000 : 3200);
+    }, type === 'error' || action ? 6000 : 3200);
   }
 
   // ---------- Modal base ----------
@@ -333,9 +408,10 @@ const UI = (() => {
   return {
     escape,
     getToken, getUser, setUser, setSession, clearSession, takeAuthMessage,
-    api,
+    api, upload,
     icon, hydrateIcons,
     formatDate, initials,
+    badgeEstado, estadoTexto, estadoClase, motivoTexto, tendencia,
     setBusy, toast, confirm, formModal
   };
 })();

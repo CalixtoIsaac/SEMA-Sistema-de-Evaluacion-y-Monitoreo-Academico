@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 from pathlib import Path
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -18,6 +19,10 @@ def create_app(db_path=None, secret_path=None):
     @app.exception_handler(HTTPException)
     def http_error(request: Request, exc: HTTPException):
         return JSONResponse(status_code=exc.status_code, content=exc.detail if isinstance(exc.detail,dict) else {'error':exc.detail})
+    @app.exception_handler(RequestValidationError)
+    def validation_error(request: Request, exc: RequestValidationError):
+        # Contrato context/06: errores como {error, code}; el 422 queda reservado al formato del Excel.
+        return JSONResponse(status_code=400, content={'error':'Datos incompletos o inválidos.','code':'VALIDACION'})
     app.state.secret_path = secret_path
     app.state.jwt_secret = load_secret(secret_path)
     app.state.login_attempts = {}
