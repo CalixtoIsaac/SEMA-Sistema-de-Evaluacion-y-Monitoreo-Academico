@@ -1,0 +1,15 @@
+"""Restablece la contraseña inicial sin tocar datos académicos."""
+from sema.db import open_db, transaction
+from sema.auth import INITIAL_PASSWORD
+import bcrypt
+
+def reset(db):
+    hashed = bcrypt.hashpw(INITIAL_PASSWORD.encode(), bcrypt.gensalt(rounds=10)).decode()
+    with transaction(db):
+        db.execute('UPDATE usuarios SET password_hash=?,password_por_defecto=1,actualizado_en=datetime(\'now\',\'localtime\') WHERE id=(SELECT id FROM usuarios ORDER BY id LIMIT 1)',(hashed,))
+
+if __name__ == '__main__':
+    db = open_db()
+    reset(db)
+    db.close()
+    print('Contraseña inicial restablecida.')
