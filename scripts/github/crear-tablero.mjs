@@ -29,7 +29,7 @@ const CONFIG = {
   repo: process.env.SEMA_REPO || 'CalixtoIsaac/SEMA-Sistema-de-Evaluacion-y-Monitoreo-Academico',
   owner: process.env.SEMA_OWNER || 'CalixtoIsaac',
   proyecto: process.env.SEMA_PROYECTO || 'SEMA · Tablero Scrum',
-  inicioSprints: '2026-10-21', // miércoles de inicio del Sprint 0
+  inicioSprints: '2026-10-26', // lunes de inicio del Sprint 1
   duracionSprint: 7, // días
   // Usuario de GitHub de cada integrante (tal como aparece en "Asignado:" de Sprints.md).
   // Déjalo vacío ('') si aún no aceptó la invitación al repositorio: el issue se crea sin asignar.
@@ -40,9 +40,9 @@ const CONFIG = {
     'Uziel': '',
     'Saraí': ''
   },
-  // Columna del tablero para los issues del Sprint 0 (los demás quedan en la primera columna: Backlog)
+  // Columna del tablero para los issues del Sprint 1 (los demás quedan en la primera columna: Backlog)
   estadoSprintActual: 'Por hacer',
-  sprintActual: 0
+  sprintActual: 1
 };
 
 const DRY_RUN = process.argv.includes('--dry-run');

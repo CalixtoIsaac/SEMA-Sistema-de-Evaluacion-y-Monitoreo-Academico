@@ -2,6 +2,37 @@
  * Estilos base y componentes reutilizables:
  * botones, formularios, tarjetas, insignias, alertas, modales y notificaciones.
  */
+
+ /* ---------- Fuente Inter local (funciona sin internet) ---------- */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/vendor/inter/inter-latin-400-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/vendor/inter/inter-latin-500-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/vendor/inter/inter-latin-600-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/vendor/inter/inter-latin-700-normal.woff2') format('woff2');
+}
+
 *, *::before, *::after { box-sizing: border-box; }
 
 html { -webkit-text-size-adjust: 100%; }
@@ -233,6 +264,12 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .toast-error .icon   { color: var(--danger-text); }
 .toast-info .icon    { color: var(--info-text); }
 .toast.leaving { opacity: 0; transform: translateY(6px); }
+.toast-action {
+  margin-left: auto; padding: 4px 10px; border-radius: 6px; white-space: nowrap;
+  font-weight: 600; color: var(--primary-text); background: var(--primary-soft); text-decoration: none;
+}
+.toast-action:hover { text-decoration: underline; }
+.toast-success { border-color: var(--success-text); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }

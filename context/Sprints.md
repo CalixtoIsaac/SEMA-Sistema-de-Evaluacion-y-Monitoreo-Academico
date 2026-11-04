@@ -5,7 +5,8 @@ Orden recomendado a mano: **1) Labels → 2) Milestones → 3) Project (columnas
 
 > Si editas este documento, conserva el formato de cada issue para que el script lo pueda leer: el título en una línea `#### N · ` seguido del título entre comillas invertidas, después la línea `**Labels:** … · **Asignado:** … · **Estimación:** N · **Épica:** EN` y luego el bloque de código `markdown` con el cuerpo.
 
-- Sprints de **1 semana** (miércoles → martes), del **21 oct** al **1 dic 2026**. Si la fecha de entrega es otra, recorre las fechas; el contenido de cada sprint no cambia.
+- Desarrollo en **2 semanas**: **2 sprints de 1 semana** (lunes → domingo), del **26 oct** al **8 nov 2026**. Cada sprint se divide en 3 milestones (versiones) para tener entregas parciales cada 2–3 días.
+- Equipo: **Calixto** (Scrum Master), **Saraí** (Product Owner), **Sebastián** (backend / Excel), **Uziel** (base de datos y estructura), **Matías** (frontend).
 - Referencias: `HU-xx` = historia de `02_Product_Backlog.md`; `T-xx` = tarea técnica; `D-xx` = decisión de `00_Indice_y_Decisiones.md`; `M-xx` = mejora de diseño de `05_UI_UX.md` §11.
 
 ---
@@ -34,7 +35,7 @@ Orden recomendado a mano: **1) Labels → 2) Milestones → 3) Project (columnas
 
 | Campo | Tipo | Valores |
 |---|---|---|
-| **Sprint** | Iteration | duración 1 semana, inicio 21/10/2026 (ver §4) |
+| **Sprint** | Iteration | duración 1 semana, inicio 26/10/2026, 2 iteraciones (ver §4) |
 | **Estimación** | Number | puntos: 1, 2, 3, 5, 8 |
 | **Prioridad** | Single select | 🔴 Alta · 🟡 Media · 🟢 Baja |
 | **Épica** | Single select | E1 Base · E2 Cuenta · E3 Carga de datos · E4 Listas · E5 Alumnos · E6 Resumen · E7 Configuración |
@@ -72,22 +73,20 @@ Repositorio → *Issues* → *Labels* → *New label*. (Borra o conserva los de 
 
 | Sprint | Fechas | Objetivo del sprint | Milestone | Puntos |
 |---|---|---|---|---|
-| **Sprint 0** | 21 oct – 27 oct | Repositorio limpio, BD v1, login con cuenta por defecto, acceso directo y prototipos validados | v0.1 · Base del proyecto | 29 |
-| **Sprint 1** | 28 oct – 3 nov | Cargar el Excel de monitoreo con previsualización y notificación | v0.2 · Carga de Excel | 25 |
-| **Sprint 2** | 4 nov – 10 nov | Ver la tabla de alumnos con semáforo, buscador, orden y detalle | v0.3 · Monitoreo de alumnos | 23 |
-| **Sprint 3** | 11 nov – 17 nov | Listas de seguimiento, formulario manual, perfil y preferencias | v0.4 · Seguimiento y cuenta | 27 |
-| **Sprint 4** | 18 nov – 24 nov | Resumen administrativo con gráficas y evolución | v0.5 · Resumen administrativo | 24 |
-| **Sprint 5** | 25 nov – 1 dic | Configuración, reportes, pruebas con el cliente y entrega | v1.0 · Entrega final | 22 |
+| **Sprint 1** | 26 oct – 1 nov | Base del proyecto, login, cargar el Excel con previsualización y ver la tabla de alumnos con semáforo | v0.1 · Base del proyecto | 65 |
+| **Sprint 2** | 2 nov – 8 nov | Detalle del alumno, buscador y orden, listas, perfil, Resumen administrativo, configuración, pruebas con el cliente y entrega | v1.0 · Entrega final | 85 |
+
+> La columna *Milestone* indica el primer milestone del sprint (el script la usa solo como referencia). Sprint 1 cubre **v0.1, v0.2 y v0.3**; Sprint 2 cubre **v0.4, v0.5 y v1.0** (ver §5).
 
 **Ceremonias (cada sprint)**
 
 | Ceremonia | Cuándo | Duración | Responsable |
 |---|---|---|---|
-| Sprint Planning | miércoles (día 1) | 45 min | Scrum Master |
-| Daily | lunes a viernes (puede ser por mensaje: ayer / hoy / bloqueos) | 10 min | Todos |
-| Sprint Review con el cliente | martes (último día) | 30 min | Product Owner |
-| Retrospectiva | martes, después de la Review | 20 min | Scrum Master |
-| Release `develop → main` + etiqueta `v0.x` | martes | — | Scrum Master |
+| Sprint Planning | lunes (día 1: 26 oct y 2 nov) | 45 min | Scrum Master |
+| Daily | todos los días del sprint (puede ser por mensaje: ayer / hoy / bloqueos) | 10 min | Todos |
+| Sprint Review con el cliente | domingo (último día: 1 nov y 8 nov) o el último día hábil | 30 min | Product Owner |
+| Retrospectiva | después de la Review | 20 min | Scrum Master |
+| Release `develop → main` + etiqueta `v0.x` | al cerrar cada milestone (§5) | — | Scrum Master |
 
 ---
 
@@ -98,23 +97,25 @@ Repositorio → *Issues* → *Milestones* → *New milestone*.
 | Milestone | Fecha límite | Descripción (copiar) |
 |---|---|---|
 | **v0.1 · Base del proyecto** | 27/10/2026 | Repositorio limpio y renombrado a SEMA, esquema de BD v1, cuenta por defecto Chuchito, acceso directo SEMA.bat, sidebar y prototipos validados por el cliente. |
-| **v0.2 · Carga de Excel** | 03/11/2026 | El usuario sube el Excel de monitoreo (arrastrar o buscar), ve la previsualización con el número de alumnos y confirma; aparece "Datos cargados correctamente". |
-| **v0.3 · Monitoreo de alumnos** | 10/11/2026 | Tabla de alumnos con promedio, faltas y estado en colores; buscador; orden por promedio/faltas; detalle por materia. |
-| **v0.4 · Seguimiento y cuenta** | 17/11/2026 | Excel de lista para filtrar a los alumnos de un semestre; formulario manual; cambio de usuario y contraseña; preferencias de tema y formato de nombres. |
-| **v0.5 · Resumen administrativo** | 24/11/2026 | Menú principal con indicadores y gráficas, estado vacío, evolución del desempeño e historial de cargas. |
-| **v1.0 · Entrega final** | 01/12/2026 | Umbrales configurables, exportar reporte, respaldo, pruebas de aceptación con el cliente, manual de usuario y entrega. |
+| **v0.2 · Carga de Excel** | 29/10/2026 | El usuario sube el Excel de monitoreo (arrastrar o buscar), ve la previsualización con el número de alumnos y confirma; aparece "Datos cargados correctamente". |
+| **v0.3 · Monitoreo de alumnos** | 01/11/2026 | APIs de alumnos y de detalle; tabla de alumnos con promedio, faltas y estado en colores (semáforo). |
+| **v0.4 · Detalle, seguimiento y cuenta** | 04/11/2026 | Buscador, orden por promedio/faltas, detalle por materia y prueba con 5,000 alumnos; Excel de lista para filtrar a los alumnos de un semestre; formulario manual; cambio de usuario y contraseña; preferencias de tema y formato de nombres. |
+| **v0.5 · Resumen administrativo** | 06/11/2026 | Menú principal con indicadores y gráficas, estado vacío, evolución del desempeño e historial de cargas. |
+| **v1.0 · Entrega final** | 08/11/2026 | Umbrales configurables, exportar reporte, respaldo, pruebas de aceptación con el cliente, manual de usuario y entrega. |
 
 ---
 
 ## 6. Issues
 
 Formato de cada issue: título (copiar tal cual) · metadatos para llenar en la barra lateral · cuerpo dentro del bloque (copiar en la descripción).
-Responsables por especialidad: **Calixto** (Scrum Master; apoyo reducido y suplente), **Matías** (frontend), **Sebastián** (backend / Excel), **Uziel** (BD / estructura), **Saraí** (PO).
+Responsables por especialidad: **Calixto** (Scrum Master: repositorio y entrega; apoyo solo si alguien se atora), **Matías** (frontend), **Sebastián** (backend / Excel), **Uziel** (BD / estructura), **Saraí** (PO).
 
-### 🟦 Sprint 0 · v0.1 · Base del proyecto
+### 🟦 Sprint 1 · v0.1 · Base del proyecto
+
+> Semana 1 · lunes 26 – martes 27 oct
 
 #### 1 · `[T-01] Limpiar el repositorio, renombrar la plantilla a SEMA y aplicar la paleta azul`
-**Labels:** `tipo: tarea` `área: infraestructura` `área: frontend` `prioridad: alta` · **Asignado:** Matías · **Estimación:** 3 · **Épica:** E1
+**Labels:** `tipo: tarea` `área: infraestructura` `área: frontend` `prioridad: alta` · **Asignado:** Calixto · **Estimación:** 3 · **Épica:** E1
 ```markdown
 Dejar el repositorio listo para empezar a construir SEMA sobre la plantilla Express + SQLite.
 
@@ -252,6 +253,8 @@ Las respuestas del cliente ya están en `context/00_Indice_y_Decisiones.md` §4.
 
 ### 🟩 Sprint 1 · v0.2 · Carga de Excel
 
+> Semana 1 · miércoles 28 – jueves 29 oct
+
 #### 12 · `[T-04] Lector del Excel de monitoreo (services/excel-monitoreo.js)`
 **Labels:** `tipo: tarea` `área: excel` `área: backend` `prioridad: alta` · **Asignado:** Sebastián · **Estimación:** 5 · **Épica:** E3
 ```markdown
@@ -339,7 +342,9 @@ Depende de: #14, #15
 - [ ] Anotar diferencias o columnas que el cliente necesite y crear issues
 ```
 
-### 🟨 Sprint 2 · v0.3 · Monitoreo de alumnos
+### 🟨 Sprint 1 · v0.3 · Monitoreo de alumnos
+
+> Semana 1 · viernes 30 oct – domingo 1 nov
 
 #### 19 · `[HU-13] API de alumnos con promedio, faltas y estado`
 **Labels:** `tipo: historia` `área: backend` `área: base de datos` `prioridad: alta` · **Asignado:** Sebastián · **Estimación:** 3 · **Épica:** E5
@@ -383,6 +388,10 @@ Depende de: #14, #15
 - [ ] Contraste AA en tema claro y oscuro
 - [ ] Mismos colores en tabla, detalle y gráficas (`context/07` §4.4)
 ```
+
+### 🟧 Sprint 2 · v0.4 · Detalle, seguimiento y cuenta
+
+> Semana 2 · lunes 2 – miércoles 4 nov. Incluye lo que pasó de la semana 1 (#23, #24, #25 y #26).
 
 #### 23 · `[HU-14] Buscador por nombre y matrícula`
 **Labels:** `tipo: historia` `área: frontend` `prioridad: alta` · **Asignado:** Matías · **Estimación:** 2 · **Épica:** E5
@@ -429,8 +438,6 @@ Referencia: `context/05_UI_UX.md` §8 · Depende de: #20, #22
 - [ ] Ajustar índices/consultas si se superan los límites de RNF-01
 - [ ] Anotar resultados en el PR
 ```
-
-### 🟧 Sprint 3 · v0.4 · Seguimiento y cuenta
 
 #### 27 · `[HU-10] API del Excel de lista de seguimiento`
 **Labels:** `tipo: historia` `área: backend` `área: excel` `prioridad: alta` · **Asignado:** Sebastián · **Estimación:** 5 · **Épica:** E4
@@ -514,7 +521,9 @@ Probado también en local con el Excel de matrículas del cliente: 173 matrícul
 Referencia: `context/05` §9, `context/07` §8 · Depende de: #13, #33
 ```
 
-### 🟪 Sprint 4 · v0.5 · Resumen administrativo
+### 🟪 Sprint 2 · v0.5 · Resumen administrativo
+
+> Semana 2 · jueves 5 – viernes 6 nov
 
 #### 34 · `[HU-18] [HU-19] API del Resumen administrativo`
 **Labels:** `tipo: historia` `área: backend` `prioridad: alta` · **Asignado:** Sebastián · **Estimación:** 5 · **Épica:** E6
@@ -579,12 +588,14 @@ Mejora aprobada M-05. Explicación en `context/05_UI_UX.md` §12; criterios en `
 - [ ] Iniciar el borrador del manual de usuario con capturas de las vistas terminadas
 ```
 
-### 🟥 Sprint 5 · v1.0 · Entrega final
+### 🟥 Sprint 2 · v1.0 · Entrega final
+
+> Semana 2 · sábado 7 – domingo 8 nov
 
 #### 41 · `[HU-23] Umbrales configurables en Perfil`
 **Labels:** `tipo: historia` `área: backend` `área: frontend` `prioridad: media` · **Asignado:** Sebastián, Matías · **Estimación:** 3 · **Épica:** E7
 ```markdown
-Mejora aprobada M-08.
+Mejora aprobada M-08. Sebastián hace la API y Matías la tarjeta de Perfil.
 
 - [ ] `GET/PUT /api/configuracion` y `POST /api/configuracion/vista-previa`
 - [ ] Tarjeta "Umbrales" en Perfil: calificación (verde/amarillo), % del límite de faltas (amarillo/rojo), regla fija para materias sin límite y cambio mínimo de la evolución (M-05)
@@ -654,20 +665,20 @@ Mejora aprobada M-07.
 - [ ] Entrega al cliente (Saraí) y cierre del Project
 ```
 
----
-
 ## 7. Resumen de carga por persona
 
 | Sprint | Calixto | Matías | Sebastián | Uziel | Saraí | Total |
 |---|---|---|---|---|---|---|
-| 0 | 1 (#2) | 8 (#1, #5, #7, #8) | 3 (#4) | 13 (#3, #6, #9) | 4 (#10, #11) | **29** |
-| 1 | — | 9 (#15, #16, #17) | 10 (#12, #14) | 5 (#13) | 1 (#18) | **25** |
-| 2 | — | 10 (#21, #23, #25) | 6 (#19, #20) | 7 (#22, #24, #26) | — (valida) | **23** |
-| 3 | — | 8 (#28, #29, #33) | 9 (#27, #30, #32) | 10 (#31, #49) | — (valida) | **27** |
-| 4 | — | 7 (#35, #36) | 8 (#34, #39) | 6 (#37, #38) | 3 (#40) | **24** |
-| 5 | 1 (#48) | apoyo en #41 | 5 (#41, #43) | 5 (#42, #44) | 6 (#45, #46) | **22** (incluye #47 = 5, compartido) |
+| 1 | 4 (#1, #2) | 17 (#5, #7, #8, #15, #16, #17, #21) | 19 (#4, #12, #14, #19, #20) | 20 (#3, #6, #9, #13, #22) | 5 (#10, #11, #18) | **65** |
+| 2 | 1 (#48) | 22 (#23, #25, #28, #29, #33, #35, #36) + apoyo en #41 | 22 (#27, #30, #32, #34, #39, #41, #43) | 26 (#24, #26, #31, #49, #37, #38, #42, #44) | 9 (#40, #45, #46) | **85** (incluye #47 = 5, compartido) |
 
-> Si en la Planning alguien queda con más de ~10 puntos, el Scrum Master reasigna (las tareas pueden reacomodarse). El único issue con `propuesta` es #43 (respaldo, Could): se hace solo si queda tiempo en el Sprint 5.
+**Entregables al cierre del Sprint 1 (1 nov)**
+
+- **Uziel:** esquema de BD v1 y migraciones (#3), `SEMA.bat` (#6), Excel de prueba anonimizado (#9), reglas de indicadores y separación de nombres con pruebas (#13), semáforo de colores (#22).
+- **Sebastián:** cuenta por defecto y JWT (#4), lector del Excel (#12), API de previsualización y confirmación (#14), API de alumnos (#19) y API del detalle (#20).
+- **Matías:** login (#5), sidebar (#7), Chart.js e Inter en local (#8), zona de carga (#15), previsualización (#16), notificación de carga (#17) y tabla de alumnos (#21).
+
+> La carga supera los ~10 puntos por persona por sprint: es el costo de hacer en 2 semanas lo que se planeó para 6. Si el Sprint 1 se atrasa, lo primero que se recorta son los issues *Could* (`prioridad: baja`): #30, #39 y #43 (`propuesta`). El Scrum Master reasigna en la Planning o en las Dailies si alguien se atora; Calixto suple solo en ese caso.
 
 ---
 
@@ -701,7 +712,7 @@ Mejora aprobada M-07.
    gh api -X PUT repos/CalixtoIsaac/SEMA-Sistema-de-Evaluacion-y-Monitoreo-Academico/collaborators/USUARIO -f permission=push
    ```
    Cada persona debe **aceptar la invitación** (le llega por correo o en github.com/notifications).
-4. Abrir `scripts/github/crear-tablero.mjs` y llenar `CONFIG.usuarios` con el usuario de GitHub de Matías, Sebastián, Uziel y Saraí. Si alguno queda vacío, sus issues se crean sin asignar y se asignan después.
+4. Abrir `scripts/github/crear-tablero.mjs` y llenar `CONFIG.usuarios` con el usuario de GitHub de Sebastián, Uziel, Matías y Saraí. Si alguno queda vacío, sus issues se crean sin asignar y se asignan después.
 
 ### 8.2 Ejecutar
 
@@ -723,8 +734,8 @@ Qué hace, en orden:
 2. Crea o actualiza los **16 labels** (§3).
 3. Crea los **6 milestones** que falten (§5), con fecha límite a las 23:59 del día indicado (hora del centro de México).
 4. Crea el Project **"SEMA · Tablero Scrum"** (o usa el que ya exista con ese nombre) y lo enlaza al repositorio.
-5. Pone las columnas de §1 en el campo **Status** y crea los campos **Sprint** (6 iteraciones de 7 días desde el 21/10/2026), **Estimación**, **Prioridad** y **Épica** (§2).
-6. Crea los **49 issues** en orden (#1 … #49) con su título, cuerpo, labels, milestone y responsables. Los agrega al Project con su Sprint, Estimación, Prioridad y Épica. Los del Sprint 0 quedan en **Por hacer** y los demás en **Backlog**.
+5. Pone las columnas de §1 en el campo **Status** y crea los campos **Sprint** (2 iteraciones de 7 días desde el 26/10/2026), **Estimación**, **Prioridad** y **Épica** (§2).
+6. Crea los **49 issues** en orden (#1 … #49) con su título, cuerpo, labels, milestone y responsables. Los agrega al Project con su Sprint, Estimación, Prioridad y Épica. Los del Sprint 1 quedan en **Por hacer** y los demás en **Backlog**.
 7. Si GitHub les dio números distintos a los de este documento (pasa cuando el repositorio ya tiene issues o PR), corrige las referencias como "Depende de: #4" dentro de los issues.
 
 **Volver a ejecutarlo es seguro:** no duplica issues (los reconoce por título), labels ni milestones, y **no mueve de columna** las tarjetas que ya existen.
@@ -758,7 +769,7 @@ En el Project → **+ New view**:
 Solo si el script mostró un aviso ⚠:
 
 - **Columnas (Status):** Project → ⋯ → *Settings* → campo **Status** → deja las opciones Backlog, Por hacer, En progreso, En revisión, Validación PO y Hecho.
-- **Sprint:** *Settings* → *+ New field* → tipo **Iteration**, nombre `Sprint`, inicio **21/10/2026**, duración **1 semana**, 6 iteraciones llamadas `Sprint 0` … `Sprint 5`. Después ejecuta `node scripts/github/crear-tablero.mjs --actualizar-campos`.
+- **Sprint:** *Settings* → *+ New field* → tipo **Iteration**, nombre `Sprint`, inicio **26/10/2026**, duración **1 semana**, 2 iteraciones llamadas `Sprint 1` y `Sprint 2`. Después ejecuta `node scripts/github/crear-tablero.mjs --actualizar-campos`.
 
 ### 8.4 Comandos sueltos (si prefieres hacerlo paso a paso)
 
@@ -829,20 +840,20 @@ const CONFIG = {
   repo: process.env.SEMA_REPO || 'CalixtoIsaac/SEMA-Sistema-de-Evaluacion-y-Monitoreo-Academico',
   owner: process.env.SEMA_OWNER || 'CalixtoIsaac',
   proyecto: process.env.SEMA_PROYECTO || 'SEMA · Tablero Scrum',
-  inicioSprints: '2026-10-21', // miércoles de inicio del Sprint 0
+  inicioSprints: '2026-10-26', // lunes de inicio del Sprint 1
   duracionSprint: 7, // días
   // Usuario de GitHub de cada integrante (tal como aparece en "Asignado:" de Sprints.md).
   // Déjalo vacío ('') si aún no aceptó la invitación al repositorio: el issue se crea sin asignar.
   usuarios: {
     'Calixto': 'CalixtoIsaac',
-    'Matías': '',
     'Sebastián': '',
     'Uziel': '',
+    'Matías': '',
     'Saraí': ''
   },
-  // Columna del tablero para los issues del Sprint 0 (los demás quedan en la primera columna: Backlog)
+  // Columna del tablero para los issues del Sprint 1 (los demás quedan en la primera columna: Backlog)
   estadoSprintActual: 'Por hacer',
-  sprintActual: 0
+  sprintActual: 1
 };
 
 const DRY_RUN = process.argv.includes('--dry-run');

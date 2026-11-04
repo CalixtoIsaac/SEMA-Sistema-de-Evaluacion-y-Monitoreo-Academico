@@ -8,9 +8,6 @@
   <!-- El tema va primero para evitar el destello del tema incorrecto -->
   <script src="/js/theme.js"></script>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="/css/theme.css">
   <link rel="stylesheet" href="/css/base.css">
   <link rel="stylesheet" href="/css/login.css">
@@ -33,13 +30,12 @@
 
       <div id="authAlert" class="alert" role="alert" hidden></div>
 
-      <div id="authLoading" class="auth-loading"><span class="spinner" aria-label="Cargando"></span></div>
 
       <!-- Inicio de sesión -->
-      <form id="loginForm" class="form" hidden>
+      <form id="loginForm" class="form">
         <div class="field">
           <label for="loginUser">Usuario</label>
-          <input class="input" id="loginUser" name="usuario" autocomplete="username" required>
+          <input class="input" id="loginUser" name="usuario" autocomplete="username" required autofocus>
         </div>
         <div class="field">
           <label for="loginPass">Contraseña</label>
@@ -49,33 +45,6 @@
           </div>
         </div>
         <button class="btn btn-primary btn-block" type="submit">Iniciar sesión</button>
-      </form>
-
-      <!-- Primera vez: crear la cuenta -->
-      <form id="setupForm" class="form" hidden>
-        <div class="field">
-          <label for="setupName">Nombre</label>
-          <input class="input" id="setupName" name="nombre" autocomplete="name" maxlength="60" required>
-        </div>
-        <div class="field">
-          <label for="setupUser">Usuario</label>
-          <input class="input" id="setupUser" name="usuario" autocomplete="username"
-                 pattern="[A-Za-z0-9._\-]{3,30}" title="De 3 a 30 caracteres: letras, números, punto, guion o guion bajo" required>
-          <p class="hint">De 3 a 30 caracteres, sin espacios.</p>
-        </div>
-        <div class="field">
-          <label for="setupPass">Contraseña</label>
-          <div class="input-group">
-            <input class="input" id="setupPass" name="password" type="password" autocomplete="new-password" minlength="8" maxlength="72" required>
-            <button class="input-addon" type="button" data-toggle-password="setupPass"></button>
-          </div>
-          <p class="hint">Mínimo 8 caracteres.</p>
-        </div>
-        <div class="field">
-          <label for="setupConfirm">Confirmar contraseña</label>
-          <input class="input" id="setupConfirm" name="confirm" type="password" autocomplete="new-password" minlength="8" maxlength="72" required>
-        </div>
-        <button class="btn btn-primary btn-block" type="submit">Crear cuenta y entrar</button>
       </form>
     </section>
 

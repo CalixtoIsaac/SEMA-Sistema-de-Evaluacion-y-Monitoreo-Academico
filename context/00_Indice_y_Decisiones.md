@@ -66,7 +66,7 @@ Todas las decisiones están **cerradas**; no hay preguntas pendientes. No se cam
 
 | ID | Decisión | Motivo / detalle |
 |---|---|---|
-| D-01 | Stack: **Node.js 20+ · Express · SQLite (`better-sqlite3`) · HTML/CSS/JS sin frameworks** (plantilla ya incluida en el repositorio). | Elegido por el Scrum Master; corre local sin instalar servidores de base de datos. |
+| D-01 | Backend: **Python 3.12+ · FastAPI · SQLite**. Frontend: **HTML/CSS/JS sin frameworks**. Node.js queda para herramientas de desarrollo. | Aprobó Calixto Isaac (Scrum Master), propuesta de Sebastián y avalada por Saraí (PO), 4 nov 2026. La app corre local sin instalar un servidor de base de datos. |
 | D-02 | La calificación de una materia es la columna **`Ponderado`** del Excel. | En los datos reales el ponderado difiere del promedio simple de actividades (ej.: actividades promedian 83 y el ponderado es 69). |
 | D-03 | Las reglas de estado y los umbrales viven en **un solo módulo** (`lib/indicadores.js`) y en la tabla `configuracion`. | Que el frontend, la tabla y las gráficas siempre coincidan. |
 | D-04 | Credenciales iniciales: usuario **`Chuchito`**, contraseña **`Administrador*Chuchito*123`**. Se crean automáticamente al primer arranque. | Requerimiento del cliente. |
