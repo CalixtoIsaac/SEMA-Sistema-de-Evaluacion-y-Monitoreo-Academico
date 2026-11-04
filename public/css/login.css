@@ -24,8 +24,8 @@
 .auth-header p { margin-top: 6px; }
 #authAlert { margin-bottom: 16px; }
 
-.auth-loading { display: grid; place-items: center; padding: 24px; color: var(--muted-foreground); }
 .auth-footer { font-size: 12px; text-align: center; }
+input::-ms-reveal { display: none; }
 
 @media (max-width: 480px) {
   .auth-card { padding: 22px; }
