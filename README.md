@@ -38,7 +38,7 @@ El estado del alumno es **el peor entre promedio y faltas**. La calificación of
 | Base de datos | SQLite con `better-sqlite3` (archivo `data/app.db`) |
 | Autenticación | `jsonwebtoken` (JWT, 8 h) · `bcryptjs` |
 | Frontend | HTML, CSS y JavaScript **sin frameworks** (módulos IIFE y UI kit propio) |
-| Excel y gráficas | `exceljs` · `multer` · Chart.js 4 (servido localmente) |
+| Excel y gráficas | `exceljs` · `multer` · Chart.js 4.6.1 y fuente Inter (servidos localmente desde `public/vendor/`) |
 | Pruebas | `node:test` |
 
 ---
