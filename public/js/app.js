@@ -26,8 +26,8 @@
 
   const VIEWS = {
     resumen: { title: 'Menú principal', module: () => Inicio },
-    cargar: { title: 'Cargar datos', module: () => proximamente('Cargar datos') },
-    alumnos: { title: 'Alumnos', module: () => proximamente('Alumnos') },
+    cargar: { title: 'Cargar datos', module: () => Cargar },
+    alumnos: { title: 'Alumnos', module: () => Alumnos },
     perfil: { title: 'Perfil', module: () => proximamente('Perfil') }
   };
   const DEFAULT_VIEW = 'resumen';
