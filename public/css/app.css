@@ -224,6 +224,13 @@ button.stat:focus-visible { outline: none; box-shadow: var(--focus-ring); }
 .pager .btn[aria-current="page"] { background: var(--primary-soft); color: var(--primary-text); border-color: transparent; }
 
 .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+
+/* ---------- Orden de la tabla de alumnos (#24) ---------- */
+.orden { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin: 0; padding: 0; border: 0; font-size: 13px; }
+.orden legend { float: left; padding: 0; color: var(--muted-foreground); }
+.orden label { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: .02em; cursor: pointer; }
+.orden input { width: 16px; height: 16px; margin: 0; accent-color: var(--primary); cursor: pointer; }
+.orden-flecha { font-size: 10px; color: var(--primary-text); }
 .period-tag { font-size: 13px; color: var(--muted-foreground); }
 .table-skeleton { padding: 16px 20px; display: grid; gap: 14px; }
 .table-skeleton .skeleton { height: 20px; }
