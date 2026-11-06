@@ -39,9 +39,9 @@ const Alumnos = (() => {
   function loadState() {
     try {
       const saved = JSON.parse(sessionStorage.getItem(STATE_KEY));
-      if (saved && typeof saved === 'object') return { q: '', estado: 'todos', pagina: 1, ...saved };
+      if (saved && typeof saved === 'object') return { q: '', estado: 'todos', pagina: 1, promedio: false, faltas: false, ...saved };
     } catch { /* sin almacenamiento */ }
-    return { q: '', estado: 'todos', pagina: 1 };
+    return { q: '', estado: 'todos', pagina: 1, promedio: false, faltas: false };
   }
   function saveState() {
     try { sessionStorage.setItem(STATE_KEY, JSON.stringify(vista)); } catch { /* sin almacenamiento */ }
@@ -66,8 +66,10 @@ const Alumnos = (() => {
       conteo[a.estado] = (conteo[a.estado] || 0) + 1;
       if (a.tendencia === 'empeora') conteo.empeora += 1;
     }
-    const lista = porBusqueda.filter((a) => vista.estado === 'todos'
+    const filtrados = porBusqueda.filter((a) => vista.estado === 'todos'
       || (vista.estado === 'empeora' ? a.tendencia === 'empeora' : a.estado === vista.estado));
+    // Primero se filtra y después se ordena (context/07 §6).
+    const lista = OrdenBusqueda.ordenarAlumnos(filtrados, { promedio: vista.promedio, faltas: vista.faltas });
     return { lista, conteo };
   }
 
@@ -120,6 +122,11 @@ const Alumnos = (() => {
           <span class="sr-only">Buscar alumno</span>
           <input class="input" type="search" id="buscar" placeholder="Buscar por nombre o matrícula…" autocomplete="off" value="${UI.escape(vista.q)}">
         </label>
+        <fieldset class="orden">
+          <legend>Ordenar (peor → mejor):</legend>
+          <label><input type="checkbox" id="ordenPromedio" ${vista.promedio ? 'checked' : ''}>Promedio</label>
+          <label><input type="checkbox" id="ordenFaltas" ${vista.faltas ? 'checked' : ''}>Faltas</label>
+        </fieldset>
       </div>
       <div class="chips" id="chips" role="group" aria-label="Filtrar por estado"></div>
       <section class="card">
@@ -131,6 +138,13 @@ const Alumnos = (() => {
     input.addEventListener('input', () => {
       clearTimeout(searchTimer);
       searchTimer = setTimeout(() => { vista.q = input.value; vista.pagina = 1; saveState(); renderTable(); }, 150);
+    });
+    // Casillas de orden (#24)
+    body.querySelector('#ordenPromedio').addEventListener('change', (e) => {
+      vista.promedio = e.target.checked; vista.pagina = 1; saveState(); renderTable();
+    });
+    body.querySelector('#ordenFaltas').addEventListener('change', (e) => {
+      vista.faltas = e.target.checked; vista.pagina = 1; saveState(); renderTable();
     });
     body.querySelector('#chips').addEventListener('click', (e) => {
       const chip = e.target.closest('[data-estado]');
@@ -232,8 +246,8 @@ const Alumnos = (() => {
         <thead><tr>
           <th scope="col">Nombre</th>
           <th scope="col" class="col-opt">Matrícula</th>
-          <th scope="col" class="num">Promedio</th>
-          <th scope="col" class="num">Faltas</th>
+          <th scope="col" class="num" ${vista.promedio ? 'aria-sort="ascending"' : ''}>Promedio${vista.promedio ? ' <span class="orden-flecha" aria-hidden="true">▲</span>' : ''}</th>
+          <th scope="col" class="num" ${vista.faltas ? 'aria-sort="descending"' : ''}>Faltas${vista.faltas ? ' <span class="orden-flecha" aria-hidden="true">▼</span>' : ''}</th>
           <th scope="col">Estado</th>
         </tr></thead>
         <tbody>${pagina.map(fila).join('')}</tbody>
@@ -291,7 +305,6 @@ const Alumnos = (() => {
       const p = datos.periodo;
       root.querySelector('#periodoTag').textContent = p ? `Periodo ${p.nombre}` : '';
       if (!datos.alumnos.length) return renderEmpty();
-      datos.alumnos.sort((x, y) => (x.nombreMostrar || '').localeCompare(y.nombreMostrar || '', 'es'));
       renderData();
     } catch (err) {
       if (root.isConnected) renderError(err);
