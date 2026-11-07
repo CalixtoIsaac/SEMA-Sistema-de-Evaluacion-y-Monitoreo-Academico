@@ -313,6 +313,7 @@ const Alumnos = (() => {
 
   function mount(container, matricula) {
     root = container;
+    vista = loadState(); // otra vista (p. ej. "Ver todos" del Menú) pudo cambiar el estado guardado
     if (matricula) return mountDetalle(container, matricula);
     renderShell();
     load();

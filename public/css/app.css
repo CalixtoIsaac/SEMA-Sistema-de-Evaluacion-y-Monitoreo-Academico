@@ -77,6 +77,8 @@
   display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px;
   margin-bottom: 24px;
 }
+/* Bloque debajo de las tarjetas del Menú (p. ej. Alumnos con mayor riesgo, #38) */
+.seccion { margin-top: 24px; }
 .stat { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 18px 20px; }
 .stat-label { font-size: 13px; font-weight: 500; color: var(--muted-foreground); }
 .stat-value { margin-top: 6px; font-size: 28px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }

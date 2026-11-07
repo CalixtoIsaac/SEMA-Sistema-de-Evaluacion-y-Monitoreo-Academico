@@ -52,7 +52,10 @@ const Inicio = (() => {
           <h3>Aún no hay datos en el sistema</h3>
           <p class="muted">Cuando cargues el Excel de monitoreo, aquí verás los indicadores y las gráficas.</p>
         </div>
-      </section>`;
+      </section>
+
+      <div id="riesgo" class="seccion"></div>`;
+    Riesgo.mount(container.querySelector('#riesgo'));
   }
 
   return { mount };
