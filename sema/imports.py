@@ -135,3 +135,22 @@ def apply_rows(db,ident,rows,mode):
         db.execute('INSERT INTO cortes_alumno(importacion_id,alumno_id,promedio,faltas_total,estado,estado_faltas,materias_criticas) VALUES (?,?,?,?,?,?,?)',
                    (ident,aid,s['promedioGeneral'],s['faltasTotal'],s['estado'],s['estadoFaltas'],s['materiasCriticas']))
     return {'periodo_id':period,'alumnos':len({r['matricula'] for r in rows}),'inscripciones':applied_count,'actividades':activities,'eliminadas':deleted}
+
+# ---------- Historial de cargas (#39 · HU-09) ----------
+
+@router.get('')
+def history(request:Request,tipo:str|None=None,limite:int=Query(200,ge=1,le=1000)):
+    """Cargas aplicadas o descartadas, de la más reciente a la más antigua. Las previas
+    abiertas no se listan: todavía no son una carga."""
+    if tipo is not None and tipo not in ('monitoreo','lista'):
+        raise HTTPException(400,{'error':'El tipo debe ser monitoreo o lista.','code':'VALIDACION'})
+    sql="""SELECT i.id,i.tipo,i.archivo,i.estado,i.modo,i.total_alumnos,i.total_filas,i.filas_omitidas,i.creado_en,i.aplicado_en,
+           p.clave AS periodo_clave,p.nombre AS periodo_nombre
+           FROM importaciones i LEFT JOIN periodos p ON p.id=i.periodo_id WHERE i.estado<>'previa'"""
+    args=[]
+    if tipo:sql+=' AND i.tipo=?';args.append(tipo)
+    sql+=' ORDER BY COALESCE(i.aplicado_en,i.creado_en) DESC,i.id DESC LIMIT ?';args.append(limite)
+    return {'importaciones':[{'id':r['id'],'tipo':r['tipo'],'archivo':r['archivo'],'estado':r['estado'],'modo':r['modo'],
+            'totalAlumnos':r['total_alumnos'],'totalFilas':r['total_filas'],'filasOmitidas':r['filas_omitidas'],
+            'periodo':{'clave':r['periodo_clave'],'nombre':r['periodo_nombre']} if r['periodo_clave'] else None,
+            'creadoEn':r['creado_en'],'aplicadoEn':r['aplicado_en']} for r in request.app.state.db.execute(sql,args)]}
