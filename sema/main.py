@@ -30,8 +30,9 @@ def create_app(db_path=None, secret_path=None):
     seed_user(app.state.db)
     app.include_router(auth_router)
     app.include_router(imports_router)
-    app.include_router(students_router)
+    # /api/alumnos/exportar va antes que /api/alumnos/{matricula} para que no lo capture el detalle.
     app.include_router(exportar_router)
+    app.include_router(students_router)
     @app.get('/api/health')
     def health():
         return {'status':'online','app':'SEMA','version':'0.1.0','timestamp':datetime.now(timezone.utc).isoformat()}
