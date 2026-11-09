@@ -19,6 +19,7 @@ FIELDS = {'Campus':'campus','Año - periodo':'periodo','Nombre del periodo':'per
  'Campus de admisión':'campus_admision','Última actualización':'actualizado_escuela',
  'Última actividad actualizada':'ultima_actividad'}
 CODES={'NE','SC','DA','SD'}
+DAYS={'Dom':'D','Lun':'L','Mar':'M','Mier':'Mi','Jue':'J','Vier':'V','Sáb':'S'}
 
 class FormatError(Exception):
     def __init__(self, missing):
@@ -93,12 +94,16 @@ def parse(data:bytes):
     for i,k in enumerate(names):
         if key(k) not in FORBIDDEN: indices.setdefault(key(k),i)
     modalities=[i for i,k in enumerate(keys) if k=='modalidad']
+    # Posición de cada columna conocida, calculada una sola vez (#26: key() por celda
+    # era ~40 % del tiempo de lectura con 35,000 filas).
+    labels=[*FIELDS,*(f'A{n}' for n in range(1,51)),*DAYS]
+    position={label:indices.get(key(label)) for label in labels}
     warnings=[]; rows=[]; previews=[]; duplicates={}; total=0; omitted=0
     for rownum,cells in enumerate(it,header_row+1):
         if not any(clean(v) for i,v in enumerate(cells) if i in allowed): continue
         total+=1
         def val(label):
-            i=indices.get(key(label))
+            i=position[label]
             return clean(cells[i]) if i is not None and i<len(cells) else None
         record={field:val(label) for label,field in FIELDS.items()}
         record['matricula']=(record['matricula'] or '').upper()
@@ -121,7 +126,7 @@ def parse(data:bytes):
             g=grade(val(f'A{n}'),warnings,rownum,f'A{n}')
             if g is not None: acts[str(n)]=g
         record['actividades']=acts
-        record['dias']=','.join(code for label,code in [('Dom','D'),('Lun','L'),('Mar','M'),('Mier','Mi'),('Jue','J'),('Vier','V'),('Sáb','S')] if (val(label) or '').upper()=='SI')
+        record['dias']=','.join(code for label,code in DAYS.items() if (val(label) or '').upper()=='SI')
         if not record['matricula'] or not record['materia_clave'] or not record['materia'] or not record['crn'] or not record['periodo']:
             omitted+=1; warnings.append({'fila':rownum,'tipo':'omitida','mensaje':'Fila sin identificador obligatorio'}); continue
         if not re.fullmatch(r'[A-Z]\d{8}',record['matricula']):

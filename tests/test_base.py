@@ -7,7 +7,7 @@ def test_base(tmp_path):
         assert c.get('/api/health').json()['app'] == 'SEMA'
         assert c.get('/').status_code == 200
         assert c.get('/app').status_code == 200
-        assert app.state.db.execute('PRAGMA user_version').fetchone()[0] == 1
+        assert app.state.db.execute('PRAGMA user_version').fetchone()[0] == 2
         assert app.state.db.execute('PRAGMA foreign_keys').fetchone()[0] == 1
     app.state.db.close()
 
@@ -20,6 +20,7 @@ def test_migration_preserves_existing_user(tmp_path):
     db.execute("INSERT INTO usuarios(nombre,usuario,password_hash) VALUES ('Ejemplo','existente','hash-ficticio')")
     db.commit();db.close()
     upgraded=open_db(path)
-    assert upgraded.execute('PRAGMA user_version').fetchone()[0]==1
+    assert upgraded.execute('PRAGMA user_version').fetchone()[0]==2
+    assert upgraded.execute("SELECT 1 FROM sqlite_master WHERE name='idx_cortes_alumno'").fetchone()
     assert upgraded.execute('SELECT usuario FROM usuarios').fetchone()[0]=='existente'
     upgraded.close()
