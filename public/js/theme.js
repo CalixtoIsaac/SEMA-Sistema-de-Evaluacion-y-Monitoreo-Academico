@@ -21,6 +21,9 @@
   function save(theme) {
     try { localStorage.setItem(KEY, theme); } catch (e) { /* sin persistencia */ }
   }
+  function forget() {
+    try { localStorage.removeItem(KEY); } catch (e) { /* nada */ }
+  }
   function systemTheme() {
     return media && media.matches ? 'dark' : 'light';
   }
@@ -59,13 +62,32 @@
     var next = current() === 'dark' ? 'light' : 'dark';
     save(next);
     apply(next, true);
+    // app.js guarda la misma preferencia en la cuenta (#49 · M-13).
+    window.dispatchEvent(new CustomEvent('themepreference', { detail: { tema: next === 'dark' ? 'oscuro' : 'claro' } }));
   });
+
+  /**
+   * Preferencia de la cuenta (#49): 'claro' | 'oscuro' | 'sistema'.
+   * Se guarda también en el navegador para que la página no parpadee al cargar.
+   */
+  function preference() {
+    var s = stored();
+    return s === 'dark' ? 'oscuro' : s === 'light' ? 'claro' : 'sistema';
+  }
+  function setPreference(tema) {
+    if (tema === preference()) return;
+    if (tema === 'oscuro') { save('dark'); apply('dark', true); }
+    else if (tema === 'claro') { save('light'); apply('light', true); }
+    else { forget(); apply(systemTheme(), true); }
+  }
+  window.SemaTheme = { preference: preference, setPreference: setPreference, current: current };
 
   document.addEventListener('DOMContentLoaded', updateButtons);
 
   // Otra pestaña cambió el tema
   window.addEventListener('storage', function (e) {
-    if (e.key === KEY && (e.newValue === 'dark' || e.newValue === 'light')) apply(e.newValue, true);
+    if (e.key !== KEY) return;
+    apply(e.newValue === 'dark' || e.newValue === 'light' ? e.newValue : systemTheme(), true);
   });
 
   // Cambió el tema del sistema y el usuario no ha elegido uno

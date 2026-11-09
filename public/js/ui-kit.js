@@ -140,7 +140,16 @@ const UI = (() => {
     refresh: '<path d="M21 12a9 9 0 1 1-2.6-6.4L21 8"/><path d="M21 3v5h-5"/>',
     chevronLeft: '<path d="m15 18-6-6 6-6"/>',
     chevronRight: '<path d="m9 18 6-6-6-6"/>',
-    chevronDown: '<path d="m6 9 6 6 6-6"/>'
+    chevronDown: '<path d="m6 9 6 6 6-6"/>',
+    download: '<path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 15v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/>',
+    dots: '<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>',
+    list: '<path d="M9 6h12M9 12h12M9 18h12"/><path d="M4 6h.01M4 12h.01M4 18h.01"/>',
+    sliders: '<path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>',
+    key: '<circle cx="8" cy="15" r="4"/><path d="m10.8 12.2 9.2-9.2M17 6l3 3M15 8l2 2"/>',
+    database: '<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/>',
+    palette: '<path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.6-.8 1.6-1.6 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-.9.7-1.6 1.6-1.6H16a5 5 0 0 0 5-5c0-4.1-4-7.4-9-7.4z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7" r="1"/><circle cx="14.5" cy="7" r="1"/>',
+    history: '<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/>',
+    form: '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/>'
   };
 
   function icon(name, extraClass = '') {
@@ -201,6 +210,65 @@ const UI = (() => {
     }[valor];
     if (!t) return '';
     return `<span class="tendencia tendencia-${valor}" title="${t.texto}">${icon(t.icono)}<span class="sr-only">${t.texto}</span></span>`;
+  }
+
+  // ---------- Códigos de actividad (context/05 §8) ----------
+  const CODIGOS = {
+    NE: { texto: 'No entregó', clase: 'codigo-gris' },
+    SC: { texto: 'Sin calificar: el profesor no subió la calificación', clase: 'codigo-gris' },
+    DA: { texto: 'Deshonestidad académica', clase: 'codigo-rojo' },
+    SD: { texto: 'Sin derecho', clase: 'codigo-rojo' }
+  };
+  function chipCodigo(codigo) {
+    const c = CODIGOS[codigo] || { texto: 'Código desconocido', clase: 'codigo-gris' };
+    return `<span class="chip-codigo ${c.clase}" title="${escape(c.texto)}">${escape(codigo)}<span class="sr-only"> (${escape(c.texto)})</span></span>`;
+  }
+
+  /** "2026-10-06" → "6 oct" (con año si no es el actual). */
+  function fechaCorta(value) {
+    if (!value) return '';
+    const d = new Date(String(value).slice(0, 10) + 'T12:00:00');
+    if (Number.isNaN(d.getTime())) return String(value);
+    const opts = { day: 'numeric', month: 'short' };
+    if (d.getFullYear() !== new Date().getFullYear()) opts.year = 'numeric';
+    return d.toLocaleDateString('es-MX', opts).replace('.', '');
+  }
+
+  // ---------- Lista de seguimiento elegida (M-03, compartida por Menú principal y Alumnos) ----------
+  const LISTA_KEY = 'sema.lista';
+  function getLista() {
+    const v = store.get('sessionStorage', LISTA_KEY);
+    return v && /^\d+$/.test(v) ? Number(v) : null;
+  }
+  function setLista(id) {
+    if (id) store.set('sessionStorage', LISTA_KEY, String(id));
+    else store.remove('sessionStorage', LISTA_KEY);
+  }
+
+  // ---------- Descargas con sesión (exportar, respaldo) ----------
+  /** Descarga un archivo de la API con el token y respeta el nombre que manda el servidor. */
+  async function download(path, fallbackName = 'descarga') {
+    const headers = {};
+    const token = getToken();
+    if (token) headers.Authorization = `Bearer ${token}`;
+    let res;
+    try { res = await fetch('/api' + path, { headers }); }
+    catch { throw new Error('No se pudo contactar al servidor. Revisa que esté en ejecución.'); }
+    if (!res.ok) {
+      let data = null;
+      try { data = await res.json(); } catch { /* sin cuerpo */ }
+      if (res.status === 401 && data && data.code === 'AUTH_REQUIRED') { clearSession(data.error); location.replace('/'); }
+      throw new Error((data && data.error) || `Error ${res.status}`);
+    }
+    const disp = res.headers.get('Content-Disposition') || '';
+    const star = disp.match(/filename\*=UTF-8''([^;]+)/i);
+    const plain = disp.match(/filename="?([^";]+)"?/i);
+    const name = star ? decodeURIComponent(star[1]) : (plain ? plain[1] : fallbackName);
+    const url = URL.createObjectURL(await res.blob());
+    const a = document.createElement('a');
+    a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    return name;
   }
 
   // ---------- Botón ocupado ----------
@@ -359,7 +427,7 @@ const UI = (() => {
    *     onSubmit: (values) => UI.api('/clientes', { method: 'POST', body: values })
    *   });
    */
-  function formModal({ title, description = '', fields, values = {}, submitText = 'Guardar', onSubmit }) {
+  function formModal({ title, description = '', fields, values = {}, submitText = 'Guardar', danger = false, onSubmit }) {
     return new Promise((resolve) => {
       const dialog = openDialog({
         title,
@@ -372,7 +440,7 @@ const UI = (() => {
           </div>`,
         footerHtml: `
           <button type="button" class="btn btn-outline" data-action="cancel">Cancelar</button>
-          <button type="submit" class="btn btn-primary">${escape(submitText)}</button>`,
+          <button type="submit" class="btn ${danger ? 'btn-destructive' : 'btn-primary'}">${escape(submitText)}</button>`,
         onClose: () => resolve(null)
       });
 
@@ -405,13 +473,25 @@ const UI = (() => {
     });
   }
 
+  // Menús desplegables <details class="menu">: se cierran al hacer clic fuera o con Escape.
+  if (typeof document !== 'undefined') {
+    document.addEventListener('click', (e) => {
+      document.querySelectorAll('details.menu[open]').forEach((m) => { if (!m.contains(e.target)) m.open = false; });
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape') return;
+      document.querySelectorAll('details.menu[open]').forEach((m) => { m.open = false; m.querySelector('summary').focus(); });
+    });
+  }
+
   return {
     escape,
     getToken, getUser, setUser, setSession, clearSession, takeAuthMessage,
     api, upload,
     icon, hydrateIcons,
     formatDate, initials,
-    badgeEstado, estadoTexto, estadoClase, motivoTexto, tendencia,
+    badgeEstado, estadoTexto, estadoClase, motivoTexto, tendencia, chipCodigo, fechaCorta,
+    getLista, setLista, download, openDialog,
     setBusy, toast, confirm, formModal
   };
 })();
