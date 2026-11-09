@@ -1,7 +1,7 @@
-// Pruebas del orden de la tabla de alumnos (#24), con los casos de context/07 §6 y §11.
+// Pruebas del orden (#24) y de la búsqueda (#23) de la tabla de alumnos, con los casos de context/07 §6 y §11.
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { ordenarAlumnos } = require('../public/js/orden-busqueda.js');
+const { normalizar, ordenarAlumnos } = require('../public/js/orden-busqueda.js');
 
 const alumno = (nombreMostrar, promedioGeneral, faltasTotal, extra = {}) => ({
   nombreMostrar, matricula: `T9${nombreMostrar}`, promedioGeneral, faltasTotal, estado: 'correcto', ...extra
@@ -45,4 +45,32 @@ test('no modifica la lista original', () => {
   const lista = [alumno('Beto', 90, 0), alumno('Ana', 80, 0)];
   ordenarAlumnos(lista);
   assert.deepEqual(nombres(lista), ['Beto', 'Ana']);
+});
+// ---------- Búsqueda (#23 · context/07 §7) ----------
+// Igual que en alumnos.js: todas las palabras deben aparecer, en cualquier orden.
+const coincide = (texto, consulta) => {
+  const palabras = normalizar(consulta).split(' ').filter(Boolean);
+  return palabras.every((p) => normalizar(texto).includes(p));
+};
+
+test('normalizar quita acentos, mayúsculas y espacios de más', () => {
+  assert.equal(normalizar('  Pérez   LÓPEZ  Muñoz '), 'perez lopez munoz');
+  assert.equal(normalizar(null), '');
+});
+
+test('"perez mariana" encuentra "Pérez López Mariana"', () => {
+  assert.ok(coincide('Pérez López Mariana T09000001', 'perez mariana'));
+});
+
+test('"munoz" encuentra "Muñoz" y "LOPEZ" encuentra "López"', () => {
+  assert.ok(coincide('Ana Muñoz', 'munoz'));
+  assert.ok(coincide('Pérez López Mariana', 'LOPEZ'));
+});
+
+test('la matrícula se busca por partes: "t0900" encuentra T09000001', () => {
+  assert.ok(coincide('Pérez López Mariana T09000001', 't0900'));
+});
+
+test('si falta una palabra, no coincide', () => {
+  assert.ok(!coincide('Pérez López Mariana', 'perez sofia'));
 });
