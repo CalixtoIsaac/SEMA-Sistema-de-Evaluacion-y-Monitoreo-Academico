@@ -11,6 +11,7 @@ from .auth import router as auth_router, load_secret, seed_user
 from .imports import router as imports_router
 from .students import router as students_router
 from .exportar import router as exportar_router
+from .cuenta import router as cuenta_router
 
 load_dotenv(ROOT / '.env')
 
@@ -29,6 +30,7 @@ def create_app(db_path=None, secret_path=None):
     app.state.login_attempts = {}
     seed_user(app.state.db)
     app.include_router(auth_router)
+    app.include_router(cuenta_router)
     app.include_router(imports_router)
     # /api/alumnos/exportar va antes que /api/alumnos/{matricula} para que no lo capture el detalle.
     app.include_router(exportar_router)
