@@ -2,25 +2,19 @@
   "name": "sema",
   "version": "1.0.0",
   "description": "SEMA · Sistema de Evaluación y Monitoreo Académico: seguimiento de calificaciones, faltas y evolución del desempeño estudiantil, con indicadores y alertas para detectar alumnos en riesgo.",
-  "main": "server.js",
   "private": true,
   "scripts": {
     "start": ".venv\\Scripts\\python.exe -m uvicorn sema.main:app --host 127.0.0.1 --port 3000",
     "dev": ".venv\\Scripts\\python.exe -m uvicorn sema.main:app --reload --host 127.0.0.1 --port 3000",
-    "test": "node --test"
+    "test": "node --test",
+    "anonimizar": "node scripts/anonimizar-excel.js",
+    "rendimiento:busqueda": "node scripts/rendimiento_busqueda.js"
   },
   "engines": {
     "node": ">=20"
   },
-  "dependencies": {
-    "bcryptjs": "^2.4.3",
-    "better-sqlite3": "^12.4.1",
-    "dotenv": "^16.4.5",
-    "exceljs": "^4.4.0",
-    "express": "^4.21.2",
-    "jsonwebtoken": "^9.0.2"
-  },
   "devDependencies": {
+    "exceljs": "^4.4.0",
     "cross-env": "^7.0.3"
   }
 }
