@@ -47,8 +47,7 @@ const Alumnos = (() => {
     try { sessionStorage.setItem(STATE_KEY, JSON.stringify(vista)); } catch { /* sin almacenamiento */ }
   }
 
-  // Sin acentos ni mayúsculas: "munoz" encuentra "Muñoz" (context/07 §7).
-  const normalizar = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+  const normalizar = OrdenBusqueda.normalizar; // vive en orden-busqueda.js (#23)
   const fmt = (n) => Number(n || 0).toLocaleString('es-MX');
   const fmtProm = (v) => (v === null || v === undefined ? null : (Math.round(v * 10) / 10).toFixed(1));
 

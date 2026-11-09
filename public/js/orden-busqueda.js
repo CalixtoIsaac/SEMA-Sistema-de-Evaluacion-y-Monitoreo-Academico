@@ -7,8 +7,22 @@
  *   PROMEDIO + FALTAS    → promedio menor → mayor, faltas mayor → menor, luego nombre
  *
  * Los alumnos sin promedio (Sin datos) y las bajas van siempre al final.
+ *
+ * Búsqueda (#23 · HU-14), igual que context/07 §7:
+ *   normalizar() quita acentos y mayúsculas para que "munoz" encuentre "Muñoz".
  */
 const OrdenBusqueda = (() => {
+  // ---------- Búsqueda ----------
+  // Minúsculas, sin acentos y con un solo espacio entre palabras.
+  // \u0300-\u036f son los acentos que quedan sueltos después de normalize('NFD').
+  const normalizar = (texto) => String(texto ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  // ---------- Orden ----------
   // Se compara con 1 decimal, que es lo que ve el usuario en la tabla.
   const redondear = (n) => (n === null || n === undefined ? null : Math.round(n * 10) / 10);
   const alFinal = (a) => (a.estado === 'baja' || a.promedioGeneral === null || a.promedioGeneral === undefined ? 1 : 0);
@@ -24,7 +38,7 @@ const OrdenBusqueda = (() => {
       || porNombre(a, b));
   }
 
-  return { ordenarAlumnos };
+  return { normalizar, ordenarAlumnos };
 })();
 
 // Permite usar este archivo en las pruebas de Node (npm test).
