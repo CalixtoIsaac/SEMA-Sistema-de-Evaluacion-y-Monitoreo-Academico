@@ -1,9 +1,9 @@
 # SEMA · Avances y pendientes del equipo
 
-**Fecha:** jueves 5 de noviembre de 2026 (día 4 del Sprint 2) · **Elaboró:** Calixto Isaac Galeana Medrano, Scrum Master
-**Base revisada:** `develop` en `544ec23` (después del PR #62). Pasan las 29 pruebas de Python y las 16 de Node. La carga del Excel de prueba y la tabla de alumnos funcionan en el navegador.
+**Fecha:** lunes 9 de noviembre de 2026 · **Elaboró:** Calixto Isaac Galeana Medrano, Scrum Master
+**Base revisada:** `develop` (hasta el PR #66) + rama **`feature/sprint2-pendientes`** (20 commits, pendiente de PR).
 
-> **Qué cambió desde el informe del 4 nov:** se integró todo el Sprint 1 que estaba en ramas (PR #53–#58 y #60). El Scrum Master hizo como suplente las vistas de carga y de alumnos (#15, #16, #17, #21) y el semáforo (#22), y también las correcciones C1, C2, C3 y C6 del backend (PR #58). `develop` y `main` se sincronizaron (PR #62) y se borraron las ramas viejas.
+> **Estado:** el **código de los dos sprints está terminado**. Lo que se arrastraba del Sprint 1 (#6, #13, #20) y todo el desarrollo del Sprint 2 están en `feature/sprint2-pendientes`, con 85 pruebas de Python y 23 de Node aprobadas, probados en el navegador (tema claro y oscuro, ancho de celular) con el Excel de muestra y con la base real de 490 alumnos. Falta: **abrir e integrar el PR**, que Saraí valide los issues, las pruebas con el cliente y en un Windows limpio, el manual y el release v1.0.
 
 ---
 
@@ -12,9 +12,11 @@
 | ID | Decisión | Quién | Fecha |
 |---|---|---|---|
 | **D-01 (actualizada)** | El backend pasa de Node.js/Express a **Python + FastAPI + SQLite**. El frontend sigue en HTML/CSS/JS sin frameworks. Se mantiene el contrato `/api` de `context/06`. Node queda solo para herramientas de desarrollo (anonimizador de Excel y pruebas de JavaScript). **Ya registrada en `context/00`.** | Aprobó Calixto Isaac (Scrum Master) · propuesta de Sebastián, avalada por Saraí (PO) | 4 nov 2026 |
-| D-01a | Python 3.12 o superior en la computadora del cliente. SEMA.bat lo verifica e instala las dependencias. | Scrum Master | 4 nov 2026 |
-| D-01b | Las reglas de indicadores (#13) existen **una sola vez**, en `sema/indicators.py`. Uziel las valida y completa las pruebas. No habrá versión en JavaScript. | Scrum Master | 4 nov 2026 |
-| **D-21 (nueva)** | **Flujo de ramas:** toda rama nueva sale de `develop` actualizado y su PR va hacia `develop`. Las features se fusionan con *squash*. `develop` → `main` solo al cerrar una versión y **siempre con "Create a merge commit"**. Así no se vuelven a separar las ramas. | Scrum Master | 5 nov 2026 |
+| D-01a | Python 3.12 o superior en la computadora del cliente. SEMA.bat lo verifica e instala las dependencias. **Aplicado en SEMA.bat** (#6). | Scrum Master | 4 nov 2026 |
+| D-01b | Las reglas de indicadores (#13) existen **una sola vez**, en `sema/indicators.py`. No habrá versión en JavaScript. | Scrum Master | 4 nov 2026 |
+| **D-21** | **Flujo de ramas:** toda rama nueva sale de `develop` actualizado y su PR va hacia `develop`. Las features se fusionan con *squash*. `develop` → `main` solo al cerrar una versión y **siempre con "Create a merge commit"**. | Scrum Master | 5 nov 2026 |
+| **D-22 (nueva, por confirmar con la PO)** | **Caso ambiguo de #13:** un alumno sin calificaciones numéricas y con 0 faltas queda en **Sin datos**, aunque sus materias tengan límite de faltas. Con al menos una falta, el estado es el de faltas. Anotado en `context/07` §4.3 con su prueba. | Scrum Master · **falta el visto bueno de Saraí** | 9 nov 2026 |
+| **D-23 (nueva)** | El PR del Sprint 2 se integra con **"Create a merge commit"** (excepción a D-21) para conservar los commits separados por issue. | Scrum Master | 9 nov 2026 |
 
 ---
 
@@ -22,93 +24,94 @@
 
 | Estado | Puntos | Issues |
 |---|---|---|
-| ✅ Integrado en `develop` | **51** | #1, #2, #3, #4, #5, #7, #8, #9, #10, #11, #12, #14, #15, #16, #17, #19, #21, #22 |
-| ⬜ Pendiente (se arrastra al Sprint 2) | 14 | #6, #13, #18, #20 |
+| ✅ Integrado en `develop` | 51 | #1, #2, #3, #4, #5, #7, #8, #9, #10, #11, #12, #14, #15, #16, #17, #19, #21, #22 |
+| 🟦 Terminado en `feature/sprint2-pendientes` (falta PR) | 13 | #6, #13, #20 |
+| ⬜ Pendiente | 1 | #18 (validación con el cliente) |
 
-**Avance: 51 de 65 puntos (78 %)**, contra 13 de 65 (20 %) el 4 nov.
+**Código: 64 de 65 puntos (98 %).**
 
-### Detalle por issue
+---
+
+## 3. Avance del Sprint 2 (2 – 8 nov · 85 puntos)
+
+| Estado | Puntos | Issues |
+|---|---|---|
+| ✅ Integrado en `develop` | 8 | #24 (PR #61), #38 (PR #65), #42 (PR #66) · SEMA.bat inicial (PR #64) |
+| 🟦 Terminado en `feature/sprint2-pendientes` (falta PR) | 58 | #25, #26, #27, #28, #29, #30, #31, #32, #33, #34, #35, #36, #37, #39, #41, #43, #49 |
+| ⬜ Pendiente | 19 | #23 (2), #40 (3), #44 (2), #45 (3), #46 (3), #47 (5), #48 (1) |
+
+**Código: 66 de 85 puntos (78 %).** Lo que falta ya no es desarrollo, salvo #23 (ajuste pequeño) y #47 (correcciones que salgan de las pruebas).
+
+### Detalle de lo terminado hoy
 
 | # | Tarea | Responsable | Estado |
 |---|---|---|---|
-| 1 | Limpiar repo, renombrar a SEMA, paleta azul | Calixto | ✅ Integrado |
-| 2 | Proteger ramas, CODEOWNERS, plantilla de PR | Calixto | ✅ Integrado |
-| 3 | Esquema de BD v1 y migraciones | Uziel | ✅ Integrado (PR #50) |
-| 4 | Cuenta "Chuchito" y JWT | Sebastián | ✅ Integrado (PR #58) · C1 y C3 aplicadas |
-| 5 | Iniciar sesión | Matías | ✅ Integrado (PR #55) |
-| 6 | SEMA.bat | Uziel | ⬜ **Pendiente · rehacer para Python** |
-| 7 | Sidebar | Matías | ✅ Integrado (PR #54) |
-| 8 | Chart.js e Inter locales | Matías | ✅ Integrado (PR #56) |
-| 9 | Excel de prueba anonimizado | Uziel | ✅ Integrado (PR #53) |
-| 10 | Prototipos y validación con el cliente | Saraí | ✅ Completado |
-| 11 | Presentar decisiones D-08 a D-20 | Saraí | ✅ Completado |
-| 12 | Lector del Excel de monitoreo | Sebastián | ✅ Integrado (PR #58) · **reasignado en GitHub a Sebastián** |
-| 13 | Reglas de indicadores y nombres | Uziel | ⬜ **Pendiente:** validar `sema/indicators.py` y completar pruebas |
-| 14 | API de previa y confirmación | Sebastián | ✅ Integrado (PR #58) |
-| 15 | Zona para arrastrar el Excel | Matías | ✅ Integrado (PR #58) · hecho por el Scrum Master como suplente |
-| 16 | Previsualización del Excel | Matías | ✅ Integrado (PR #58) · hecho por el Scrum Master como suplente |
-| 17 | Notificación de carga | Matías | ✅ Integrado (PR #58) · hecho por el Scrum Master como suplente |
-| 18 | Validar la carga con el Excel real y el cliente | Saraí | ⬜ **Pendiente · ya se puede hacer** |
-| 19 | API de alumnos | Sebastián | ✅ Integrado (PR #58) · C2 aplicada |
-| 20 | API del detalle del alumno | Sebastián | ⬜ **Pendiente · bloquea #25** |
-| 21 | Tabla de alumnos | Matías | ✅ Integrado (PR #58) · hecho por el Scrum Master como suplente |
-| 22 | Semáforo de colores | Uziel | ✅ Integrado (PR #58) · hecho por el Scrum Master como suplente |
+| 6 | SEMA.bat exige Python 3.12 y rehace un `.venv` viejo | Uziel | 🟦 Sobre su PR #64 · ajuste del Scrum Master |
+| 13 | Pruebas completas de indicadores + caso ambiguo (D-22) | Uziel | 🟦 Hecho por el Scrum Master como suplente |
+| 20 | API del detalle y corrección de nombre | Sebastián | 🟦 Hecho por el Scrum Master como suplente |
+| 25 | Vista de detalle del alumno | Matías | 🟦 Hecho por el Scrum Master como suplente |
+| 26 | Índices v2 y prueba con 5,000 alumnos (`docs/rendimiento-5000.md`) | Uziel | 🟦 Hecho por el Scrum Master como suplente |
+| 27, 30 | API de listas de seguimiento (previa, crear, renombrar, reemplazar, eliminar) | Sebastián | 🟦 Hecho por el Scrum Master como suplente |
+| 28, 29 | Cargar lista y selector "Mostrar" en Alumnos y Menú principal | Matías | 🟦 Hecho por el Scrum Master como suplente |
+| 31 | Alta manual: API, catálogos y pestaña Formulario | Uziel | 🟦 Hecho por el Scrum Master como suplente |
+| 32 | API de cuenta y contraseña | Sebastián | 🟦 Hecho por el Scrum Master como suplente |
+| 33 | Vista Perfil: cuenta y contraseña | Matías | 🟦 Hecho por el Scrum Master como suplente |
+| 34 | API del Resumen administrativo | Sebastián | 🟦 Hecho por el Scrum Master como suplente |
+| 35, 36 | Menú principal: tarjetas, estado vacío y gráficas | Matías | 🟦 Hecho por el Scrum Master como suplente |
+| 37 | Evolución del desempeño por carga (API y gráfica) | Uziel | 🟦 Hecho por el Scrum Master como suplente |
+| 39 | Historial de cargas (API y pestaña) | Sebastián | 🟦 Hecho por el Scrum Master como suplente |
+| 41 | Umbrales configurables con vista previa | Sebastián, Matías | 🟦 Hecho por el Scrum Master como suplente |
+| 43 | Respaldo y borrado de datos | Sebastián | 🟦 Hecho por el Scrum Master como suplente |
+| 49 | Preferencias: tema y formato de nombres | Uziel | 🟦 Hecho por el Scrum Master como suplente |
+| — | Botón Exportar en Alumnos (frontend de #42) | Uziel | 🟦 Hecho por el Scrum Master |
+| — | Arreglos: una vista ya no pinta sobre otra al cambiar rápido; la tabla no se sale en celular; el navegador ya no usa JS/CSS viejos tras actualizar | — | 🟦 Hecho por el Scrum Master |
 
-> Los issues integrados siguen abiertos hasta que Saraí los valide (`context/Sprints.md` §1). Los PR van a `develop`, así que `Closes #n` no los cierra solo.
+> Los issues siguen abiertos hasta que Saraí los valide (`context/Sprints.md` §1). Los PR van a `develop`, así que `Closes #n` no los cierra solo.
 
 ---
 
-## 3. Correcciones generales
+## 4. Correcciones generales
 
 | # | Corrección | Responsable | Estado |
 |---|---|---|---|
-| G1–G3 | C1 formato de errores, C2 tendencia, C3 límite de intentos | Sebastián | ✅ Hecho (PR #58, con pruebas) |
-| G4 | Comandos de Windows en `RUN_BACKEND.md` (C4) | Sebastián | ✅ Hecho (PR #60) |
-| G5 | **Quitar de `develop` los informes de auditoría y evidencias de Codex** (C5). Entraron con el PR #58: `INFORME_AUDITORIA_BACKEND.md`, `INFORME_CIERRE_SPRINT_BACKEND.md`, `context/CODEX_BACKEND.md`, `evidencias/` y `scripts/capturas_backend.py` | Sebastián | ⬜ Pendiente · en el PR de limpieza |
-| G6 | SEMA.bat para Python (#6) | Uziel | ⬜ Pendiente · alta |
-| G7 | Registrar D-01 actualizada en `context/00` | Calixto | ✅ Hecho |
-| G8 | README y `context/03` a FastAPI (C7) | Sebastián | ✅ Hecho (PR #60) · **falta `context/06`**: 5 encabezados aún dicen `routes/*.js` |
+| G1–G4 | C1 errores, C2 tendencia, C3 intentos, C4 `RUN_BACKEND.md` | Sebastián | ✅ Hecho (PR #58 y #60) |
+| G5 | Informes de auditoría de Codex | Sebastián | 🟦 Archivados en `docs/backend/`; `evidencias/` y `scripts/capturas_backend.py` borrados |
+| G6 | SEMA.bat para Python (#6) | Uziel | 🟦 Python 3.12 (falta probar en Windows limpio, #44) |
+| G7 | D-01 actualizada en `context/00` | Calixto | ✅ Hecho |
+| G8 | README y `context/03`, `04` y `06` a FastAPI | Sebastián | 🟦 Hecho (encabezados de `context/06` y campos nuevos) |
 | G9 | Ajustar el texto de los issues que mencionan Node y las fechas de `context/Sprints.md` | Saraí (PO) | ⬜ Pendiente · media |
-| G10 | Retirar Express: `server.js`, `routes/`, `lib/auth.js`, `lib/db.js` y sus dependencias (C8) | Sebastián | ⬜ Pendiente · en el PR de limpieza |
-| G11 | Reasignar #12 a Sebastián y #24 a Matías en GitHub | Calixto | ✅ Hecho |
-| G12 | Cambio de contraseña (#32): la contraseña D-04 es pública en los documentos | Sebastián | ⬜ Pendiente · alta |
-| G13 | URL del repo en el informe de Sebastián | Sebastián | Se resuelve sola al borrar los informes (G5) |
-| G14 | Agregar `*.bundle` al `.gitignore` | Calixto | ⬜ Hoy |
-| G15 | Release `develop` → `main` (v0.3) con "Create a merge commit". `main` aún no tiene los PR #60 y #62 | Calixto | ⬜ Cuando se integre el PR de limpieza |
+| G10 | Retirar Express y sus dependencias | Sebastián | 🟦 Hecho (`server.js`, `routes/`, `lib/auth.js`, `lib/db.js`, `test/base.test.js`) |
+| G11 | Reasignar #12 y #24 en GitHub | Calixto | ✅ Hecho |
+| G12 | Cambio de contraseña (#32) | Sebastián | 🟦 Hecho · **cambien la contraseña por defecto en la computadora del cliente** |
+| G13 | URL del repo en el informe | — | ✅ Resuelto al archivar los informes |
+| G14 | `*.bundle` en `.gitignore` | Calixto | 🟦 Hecho |
+| G15 | Release `develop` → `main` (v1.0) con "Create a merge commit" | Calixto | ⬜ Después de integrar el PR y de las pruebas con el cliente |
 
 ---
 
-## 4. Pendientes del Sprint 2 (2–8 nov · 85 puntos + 14 arrastrados)
+## 5. Pendientes para la entrega
 
-**Avance del Sprint 2:** ningún issue integrado todavía. #24 está terminado en `feature/24-ordenar` (Matías): se fusiona sin conflictos y pasan sus pruebas (22/22 de Node). La búsqueda de #23 ya funciona dentro de la tabla.
-
-| Responsable | Arrastrado del Sprint 1 | Sprint 2 |
-|---|---|---|
-| **Sebastián** (backend) | #20 | **#32**, #34, #27, #30, #39, #41, #43 · PR de limpieza (G5, G8, G10) |
-| **Matías** (frontend) | — | **#24 (PR)**, #23, #25, #35, #36, #33, #28, #29, #41 |
-| **Uziel** (BD y estructura) | **#6**, #13 | #26, #31, #37, #38, #42, #44, #49 |
-| **Saraí** (PO) | **#18** | Validar y cerrar los issues integrados · #40, #45, #46 · G9 |
-| **Calixto** (SM) | — | G14, G15 · revisar e integrar los PR · #48 |
-| **Todos** | — | #47 corrección de errores y pulido visual |
-
-> **Riesgo de calendario:** quedan 4 días (jueves 5 a domingo 8 nov) para 14 puntos arrastrados y 85 del Sprint 2. **Ruta crítica para entregar:** #20 → #25 (detalle), #34 → #35/#36 (Menú principal), #32 → #33 (contraseña), #6 → #44 (instalar en Windows) y #45/#48 (aceptación y entrega).
-> **Propuesta de recorte (confirmar con Saraí):** pasar a "Could" #30, #37, #39, #42 y #43, y dejar #28/#29 (listas) solo si #27 queda listo el viernes.
-
-### Calendario sugerido
-
-| Día | Meta |
-|---|---|
-| **Jue 5** | PR #24 · #20 · PR de limpieza · #6 · #18 con el cliente |
-| **Vie 6** | #25 · #32 + #33 · #34 · #13 · release v0.3 → `main` |
-| **Sáb 7** | #35 + #36 · #41 · #49 · #26 · #44 en Windows limpio |
-| **Dom 8** | #45 aceptación · #46 manual · #47 pulido · #48 release v1.0 |
+| Prioridad | Responsable | Tarea | Issue |
+|---|---|---|---|
+| **1 · hoy** | Calixto | Subir `feature/sprint2-pendientes`, abrir el PR hacia `develop` (merge commit, D-23) y conseguir una aprobación | — |
+| **1 · hoy** | Sebastián, Matías, Uziel | Revisar en el PR el código de sus issues (tabla del §3) y aprobar. Cada uno debe poder explicar su parte | — |
+| 2 | Saraí | Validar y cerrar los issues terminados; confirmar D-22 | #6–#49 |
+| 2 | Uziel | Probar SEMA.bat en un Windows limpio (Python 3.12, ruta con espacios y acentos) | **#44** |
+| 2 | Saraí | Validar la carga con el Excel real junto al cliente | **#18** |
+| 3 | Saraí | Validación del Menú principal y pruebas de aceptación con el cliente | **#40, #45** |
+| 3 | Matías | Mover `normalizar()` a `orden-busqueda.js` con sus pruebas | **#23** |
+| 3 | Todos | Corregir lo que salga de las pruebas y pulido visual | **#47** |
+| 4 | Saraí | Manual de usuario (Perfil, listas, formulario, respaldo) | **#46** |
+| 4 | Saraí | Actualizar issues y fechas de `context/Sprints.md` | G9 |
+| 5 | Calixto | Release v1.0 `develop` → `main` y entrega | **#48**, G15 |
 
 ---
 
-## 5. Cómo trabajar desde hoy (D-21)
+## 6. Cómo trabajar desde hoy (D-21)
 
 1. Antes de empezar cualquier issue: `git checkout develop && git pull`, y luego `git checkout -b feature/<n>-<nombre>`.
 2. Un PR por issue, siempre con base `develop`. En el texto va `Closes #n` y cómo se probó.
 3. Antes de abrir el PR deben pasar `.venv\Scripts\python.exe -m pytest -q tests` y `npm test`.
 4. Cada PR necesita una aprobación de otro integrante. Revisen los PR de los demás el mismo día.
 5. Al fusionar, borren la rama.
+6. Si después de actualizar la app se ve igual que antes, recarguen con **Ctrl + F5** (desde el commit `4b1570d` ya no debería pasar).
