@@ -15,6 +15,8 @@ from .cuenta import router as cuenta_router
 from .resumen import router as resumen_router
 from .configuracion import router as configuracion_router
 from .listas import router as listas_router
+from .manual import router as manual_router
+from .catalogos import router as catalogos_router
 from .datos import router as datos_router
 
 load_dotenv(ROOT / '.env')
@@ -39,9 +41,11 @@ def create_app(db_path=None, secret_path=None):
     # /api/alumnos/exportar va antes que /api/alumnos/{matricula} para que no lo capture el detalle.
     app.include_router(exportar_router)
     app.include_router(students_router)
+    app.include_router(manual_router)
     app.include_router(listas_router)
     app.include_router(resumen_router)
     app.include_router(configuracion_router)
+    app.include_router(catalogos_router)
     app.include_router(datos_router)
     @app.get('/api/health')
     def health():
