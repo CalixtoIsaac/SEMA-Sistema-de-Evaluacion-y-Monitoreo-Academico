@@ -82,7 +82,7 @@ def split_name(name):
 
 def records_for_period(db,period,lista=None):
     sql="""SELECT i.id AS inscripcion_id,i.alumno_id,i.origen,i.es_baja,i.faltas,i.ne,i.calificacion,i.calificacion_codigo,
-    c.limite_faltas,c.limite_ne,m.nombre AS materia
+    c.limite_faltas,c.limite_ne,m.nombre AS materia,m.clave AS materia_clave
     FROM inscripciones i JOIN cursos c ON c.id=i.curso_id JOIN materias m ON m.id=c.materia_id
     WHERE c.periodo_id=?"""
     args=[period]
