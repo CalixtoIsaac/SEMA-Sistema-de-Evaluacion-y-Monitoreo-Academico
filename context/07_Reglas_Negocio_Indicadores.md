@@ -1,6 +1,6 @@
 # 07 · Reglas de negocio e indicadores
 
-Todas estas reglas se implementan **una sola vez** en `lib/indicadores.js` (funciones puras) y se prueban en `test/indicadores.test.js`. Los umbrales se leen de la tabla `configuracion` (valores por defecto abajo) y se pueden cambiar en **Perfil → Umbrales** (M-08). Las referencias **D-xx** son decisiones de `00_Indice_y_Decisiones.md` §4.
+Todas estas reglas se implementan **una sola vez** en `sema/indicators.py` (funciones puras, D-01b) y se prueban en `tests/test_indicators_contract.py`. Los fragmentos en JavaScript de este documento son solo de referencia; en el navegador únicamente se replican el orden y la búsqueda (`public/js/orden-busqueda.js`). Los umbrales se leen de la tabla `configuracion` (valores por defecto abajo) y se pueden cambiar en **Perfil → Umbrales** (M-08). Las referencias **D-xx** son decisiones de `00_Indice_y_Decisiones.md` §4.
 
 ---
 
@@ -102,6 +102,8 @@ function estadoFaltas(faltas, limite, u) {
 - Con el Excel actual: **319 Correcto · 134 Preventivo · 34 Crítico** (solo por promedio serían 434 / 43 / 10: las faltas son la causa principal del riesgo).
 - En el detalle del alumno se muestra **el motivo** del estado: "Crítico por faltas en Inglés Nivel 4 (4 / 5)" o "Crítico por promedio (68.9)".
 
+> **Decisión #13 (9 nov 2026, pendiente de confirmar con la PO):** un alumno **sin calificaciones numéricas y con 0 faltas** queda en **Sin datos**, aunque sus materias tengan límite de faltas. Se toma la lectura literal de la regla anterior ("si tampoco hay faltas que evaluar"): al inicio del semestre todos tienen 0 faltas y ninguna calificación, y mostrarlos en verde daría una falsa sensación de que van bien. Con al menos una falta, el estado es el de faltas (1 de 5 → Correcto; 3 de 5 → Preventivo). Una materia `SD` lo lleva a Crítico. Prueba: `test_decision_sin_calificaciones_y_sin_faltas_es_sin_datos`.
+
 ### 4.4 Presentación
 | Estado | Clave API | Etiqueta | Color (variables de `theme.css`) | Ícono |
 |---|---|---|---|---|
@@ -161,11 +163,11 @@ function ordenarAlumnos(alumnos, { promedio = false, faltas = false } = {}) {
 
 ## 8. Formato de nombres (M-12)
 
-El Excel trae los nombres como **"Apellidos Nombres"** (ej. "Pérez López Mariana") y no separa unos de otros. Para mostrarlos como **"Nombres Apellidos"** se separan al importar con `separarNombre()` en `lib/nombres.js`:
+El Excel trae los nombres como **"Apellidos Nombres"** (ej. "Pérez López Mariana") y no separa unos de otros. Para mostrarlos como **"Nombres Apellidos"** se separan al importar con `split_name()` en `sema/indicators.py`:
 
 1. Se recortan espacios (el Excel de lista trae espacios al final en 117 de 173 nombres) y se dividen en palabras.
 2. Las **partículas** `de`, `del`, `la`, `las`, `los`, `y`, `san`, `santa`, `mc`, `van`, `von` se unen a la palabra siguiente: "De la O", "Del Ángel", "San Martín".
-3. Apellidos **compuestos conocidos** se unen como uno solo (lista editable en `lib/nombres.js`): "Montes de Oca", "Gutiérrez de Velasco", "Rubín de Celis", "Ruiz de Velasco", "Ponce de León"…
+3. Apellidos **compuestos conocidos** se unen como uno solo (lista editable `COMPOUND_SURNAMES` en `sema/indicators.py`): "Montes de Oca", "Gutiérrez de Velasco", "Rubín de Celis", "Ruiz de Velasco", "Ponce de León"…
 4. Las **dos primeras unidades** son los apellidos; el resto, los nombres. Si solo hay dos unidades: 1 apellido + 1 nombre.
 5. Se guardan `apellidos` y `nombres` además del `nombre` original. Si el alumno ya tiene una corrección manual (`nombre_corregido = 1`), una nueva carga no la sobrescribe.
 

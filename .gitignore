@@ -20,3 +20,6 @@ data/jwt.secret
 __pycache__/
 .pytest_cache/
 *.pyc
+
+# Paquetes de git para mover ramas sin push (git bundle)
+*.bundle

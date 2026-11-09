@@ -343,7 +343,9 @@ CREATE INDEX IF NOT EXISTS idx_alumnos_busqueda     ON alumnos (nombre_busqueda)
 
 ## 5. Migraciones
 
-`lib/db.js` lee `PRAGMA user_version`. Versión 1 = este esquema. Cada cambio futuro agrega un bloque `if (version < N) { …; db.pragma('user_version = N') }`. Nunca se edita un bloque ya publicado en `main`.
+`sema/db.py` lee `PRAGMA user_version`. Versión 1 = este esquema (`lib/schema.sql`). Cada cambio futuro agrega un bloque `if user_version < N: …; PRAGMA user_version=N`. Nunca se edita un bloque ya publicado en `main`.
+
+- **Versión 2 (#26, 9 nov 2026):** índices `idx_importaciones_periodo (periodo_id, tipo, estado, aplicado_en)`, `idx_cortes_alumno (alumno_id)` e `idx_actividades_codigo (codigo) WHERE codigo IS NOT NULL`. Mediciones en `docs/rendimiento-5000.md`.
 
 ## 6. Volumen esperado
 

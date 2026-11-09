@@ -1,5 +1,7 @@
 # SEMA · Contexto breve para Codex (backend)
 
+> **Archivado (9 nov 2026, G5):** contexto histórico de la migración a FastAPI. Ya no describe el estado actual del código.
+
 Actualizado: 3 de noviembre de 2026. Referencia inspeccionada: rama `develop`, commit `553c82a` (30 oct 2026). Antes de cada sesión, comprobar el estado actual de `develop` y actualizar solo los hechos que hayan cambiado.
 
 ## Decisión de tecnología y transición

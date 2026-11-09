@@ -18,19 +18,36 @@ set "ARRANQUE="
 set "PUERTO=3000"
 set "ABRIR_NAVEGADOR=1"
 
-rem -- 1. Buscar Python 3.10 o superior ---
+rem --- 1. Buscar Python 3.12 o superior (RNF-02, requirements.txt) ---
 
 set "PY="
-py -3 -c "import sys; sys.exit(0 if sys.version_info >= (3, 10) else 1)" >nul 2>nul
+set "VERSION_OK=import sys; sys.exit(0 if sys.version_info >= (3, 12) else 1)"
+py -3 -c "%VERSION_OK%" >nul 2>nul
 if not errorlevel 1 set "PY=py -3"
 if not defined PY (
-    python -c "import sys; sys.exit(0 if sys.version_info >= (3, 10) else 1)" >nul 2>nul
+    py -3.13 -c "%VERSION_OK%" >nul 2>nul
+    if not errorlevel 1 set "PY=py -3.13"
+)
+if not defined PY (
+    py -3.12 -c "%VERSION_OK%" >nul 2>nul
+    if not errorlevel 1 set "PY=py -3.12"
+)
+if not defined PY (
+    python -c "%VERSION_OK%" >nul 2>nul
     if not errorlevel 1 set "PY=python"
 )
 if not defined PY goto sin_python
 
 rem --- 2. Entorno virtual (solo la primera vez) ---
 
+rem Un .venv creado con un Python anterior a 3.12 se vuelve a crear.
+if exist ".venv\Scripts\python.exe" (
+    ".venv\Scripts\python.exe" -c "%VERSION_OK%" >nul 2>nul
+    if errorlevel 1 (
+        echo El entorno de Python es anterior a 3.12. Se va a crear de nuevo...
+        rmdir /s /q ".venv"
+    )
+)
 if not exist ".venv\Scripts\python.exe" (
     echo Creando el entorno de Python, solo la primera vez...
     %PY% -m venv .venv
@@ -102,7 +119,7 @@ goto fin
 
 :sin_python
 echo.
-echo Instala Python 3.10 o superior desde https://www.python.org/downloads/
+echo Instala Python 3.12 o superior desde https://www.python.org/downloads/
 echo  Durante la instalacion marca la casilla "Add python.exe to PATH".
 echo.
 pause

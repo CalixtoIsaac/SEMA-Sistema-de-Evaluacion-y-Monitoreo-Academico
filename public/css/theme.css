@@ -50,6 +50,15 @@
   --glow-1: rgba(59, 130, 246, 0.16);
   --glow-2: rgba(8, 145, 178, 0.12);
 
+  /* Gráficas (Chart.js lee estas variables en graficas.js) */
+  --chart-correcto: #16a34a;
+  --chart-preventivo: #f59e0b;
+  --chart-critico: #dc2626;
+  --chart-sin-datos: #a1a1aa;
+  --chart-linea: #1d4ed8;
+  --chart-grid: #ececef;
+  --chart-text: #5f5f68;
+
   --radius-sm: 8px;
   --radius: 12px;
   --radius-lg: 16px;
@@ -95,4 +104,12 @@
 
   --glow-1: rgba(59, 130, 246, 0.16);
   --glow-2: rgba(8, 145, 178, 0.12);
+
+  --chart-correcto: #22c55e;
+  --chart-preventivo: #fbbf24;
+  --chart-critico: #f87171;
+  --chart-sin-datos: #52525b;
+  --chart-linea: #60a5fa;
+  --chart-grid: #27272a;
+  --chart-text: #a1a1aa;
 }

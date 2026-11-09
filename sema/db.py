@@ -15,6 +15,12 @@ DEFAULT_CONFIG = {
     'evolucion.umbral_puntos': '2',
 }
 
+MIGRATION_V2 = '''
+CREATE INDEX IF NOT EXISTS idx_importaciones_periodo ON importaciones (periodo_id, tipo, estado, aplicado_en);
+CREATE INDEX IF NOT EXISTS idx_cortes_alumno ON cortes_alumno (alumno_id);
+CREATE INDEX IF NOT EXISTS idx_actividades_codigo ON actividades (codigo) WHERE codigo IS NOT NULL;
+'''
+
 def open_db(path=None):
     path = Path(path or os.environ.get('DB_PATH') or ROOT / 'data/app.db')
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -28,6 +34,10 @@ def open_db(path=None):
         # los DROP de lib/db.js: una base existente no debe perder usuarios.
         schema = (ROOT / 'lib/schema.sql').read_text()
         db.executescript('BEGIN IMMEDIATE;\n' + schema + '\nPRAGMA user_version=1;\nCOMMIT;')
+    if db.execute('PRAGMA user_version').fetchone()[0] < 2:
+        # Migración v2 (#26): índices para los cortes por periodo y la evolución.
+        # lib/schema.sql (v1) no se edita; los cambios de esquema van aquí.
+        db.executescript('BEGIN IMMEDIATE;\n' + MIGRATION_V2 + '\nPRAGMA user_version=2;\nCOMMIT;')
     with transaction(db):
         db.executemany('INSERT OR IGNORE INTO configuracion(clave,valor) VALUES (?,?)', DEFAULT_CONFIG.items())
         db.execute("DELETE FROM importaciones WHERE estado='previa' AND creado_en < datetime('now','localtime','-24 hours')")

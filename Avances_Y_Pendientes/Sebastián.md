@@ -1,8 +1,8 @@
 # Sebastián Huesca Ramírez · Backend
 
-**Fecha de revisión:** jueves 5 de noviembre de 2026 · **Revisó:** Calixto Isaac (Scrum Master)
+**Fecha de revisión:** lunes 9 de noviembre de 2026 · **Revisó:** Calixto Isaac (Scrum Master)
 
-> **Desde hoy:** toda rama nueva sale de `develop` actualizado y su PR va hacia `develop` (decisión D-21). Tus ramas anteriores (`chore/migracion-fastapi`, `feature/4`, `/12`, `/14` y `/19`) **ya se integraron y se borraron**. Si tenías algo sin subir en ellas, pásalo a una rama nueva creada desde `develop`.
+> Las APIs que te faltaban y el PR de limpieza ya están en la rama **`main`** (PR #68). El Scrum Master las hizo como suplente para no atrasar la entrega. Tu trabajo ahora es **revisarlas en el PR #68, entenderlas y poder explicarlas**, porque vas a dar soporte al backend en las pruebas con el cliente.
 
 ---
 
@@ -10,65 +10,41 @@
 
 | Issue | Estado | Nota |
 |---|---|---|
-| **#4** · Cuenta "Chuchito" y JWT | ✅ Integrado (PR #58) | |
-| **#12** · Lector del Excel de monitoreo | ✅ Integrado (PR #58) | El Scrum Master te reasigna el issue en GitHub |
-| **#14** · API de previa y confirmación | ✅ Integrado (PR #58) | |
-| **#19** · API de alumnos | ✅ Integrado (PR #58) | |
-| Migración a FastAPI | ✅ Integrado (PR #58 y #60) | |
+| **#4, #12, #14, #19** · Cuenta, lector del Excel, importación y alumnos | ✅ Integrado (PR #58) | |
+| Migración a FastAPI y C1–C4, C6, C7 | ✅ Integrado (PR #58 y #60) | |
+| **#20** · API del detalle y corrección de nombre | ✅ Integrado (PR #68) | `sema/students.py`. Trae además `faltasNuevas` y la evolución por corte |
+| **#32** · API de cuenta y contraseña | ✅ Integrado (PR #68) | `sema/cuenta.py`. Cambiar el usuario devuelve un token nuevo; la contraseña se valida en bytes (máximo 72, límite de bcrypt) |
+| **#34** · API del Resumen administrativo | ✅ Integrado (PR #68) | `sema/resumen.py` |
+| **#41** · Umbrales configurables | ✅ Integrado (PR #68) | `sema/configuracion.py`, con vista previa |
+| **#27, #30** · Listas de seguimiento | ✅ Integrado (PR #68) | `sema/listas.py` y `parse_list()` en `sema/excel.py` |
+| **#39** · Historial de cargas | ✅ Integrado (PR #68) | `GET /api/importaciones` en `sema/imports.py`. Las listas también quedan registradas |
+| **#43** · Respaldo y borrado | ✅ Integrado (PR #68) | `sema/datos.py`. El respaldo usa `sqlite3.backup()` con el candado de escritura |
+| **PR de limpieza** (C5, C7, C8) | ✅ Integrado (PR #68) | Informes en `docs/backend/`; `context/06` con módulos de Python; Express retirado y `exceljs` en `devDependencies` |
 
-### Correcciones del informe anterior
+### Qué revisar en el código
 
-| | Estado |
-|---|---|
-| **C1** · Errores de validación `400 {error, code:"VALIDACION"}` | ✅ Hecho por el Scrum Master (PR #58), con prueba |
-| **C2** · Tendencia contra el corte anterior del periodo | ✅ Hecho por el Scrum Master (PR #58), con prueba |
-| **C3** · Límite de intentos solo para logins fallidos | ✅ Hecho por el Scrum Master (PR #58), con prueba |
-| **C4** · `RUN_BACKEND.md` para Windows | ✅ Hecho (PR #60) |
-| **C6** · Prueba con el Excel de Uziel | ✅ Hecho por el Scrum Master (PR #58) |
-| **C7** · README y `context/03` a FastAPI | ✅ Hecho (PR #60) · falta `context/06` (abajo) |
-
-Las pruebas están en `tests/test_correcciones_sprint1.py`. **Revisa los cambios en `sema/auth.py`, `sema/main.py` y `sema/students.py`** antes de tocar esos archivos, para no deshacerlos.
-
----
-
-## 2. Pendiente: PR de limpieza (hoy)
-
-Rama `chore/limpieza-backend` desde `develop`:
-
-- [ ] **C5 · Quitar los archivos de auditoría.** Entraron a `develop` con el PR #58: `INFORME_AUDITORIA_BACKEND.md`, `INFORME_CIERRE_SPRINT_BACKEND.md`, `context/CODEX_BACKEND.md`, `evidencias/` y `scripts/capturas_backend.py`. Si quieres conservarlos, muévelos a `docs/backend/`. Con esto también se resuelve la URL mal escrita del informe (C9).
-- [ ] **C7 · `context/06_Especificacion_API.md`:** cambia los encabezados que aún dicen `routes/cuenta.js`, `routes/listas.js`, `routes/resumen.js`, `routes/catalogos.js` y `routes/configuracion.js` por el módulo de Python que vas a usar (por ejemplo `sema/cuenta.py`).
-- [ ] **C8 · Retirar Express:** borra `server.js`, `routes/`, `lib/auth.js` y `lib/db.js`, y quita `express`, `better-sqlite3`, `bcryptjs`, `jsonwebtoken` y `dotenv` de `dependencies`. **Conserva** `lib/schema.sql`, que usa `sema/db.py`, y `exceljs`, que usa el anonimizador de Uziel (puede pasar a `devDependencies`). Revisa que `npm test` siga pasando, porque `test/base.test.js` puede depender de Express.
-- [ ] El `package.json` usa rutas de Windows (`.venv\\Scripts\\python.exe`). Está bien porque el equipo y el cliente usan Windows; solo menciónalo en `RUN_BACKEND.md`.
+- **`sema/main.py`:** `exportar` se registra **antes** que `students`, porque si no, `/api/alumnos/exportar` lo captura `/api/alumnos/{matricula}`. Además, todo lo que no es `/api` responde con `Cache-Control: no-cache`.
+- **`sema/students.py`:** tiene funciones compartidas por el resumen, la exportación y los umbrales:
+  - `resolve_period()` obtiene el periodo actual.
+  - `cut_imports()` arma los cortes, uno por día.
+  - `student_summaries()` calcula los resúmenes de alumnos.
+  - `display_name()` aplica el formato de nombres.
+- **`sema/manual.py`:** las materias manuales usan cursos `MAN-<alumno>-<materia>`. Una carga en modo reemplazar no las borra (está probado).
+- **Pruebas nuevas, una por issue:** `test_detalle.py`, `test_cuenta.py`, `test_resumen.py`, `test_configuracion.py`, `test_listas.py`, `test_historial.py`, `test_datos.py` y `test_manual.py`.
 
 ---
 
-## 3. Pendientes
+## 2. Pendientes
 
-### Arrastrado del Sprint 1 (urgente: bloquea a Matías)
-- [ ] **#20 · [HU-17] API del detalle del alumno**
-  - `GET /api/alumnos/{matricula}`: datos generales, `motivoTexto`, alertas, listas, materias con actividades, calificación, faltas/límite/% y estados, y `evolucion` con su tendencia. Usa la tendencia ya corregida (C2) de `sema/students.py`.
-  - `PUT /api/alumnos/{matricula}/nombre` (marca `nombre_corregido = 1`).
-  - Materias de peor a mejor, bajas al final; `404` si no existe; errores con `{error, code}`.
-  - Pruebas con `test/fixtures/monitoreo-muestra.xlsx`.
-
-### Sprint 2, en Python dentro de `sema/`
-| Prioridad | Issue | Tarea | Pts | Nota |
-|---|---|---|---|---|
-| 1 | **#20** | API del detalle | 3 | **Hoy** |
-| 2 | **#32** | API de cuenta: usuario y contraseña | 2 | La contraseña D-04 es pública. Desbloquea #33 de Matías |
-| 3 | **#34** | API del Resumen administrativo | 5 | `inicio.js` ya llama a `/api/resumen`. Desbloquea #35 y #36 |
-| 4 | #41 | Umbrales configurables (con Matías) | 3 | Validaciones de `context/06` §9 |
-| 5 | #27 | API del Excel de lista de seguimiento | 5 | Reutiliza `key()` y `clean()` de `sema/excel.py` |
-| 6 | #39 | Historial de cargas | 3 | *Puede recortarse* |
-| 7 | #30 | Renombrar, reemplazar y eliminar listas | 2 | *Puede recortarse* |
-| 8 | #43 | Respaldo y borrado de datos | 2 | *Puede recortarse* |
-
-Coordina con Uziel: su #49 (`PUT /api/cuenta/preferencias`) va en el mismo módulo `cuenta` que tu #32.
+| Prioridad | Tarea | Nota |
+|---|---|---|
+| **1 · hoy** | `git checkout main && git pull` y revisar en el PR #68 el código de la tabla de arriba | Corre `pytest` (85 pruebas) y prueba los endpoints en `http://127.0.0.1:3000/docs` |
+| 2 | Acompañar a Saraí en la validación con el Excel real (#18) | Si el Excel real trae columnas o códigos nuevos, ajusta `sema/excel.py` y agrega la prueba |
+| 3 | **#47** · Corregir los errores de backend que salgan en las pruebas con el cliente | 5 pts compartidos |
 
 ---
 
-## 4. Cómo entregar
-1. **Hoy:** PR `chore/limpieza-backend` → `develop`, y después `feature/20-api-detalle` → `develop`.
-2. Un PR por issue, con base `develop`, `Closes #n` y el resultado de las pruebas.
+## 3. Cómo entregar
+1. Rama nueva desde **`main`** actualizado para cada corrección (`fix/<n>-<nombre>`), según D-23.
+2. Un PR por issue, con base **`main`**, `Closes #n` y el resultado de las pruebas.
 3. Antes de cada PR: `.\.venv\Scripts\python.exe -m pytest -q tests` y `npm test`.
-4. En la revisión de #20, explica brevemente `sema/indicators.py` al equipo (Uziel lo está validando en #13).
