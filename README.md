@@ -4,7 +4,7 @@ Sistema de seguimiento académico que permite monitorear las **calificaciones**,
 
 SEMA es una aplicación web **local y de un solo usuario**: corre en la computadora de la escuela, se abre con un acceso directo y funciona **sin internet**.
 
-> **Estado:** en desarrollo. El backend usa FastAPI + SQLite; el frontend conserva HTML, CSS y JavaScript sin frameworks. La documentación completa está en [`context/`](context/).
+> **Estado:** Sprint 2 completo en código (pendiente de validación de la PO y pruebas con el cliente). El backend usa FastAPI + SQLite; el frontend conserva HTML, CSS y JavaScript sin frameworks. La documentación completa está en [`context/`](context/).
 
 ---
 
@@ -45,7 +45,9 @@ El estado del alumno es **el peor entre promedio y faltas**. La calificación of
 
 ## Instalación y arranque
 
-**Requisitos:** Python 3.12 o superior. Node.js 20 o superior solo se necesita para las herramientas auxiliares y sus pruebas. SQLite no se instala aparte.
+**Requisitos:** Python 3.12 o superior. Node.js 20 o superior solo se necesita para las herramientas auxiliares y sus pruebas (el backend ya no usa Node). SQLite no se instala aparte.
+
+**En la computadora del cliente:** doble clic en `SEMA.bat`. La primera vez crea el entorno de Python e instala las dependencias; después arranca el servidor y abre el navegador.
 
 ```powershell
 git clone https://github.com/CalixtoIsaac/SEMA-Sistema-de-Evaluacion-y-Monitoreo-Academico.git
@@ -67,8 +69,10 @@ Para iniciar el servidor en modo normal usa `npm start`. Ambos comandos de npm e
 | `.\.venv\Scripts\python.exe -m pytest -q tests` | Pruebas del backend. |
 | `npm test` | Pruebas de herramientas auxiliares con `node:test`. |
 | `.\.venv\Scripts\python.exe -m scripts.reset_password` | Restablece la contraseña de la cuenta local. |
+| `.\.venv\Scripts\python.exe scripts\rendimiento_5000.py` | Prueba de rendimiento con 5,000 alumnos sintéticos ([resultados](docs/rendimiento-5000.md)). |
+| `npm run anonimizar` | Regenera los fixtures de `test/fixtures/` a partir de un Excel real (local; requiere Node 20+). |
 
-**Nota:** `SEMA.bat` y la pantalla de Perfil siguen pendientes; la cuenta de un solo usuario se inicializa al arrancar.
+Para regenerar los fixtures se necesita Node 20+: `node scripts/anonimizar-excel.js`. El Excel real nunca se sube.
 
 ---
 
@@ -76,12 +80,14 @@ Para iniciar el servidor en modo normal usa `npm start`. Ambos comandos de npm e
 
 ```
 ├── sema/                 # API FastAPI, autenticación, SQLite, Excel e indicadores
-├── server.js, lib/, routes/  # backend Node en transición de retiro
+├── lib/schema.sql        # esquema SQLite v1 (las migraciones nuevas van en sema/db.py)
+├── SEMA.bat              # acceso directo: instala, arranca y abre el navegador
 ├── public/               # login.html, app.html, css/, js/, vendor/
 ├── scripts/              # utilidades y herramientas auxiliares
 ├── tests/                # pruebas Python del backend
 ├── test/                 # pruebas Node y fixtures con datos FICTICIOS
 ├── data/                 # app.db y jwt.secret locales
+├── docs/                 # resultados de rendimiento e informes históricos
 └── context/              # documentación del proyecto (fuente de verdad)
 ```
 

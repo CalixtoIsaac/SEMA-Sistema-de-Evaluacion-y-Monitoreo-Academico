@@ -64,7 +64,7 @@
 
 > Se eliminan `GET /auth/status` y `POST /auth/setup` de la plantilla: la cuenta por defecto se crea al arrancar (T-03).
 
-## 3. Cuenta — `routes/cuenta.js`
+## 3. Cuenta — `sema/cuenta.py`
 
 | Método | Ruta | Cuerpo | Respuesta |
 |---|---|---|---|
@@ -113,14 +113,14 @@ Cuerpo `{ "modo": "fusionar" | "reemplazar" }`. Aplica la importación en una tr
 ### `DELETE /importaciones/:id`
 Descarta una importación en estado `previa`. `{ status: "ok" }`.
 
-### `GET /importaciones?tipo=monitoreo`
-Historial: `{ importaciones: [{ id, tipo, archivo, estado, modo, totalAlumnos, totalFilas, creadoEn, aplicadoEn }] }`.
+### `GET /importaciones?tipo=monitoreo|lista`
+Historial (#39), de la más reciente a la más antigua, sin las previas abiertas: `{ importaciones: [{ id, tipo, archivo, estado, modo, totalAlumnos, totalFilas, filasOmitidas, periodo: { clave, nombre } | null, creadoEn, aplicadoEn }] }`. Guardar o reemplazar una lista con archivo también queda registrado (`tipo: "lista"`).
 
-## 5. Listas de seguimiento — `routes/listas.js`
+## 5. Listas de seguimiento — `sema/listas.py`
 
 | Método | Ruta | Cuerpo | Respuesta |
 |---|---|---|---|
-| POST | `/listas/previa` | multipart `archivo` | `{ total, encontrados, noEncontrados: [{ matricula, nombre }], nombresDistintos: [{ matricula, nombreExcel, nombreSema }], matriculas: [{ matricula, nombre }] }` · `422` si no hay columna de matrícula |
+| POST | `/listas/previa` | multipart `archivo` | `{ archivo, nombreSugerido, hoja, total, encontrados, noEncontrados: [{ matricula, nombre }], nombresDistintos: [{ matricula, nombreExcel, nombreSema }], matriculas: [{ matricula, nombre }] }` · `422` si no hay columna de matrícula |
 | POST | `/listas` | `{ nombre, descripcion?, archivo?, matriculas: [{ matricula, nombre }] }` | `201 { lista }` · `409` nombre repetido |
 | GET | `/listas` | — | `{ listas: [{ id, nombre, descripcion, total, encontrados, creadoEn }] }` |
 | GET | `/listas/:id` | — | `{ lista, matriculas: [{ matricula, nombreExcel, encontrado }] }` |
@@ -166,13 +166,13 @@ Respuesta: `{ alumnos: AlumnoResumen[], totales: { correcto, preventivo, critico
   // M-05: arreglo con un solo elemento si solo hay un corte (tendencia = sin_historial)
 }
 ```
-`404` si la matrícula no existe.
+`404` si la matrícula no existe. Además trae `faltasNuevas: { faltas, desde, estadoAnterior, promedioAnterior } | null` (cambio contra el corte anterior, M-05), `alumno.periodo` y, en cada materia, `estado` (peor entre calificación y faltas) y `calificacionCalculada` (true si es el promedio de las actividades).
 
 ### Alta y edición manual
 
 | Método | Ruta | Cuerpo | Respuesta |
 |---|---|---|---|
-| POST | `/alumnos` | `{ matricula, apellidos, nombres, planClave?, planDescripcion?, materias?: MateriaManual[] }` | `201 { alumno }` · `409` matrícula existente |
+| POST | `/alumnos` | `{ matricula, apellidos, nombres, planClave?, planDescripcion?, periodo?, materias?: MateriaManual[] }` | `201` (mismo cuerpo que el detalle) · `409 MATRICULA_EXISTE` · `409 SIN_PERIODO` si aún no hay ningún periodo cargado |
 | PUT | `/alumnos/:matricula` | `{ planClave?, planDescripcion? }` (solo manuales) | `{ alumno }` |
 | PUT | `/alumnos/:matricula/nombre` | `{ apellidos, nombres }` | `{ alumno }` — corrección manual (M-12); también para alumnos del Excel; marca `nombre_corregido = 1` |
 | DELETE | `/alumnos/:matricula` | — | `{ status: "ok" }` (solo `origen = manual`; los de Excel → `409`) |
@@ -192,14 +192,15 @@ Respuesta: `{ alumnos: AlumnoResumen[], totales: { correcto, preventivo, critico
 ### `GET /alumnos/exportar?lista=3&formato=xlsx&orden=promedio,faltas&estado=critico&q=perez` (M-07)
 Descarga (`Content-Disposition: attachment`) de la tabla con los mismos filtros, búsqueda y orden que la vista. Usa el formato de nombres de la preferencia.
 
-## 7. Resumen — `routes/resumen.js`
+## 7. Resumen — `sema/resumen.py`
 
 ### `GET /resumen?lista=3`
 ```jsonc
 {
   "vacio": false,
   "ultimaActualizacion": "2026-10-20 10:42:11",
-  "kpis": { "alumnos": 490, "promedioGeneral": 88.4, "critico": 34, "preventivo": 134, "correcto": 319, "sinDatos": 3 },
+  "periodo": { "clave": "202660", "nombre": "2026 Ago - Dic" },
+  "kpis": { "alumnos": 490, "promedioGeneral": 88.4, "critico": 34, "preventivo": 134, "correcto": 319, "sinDatos": 3, "bajas": 3 },
   "porEstado":   [ { "estado": "correcto", "total": 319 }, { "estado": "preventivo", "total": 134 }, { "estado": "critico", "total": 34 } ],
   "porRango":    [ { "rango": "<60", "total": 2 }, { "rango": "60-69", "total": 8 }, { "rango": "70-79", "total": 43 },
                    { "rango": "80-89", "total": 120 }, { "rango": "90-100", "total": 314 } ],
@@ -207,14 +208,14 @@ Descarga (`Content-Disposition: attachment`) de la tabla con los mismos filtros,
   "porEstadoFaltas": [ { "estado": "correcto", "total": 338 }, { "estado": "preventivo", "total": 119 }, { "estado": "critico", "total": 30 } ],
   "topRiesgo":   [ /* 10 AlumnoResumen */ ],
   // M-05 (con menos de 2 cortes: evolucion con un punto y tendencias en sinHistorial):
-  "evolucion":   [ { "importacionId": 5, "fecha": "2026-10-06", "promedio": 87.9, "porcentajeCritico": 5.8 } ],
+  "evolucion":   [ { "importacionId": 5, "fecha": "2026-10-06", "promedio": 87.9, "porcentajeCritico": 5.8, "alumnos": 487 } ],
   "tendencias":  { "mejora": 20, "estable": 440, "empeora": 12, "sinHistorial": 15 }
 }
 ```
 Sin datos: `{ "vacio": true, "kpis": null, … arreglos vacíos }`.
 *(KPIs y estados calculados con el Excel actual; rangos, materias y evolución son ilustrativos.)*
 
-## 8. Catálogos — `routes/catalogos.js`
+## 8. Catálogos — `sema/catalogos.py`
 
 | Método | Ruta | Respuesta |
 |---|---|---|
@@ -222,7 +223,7 @@ Sin datos: `{ "vacio": true, "kpis": null, … arreglos vacíos }`.
 | GET | `/periodos` | `{ periodos: [{ clave, nombre, actual }] }` |
 | GET | `/planes` | `{ planes: [{ clave, descripcion }] }` |
 
-## 9. Configuración — `routes/configuracion.js` (M-08)
+## 9. Configuración — `sema/configuracion.py` (M-08)
 
 | Método | Ruta | Cuerpo | Respuesta |
 |---|---|---|---|
@@ -230,7 +231,7 @@ Sin datos: `{ "vacio": true, "kpis": null, … arreglos vacíos }`.
 | PUT | `/configuracion` | `{ umbrales }` | `{ umbrales }` · `400` si `preventivoMin ≥ correctoMin`, `preventivoPct ≥ criticoPct`, `fijoPreventivo ≥ fijoCritico` o valores fuera de rango |
 | POST | `/configuracion/vista-previa` | `{ umbrales }` | `{ totales: { correcto, preventivo, critico } }` (sin guardar) |
 
-## 10. Datos *(Could)*
+## 10. Datos — `sema/datos.py` *(Could)*
 
 | Método | Ruta | Cuerpo | Respuesta |
 |---|---|---|---|

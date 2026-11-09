@@ -29,16 +29,23 @@
 
 ```
 SEMA-Sistema-de-Evaluacion-y-Monitoreo-Academico/
-├── SEMA.bat                      # Acceso directo planeado; aún pendiente
+├── SEMA.bat                      # Acceso directo: crea .venv, instala, arranca y abre el navegador (Python ≥ 3.12)
 ├── sema/
 │   ├── main.py                   # FastAPI: rutas, errores, archivos estáticos y arranque
 │   ├── auth.py                   # Cuenta inicial, JWT y autenticación
 │   ├── db.py                     # SQLite, esquema y transacciones
 │   ├── excel.py                  # Lectura y normalización de Excel
 │   ├── imports.py                # Previa y confirmación de importaciones
-│   ├── indicators.py             # Reglas de negocio del semáforo
-│   └── students.py               # API de alumnos
-├── server.js                     # Backend Node legado, pendiente de retirar
+│   ├── indicators.py             # Reglas de negocio del semáforo (única implementación, D-01b)
+│   ├── students.py               # /api/alumnos: listado, detalle y corrección de nombre
+│   ├── exportar.py               # /api/alumnos/exportar (xlsx/csv)
+│   ├── manual.py                 # alta manual: /api/alumnos (POST/PUT/DELETE), /api/inscripciones
+│   ├── cuenta.py                 # /api/cuenta (usuario, contraseña, preferencias)
+│   ├── listas.py                 # /api/listas (+ lector del Excel de lista en excel.py)
+│   ├── resumen.py                # /api/resumen (Menú principal y evolución)
+│   ├── configuracion.py          # /api/configuracion (umbrales)
+│   ├── catalogos.py              # /api/materias, /api/periodos, /api/planes
+│   └── datos.py                  # /api/datos (respaldo y borrado)
 ├── package.json                  # name: "sema"
 ├── requirements.txt              # Dependencias Python
 ├── .env.example
@@ -46,40 +53,20 @@ SEMA-Sistema-de-Evaluacion-y-Monitoreo-Academico/
 ├── .github/
 │   ├── CODEOWNERS                # * @CalixtoIsaac
 │   └── pull_request_template.md
-├── lib/                          # Backend Node legado, pendiente de retirar
-│   ├── db.js                     # conexión, PRAGMAs, migraciones (user_version)
-│   ├── schema.sql                # CREATE TABLE … (ver 04_Modelo_Datos.md)
-│   ├── auth.js                   # JWT, requireAuth, rateLimit, secreto persistente
-│   ├── indicadores.js            # reglas: estadoCalificacion, estadoFaltas (% del límite), estado general, alertas, tendencia, ordenar
-│   ├── nombres.js                # separarNombre(): apellidos / nombres, partículas y compuestos (07 §8)
-│   ├── configuracion.js          # leer/guardar umbrales (tabla configuracion)
-│   └── texto.js                  # normalizar(), quitar acentos, parsear números/códigos
-├── services/                     # Backend Node legado, pendiente de retirar
-│   ├── excel-monitoreo.js        # lee el Excel de la escuela → filas normalizadas
-│   ├── excel-lista.js            # lee el Excel de lista (nombre + matrícula)
-│   ├── importador.js             # previa → confirmar (transacción), cortes
-│   ├── alumnos.js                # lista con indicadores, detalle, alta manual
-│   ├── listas.js                 # listas de seguimiento
-│   └── resumen.js                # datos del dashboard
-├── routes/                       # Backend Node legado, pendiente de retirar
-│   ├── auth.js                   # /api/auth
-│   ├── cuenta.js                 # /api/cuenta (usuario, contraseña, preferencias)
-│   ├── importaciones.js          # /api/importaciones
-│   ├── listas.js                 # /api/listas
-│   ├── alumnos.js                # /api/alumnos, /api/inscripciones
-│   ├── resumen.js                # /api/resumen
-│   ├── catalogos.js              # /api/materias, /api/periodos
-│   └── configuracion.js          # /api/configuracion
+├── lib/
+│   └── schema.sql                # esquema v1 (ver 04_Modelo_Datos.md); migraciones nuevas en sema/db.py
 ├── public/
 │   ├── login.html · app.html
 │   ├── css/   theme.css · base.css · login.css · app.css · semaforo.css
-│   ├── js/    theme.js · ui-kit.js · app.js · graficas.js
-│   │          orden-busqueda.js · resumen.js · cargar-datos.js · alumnos.js
-│   │          alumno-detalle.js · perfil.js
+│   ├── js/    theme.js · ui-kit.js · app.js · graficas.js · orden-busqueda.js
+│   │          inicio.js (Menú principal) · riesgo.js · cargar.js · formulario.js
+│   │          alumnos.js · listas.js · detalle.js · perfil.js
 │   ├── vendor/ chart.umd.min.js · inter/ (fuente local)
 │   └── img/   logo.svg · favicon.ico
 ├── scripts/
-│   ├── reset-password.js         # npm run reset-password → vuelve a Chuchito / contraseña por defecto
+│   ├── reset_password.py         # vuelve a Chuchito / contraseña por defecto
+│   ├── rendimiento_5000.py       # prueba de rendimiento con 5,000 alumnos (#26)
+│   ├── rendimiento_busqueda.js   # búsqueda y orden del navegador con 5,000 alumnos (#26)
 │   ├── github/crear-tablero.mjs  # crea labels, milestones, Project e issues a partir de context/Sprints.md
 │   └── anonimizar-excel.js       # genera test/fixtures a partir de un Excel real (local, no se sube el real)
 ├── tests/                        # Pruebas del backend (pytest)
@@ -91,6 +78,8 @@ SEMA-Sistema-de-Evaluacion-y-Monitoreo-Academico/
 ```
 
 > **Tema (M-13):** `theme.js` sigue aplicando el tema desde `localStorage` antes de pintar (evita el parpadeo). Al iniciar sesión, `app.js` lee `user.tema` de `/api/auth/me`, lo aplica y lo guarda en `localStorage`; Perfil y el botón ◐ lo cambian con `PUT /api/cuenta/preferencias`.
+
+> **Limpieza (9 nov 2026, G10):** se retiró el backend Node/Express (`server.js`, `routes/`, `lib/auth.js`, `lib/db.js`) y sus dependencias; Node queda solo para el anonimizador y las pruebas de `test/`.
 
 > **Limpieza (T-01, hecha):** se borró la carpeta duplicada `plantilla-express-sqlite/` y el módulo de ejemplo *Notas* (`routes/notas.js`, `public/js/notas.js`, tabla `notas`).
 
