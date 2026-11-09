@@ -9,106 +9,95 @@
 │ UI kit (UI.api, UI.toast, ...) · Chart.js (vendor)          │
 └───────────────┬────────────────────────────────────────────┘
                 │ fetch /api/*  (JSON · Authorization: Bearer <JWT>)
-┌───────────────▼──────────────── Node.js + Express ─────────┐
-│ routes/      → valida la petición y responde (capa HTTP)    │
-│ services/    → casos de uso: importar, listar alumnos, ...  │
-│ lib/         → db, auth, indicadores (reglas puras), config │
+┌────────────────────── FastAPI + Uvicorn ────────────────────┐
+│ sema/main.py → registra API, autenticación y archivos web   │
+│ sema/imports.py · sema/students.py → importación y alumnos  │
+│ sema/excel.py · sema/indicators.py · sema/db.py             │
 └───────────────┬────────────────────────────────────────────┘
-                │ better-sqlite3 (síncrono, transacciones)
+                │ sqlite3 (transacciones)
           data/app.db  (SQLite, WAL)   data/jwt.secret
 ```
 
 **Reglas de capas**
 
-1. `routes/` **no** escribe SQL complejo ni reglas de negocio: llama a `services/`.
-2. `services/` usa `lib/db.js` y `lib/indicadores.js`. Las consultas viven en el servicio con `db.prepare(...)` al cargar el módulo.
-3. `lib/indicadores.js` contiene **funciones puras** (sin base de datos ni Express): reciben números y umbrales y devuelven estados. Se prueban con `node:test`.
+1. `sema/main.py` registra las rutas y los manejadores de errores; los módulos del backend aplican autenticación antes de acceder a recursos protegidos.
+2. `sema/imports.py` coordina la previa y confirmación transaccional; `sema/excel.py` lee y normaliza el archivo; `sema/db.py` administra SQLite.
+3. `sema/indicators.py` contiene las reglas de estado y resumen, sin depender de la interfaz. Se prueban con `pytest`.
 4. El frontend **nunca** calcula estados por su cuenta: usa el `estado` que manda la API (así tabla, detalle y gráficas coinciden).
 
 ## 2. Estructura de carpetas (objetivo)
 
 ```
 SEMA-Sistema-de-Evaluacion-y-Monitoreo-Academico/
-├── SEMA.bat                      # Acceso directo: instala, arranca y abre el navegador
-├── server.js                     # Express: seguridad, rutas, estáticos, arranque
+├── SEMA.bat                      # Acceso directo: crea .venv, instala, arranca y abre el navegador (Python ≥ 3.12)
+├── sema/
+│   ├── main.py                   # FastAPI: rutas, errores, archivos estáticos y arranque
+│   ├── auth.py                   # Cuenta inicial, JWT y autenticación
+│   ├── db.py                     # SQLite, esquema y transacciones
+│   ├── excel.py                  # Lectura y normalización de Excel
+│   ├── imports.py                # Previa y confirmación de importaciones
+│   ├── indicators.py             # Reglas de negocio del semáforo (única implementación, D-01b)
+│   ├── students.py               # /api/alumnos: listado, detalle y corrección de nombre
+│   ├── exportar.py               # /api/alumnos/exportar (xlsx/csv)
+│   ├── manual.py                 # alta manual: /api/alumnos (POST/PUT/DELETE), /api/inscripciones
+│   ├── cuenta.py                 # /api/cuenta (usuario, contraseña, preferencias)
+│   ├── listas.py                 # /api/listas (+ lector del Excel de lista en excel.py)
+│   ├── resumen.py                # /api/resumen (Menú principal y evolución)
+│   ├── configuracion.py          # /api/configuracion (umbrales)
+│   ├── catalogos.py              # /api/materias, /api/periodos, /api/planes
+│   └── datos.py                  # /api/datos (respaldo y borrado)
 ├── package.json                  # name: "sema"
+├── requirements.txt              # Dependencias Python
 ├── .env.example
 ├── .gitattributes                # finales de línea (ver §6)
 ├── .github/
 │   ├── CODEOWNERS                # * @CalixtoIsaac
 │   └── pull_request_template.md
 ├── lib/
-│   ├── db.js                     # conexión, PRAGMAs, migraciones (user_version)
-│   ├── schema.sql                # CREATE TABLE … (ver 04_Modelo_Datos.md)
-│   ├── auth.js                   # JWT, requireAuth, rateLimit, secreto persistente
-│   ├── indicadores.js            # reglas: estadoCalificacion, estadoFaltas (% del límite), estado general, alertas, tendencia, ordenar
-│   ├── nombres.js                # separarNombre(): apellidos / nombres, partículas y compuestos (07 §8)
-│   ├── configuracion.js          # leer/guardar umbrales (tabla configuracion)
-│   └── texto.js                  # normalizar(), quitar acentos, parsear números/códigos
-├── services/
-│   ├── excel-monitoreo.js        # lee el Excel de la escuela → filas normalizadas
-│   ├── excel-lista.js            # lee el Excel de lista (nombre + matrícula)
-│   ├── importador.js             # previa → confirmar (transacción), cortes
-│   ├── alumnos.js                # lista con indicadores, detalle, alta manual
-│   ├── listas.js                 # listas de seguimiento
-│   └── resumen.js                # datos del dashboard
-├── routes/
-│   ├── auth.js                   # /api/auth
-│   ├── cuenta.js                 # /api/cuenta (usuario, contraseña, preferencias)
-│   ├── importaciones.js          # /api/importaciones
-│   ├── listas.js                 # /api/listas
-│   ├── alumnos.js                # /api/alumnos, /api/inscripciones
-│   ├── resumen.js                # /api/resumen
-│   ├── catalogos.js              # /api/materias, /api/periodos
-│   └── configuracion.js          # /api/configuracion
+│   └── schema.sql                # esquema v1 (ver 04_Modelo_Datos.md); migraciones nuevas en sema/db.py
 ├── public/
 │   ├── login.html · app.html
 │   ├── css/   theme.css · base.css · login.css · app.css · semaforo.css
-│   ├── js/    theme.js · ui-kit.js · app.js · graficas.js
-│   │          orden-busqueda.js · resumen.js · cargar-datos.js · alumnos.js
-│   │          alumno-detalle.js · perfil.js
+│   ├── js/    theme.js · ui-kit.js · app.js · graficas.js · orden-busqueda.js
+│   │          inicio.js (Menú principal) · riesgo.js · cargar.js · formulario.js
+│   │          alumnos.js · listas.js · detalle.js · perfil.js
 │   ├── vendor/ chart.umd.min.js · inter/ (fuente local)
 │   └── img/   logo.svg · favicon.ico
 ├── scripts/
-│   ├── reset-password.js         # npm run reset-password → vuelve a Chuchito / contraseña por defecto
+│   ├── reset_password.py         # vuelve a Chuchito / contraseña por defecto
+│   ├── rendimiento_5000.py       # prueba de rendimiento con 5,000 alumnos (#26)
+│   ├── rendimiento_busqueda.js   # búsqueda y orden del navegador con 5,000 alumnos (#26)
 │   ├── github/crear-tablero.mjs  # crea labels, milestones, Project e issues a partir de context/Sprints.md
 │   └── anonimizar-excel.js       # genera test/fixtures a partir de un Excel real (local, no se sube el real)
+├── tests/                        # Pruebas del backend (pytest)
 ├── test/
-│   ├── indicadores.test.js
-│   ├── nombres.test.js
-│   ├── excel-monitoreo.test.js
-│   └── fixtures/monitoreo-muestra.xlsx · lista-muestra.xlsx   # SOLO datos ficticios
+│   ├── *.test.js                 # Pruebas de herramientas auxiliares (node:test)
+│   └── fixtures/                 # SOLO datos ficticios
 ├── data/                         # app.db, jwt.secret (ignorados por git)
 └── context/                      # documentación del proyecto
 ```
 
 > **Tema (M-13):** `theme.js` sigue aplicando el tema desde `localStorage` antes de pintar (evita el parpadeo). Al iniciar sesión, `app.js` lee `user.tema` de `/api/auth/me`, lo aplica y lo guarda en `localStorage`; Perfil y el botón ◐ lo cambian con `PUT /api/cuenta/preferencias`.
 
+> **Limpieza (9 nov 2026, G10):** se retiró el backend Node/Express (`server.js`, `routes/`, `lib/auth.js`, `lib/db.js`) y sus dependencias; Node queda solo para el anonimizador y las pruebas de `test/`.
+
 > **Limpieza (T-01, hecha):** se borró la carpeta duplicada `plantilla-express-sqlite/` y el módulo de ejemplo *Notas* (`routes/notas.js`, `public/js/notas.js`, tabla `notas`).
 
 ## 3. Arranque y acceso directo
 
-`SEMA.bat` (guardado con finales de línea CRLF):
+En Windows, prepara el entorno Python desde la raíz del repositorio:
 
-```bat
-@echo off
-title SEMA - Sistema de Evaluacion y Monitoreo Academico
-cd /d "%~dp0"
-where node >nul 2>nul || (echo Instala Node.js 20 o superior desde https://nodejs.org & pause & exit /b 1)
-if not exist node_modules (echo Instalando dependencias, solo la primera vez... & call npm install --omit=dev || (pause & exit /b 1))
-if not exist .env copy .env.example .env >nul
-call npm start
-pause
+```powershell
+py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+npm run dev
 ```
 
-En `server.js`:
+`npm start` ejecuta FastAPI sin recarga; ambos comandos sirven la aplicación en
+`127.0.0.1:3000`. El acceso directo `SEMA.bat` sigue pendiente.
 
-- Escuchar en `127.0.0.1` (no en toda la red).
-- Al quedar listo, si `OPEN_BROWSER` no es `false`, abrir `http://localhost:PORT` (`start "" <url>` en Windows con `child_process`).
-- Si el puerto está ocupado (`EADDRINUSE`), consultar `GET /api/health`; si responde SEMA, abrir el navegador y salir con código 0.
-- `npm run dev` pone `OPEN_BROWSER=false` para no abrir pestañas en cada reinicio.
-
-Secreto JWT: si `JWT_SECRET` no está en `.env`, se genera uno y se guarda en `data/jwt.secret` (así la sesión no se cierra al reiniciar).
+Secreto JWT: si no se define `JWT_SECRET`, se genera uno y se guarda en
+`data/jwt.secret` (así la sesión no se cierra al reiniciar).
 
 ## 4. Convenciones de código
 
@@ -126,12 +115,12 @@ Secreto JWT: si `JWT_SECRET` no está en `.env`, se genera uno y se guarda en `d
 
 **Reglas obligatorias**
 
-- `'use strict'` implícito (CommonJS) · `const`/`let`, nunca `var` · `async/await`.
+- Python: seguir las convenciones del proyecto y usar tipos explícitos donde aporten claridad. JavaScript del frontend: `const`/`let`, nunca `var`.
 - SQL siempre con parámetros (`?` o `@nombre`). Nunca concatenar datos del usuario.
 - Todo dato que venga del usuario o del Excel se inserta en HTML con `UI.escape()`.
 - Errores de la API: `{ "error": "mensaje para el usuario" }` + código HTTP correcto (ver `06`).
-- Números del Excel: pasar siempre por `lib/texto.js → parsearCalificacion()` (maneja `"  "`, `NE`, `SD`, …).
-- Nada de `console.log` en el código entregado; usar `console.error` solo para errores reales del servidor.
+- Números del Excel: normalizarlos en `sema/excel.py` antes de calcular indicadores.
+- Reportar errores de servidor con el manejo de excepciones de FastAPI; evitar salidas de depuración en producción.
 - Funciones de más de ~50 líneas se dividen. Un archivo = una responsabilidad.
 - Formato: 2 espacios, comillas simples, punto y coma, máximo ~110 caracteres por línea (EditorConfig).
 
@@ -166,7 +155,8 @@ Closes #
 ## Capturas (si aplica)
 ## Checklist
 - [ ] Probé con test/fixtures/monitoreo-muestra.xlsx
-- [ ] npm test pasa
+- [ ] `.\.venv\Scripts\python.exe -m pytest -q tests` pasa
+- [ ] `npm test` pasa
 - [ ] Revisé tema claro y oscuro
 - [ ] Actualicé context/ si cambió una regla o un endpoint
 ```
@@ -196,6 +186,6 @@ data/jwt.secret
 
 ## 7. Pruebas
 
-- `npm test` → `node --test` (busca solo los `*.test.js` de `test/`; desde Node 22 `node --test test/` ya no acepta una carpeta).
-- Obligatorio probar: `lib/indicadores.js` (todos los umbrales, % del límite de faltas, estado combinado, tendencia y empates de orden), `lib/nombres.js` (partículas y compuestos) y `services/excel-monitoreo.js` (columnas faltantes, celdas con espacios, códigos NE/SD/SC/DA, BT, columna `Modalidad` duplicada).
+- `.\.venv\Scripts\python.exe -m pytest -q tests` → pruebas de autenticación, Excel, importaciones, indicadores y alumnos.
+- `npm test` → `node --test` para pruebas de herramientas auxiliares.
 - Prueba de rendimiento manual con el Excel real (no se sube): importar < 5 s.

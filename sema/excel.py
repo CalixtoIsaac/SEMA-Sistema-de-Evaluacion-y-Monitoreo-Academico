@@ -19,6 +19,7 @@ FIELDS = {'Campus':'campus','Año - periodo':'periodo','Nombre del periodo':'per
  'Campus de admisión':'campus_admision','Última actualización':'actualizado_escuela',
  'Última actividad actualizada':'ultima_actividad'}
 CODES={'NE','SC','DA','SD'}
+DAYS={'Dom':'D','Lun':'L','Mar':'M','Mier':'Mi','Jue':'J','Vier':'V','Sáb':'S'}
 
 class FormatError(Exception):
     def __init__(self, missing):
@@ -93,12 +94,16 @@ def parse(data:bytes):
     for i,k in enumerate(names):
         if key(k) not in FORBIDDEN: indices.setdefault(key(k),i)
     modalities=[i for i,k in enumerate(keys) if k=='modalidad']
+    # Posición de cada columna conocida, calculada una sola vez (#26: key() por celda
+    # era ~40 % del tiempo de lectura con 35,000 filas).
+    labels=[*FIELDS,*(f'A{n}' for n in range(1,51)),*DAYS]
+    position={label:indices.get(key(label)) for label in labels}
     warnings=[]; rows=[]; previews=[]; duplicates={}; total=0; omitted=0
     for rownum,cells in enumerate(it,header_row+1):
         if not any(clean(v) for i,v in enumerate(cells) if i in allowed): continue
         total+=1
         def val(label):
-            i=indices.get(key(label))
+            i=position[label]
             return clean(cells[i]) if i is not None and i<len(cells) else None
         record={field:val(label) for label,field in FIELDS.items()}
         record['matricula']=(record['matricula'] or '').upper()
@@ -121,7 +126,7 @@ def parse(data:bytes):
             g=grade(val(f'A{n}'),warnings,rownum,f'A{n}')
             if g is not None: acts[str(n)]=g
         record['actividades']=acts
-        record['dias']=','.join(code for label,code in [('Dom','D'),('Lun','L'),('Mar','M'),('Mier','Mi'),('Jue','J'),('Vier','V'),('Sáb','S')] if (val(label) or '').upper()=='SI')
+        record['dias']=','.join(code for label,code in DAYS.items() if (val(label) or '').upper()=='SI')
         if not record['matricula'] or not record['materia_clave'] or not record['materia'] or not record['crn'] or not record['periodo']:
             omitted+=1; warnings.append({'fila':rownum,'tipo':'omitida','mensaje':'Fila sin identificador obligatorio'}); continue
         if not re.fullmatch(r'[A-Z]\d{8}',record['matricula']):
@@ -138,3 +143,41 @@ def parse(data:bytes):
     wb.close()
     return {'rows':rows,'preview':previews,'columns':columns,'warnings':warnings,
             'total':total,'omitted':omitted,'sheet':sheet,'duplicates':total-omitted-len(rows)}
+
+# ---------- Excel de lista de seguimiento (#27 · context/08 §2) ----------
+
+def parse_list(data:bytes):
+    """Lee la primera hoja: encabezado en las primeras 10 filas con una columna que
+    contenga «matr» (obligatoria) y otra «nombre» (opcional). Devuelve matrículas únicas."""
+    try:
+        wb=load_workbook(BytesIO(data),read_only=True,data_only=True)
+    except Exception as e:
+        raise FormatError(['No es un archivo XLSX legible']) from e
+    try:
+        ws=wb.worksheets[0]
+        it=ws.iter_rows(values_only=True)
+        mat_col=name_col=None
+        for header_row,header in enumerate(it,1):
+            if header_row>10:break
+            keys=[key(x) for x in header]
+            mats=[i for i,k in enumerate(keys) if 'matr' in k]
+            if mats:
+                mat_col=mats[0]
+                names=[i for i,k in enumerate(keys) if 'nombre' in k and i!=mat_col]
+                name_col=names[0] if names else None
+                break
+        if mat_col is None:
+            raise FormatError(['Falta la columna «Matrícula» en las primeras 10 filas'])
+        rows=[];seen=set();total=0
+        for cells in it:
+            mat=clean(cells[mat_col]) if mat_col<len(cells) else None
+            if not mat:continue
+            total+=1
+            mat=mat.upper()
+            if mat in seen:continue
+            seen.add(mat)
+            name=clean(cells[name_col]) if name_col is not None and name_col<len(cells) else None
+            rows.append({'matricula':mat,'nombre':name})
+        return {'rows':rows,'total':total,'sheet':ws.title}
+    finally:
+        wb.close()

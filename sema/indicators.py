@@ -1,5 +1,6 @@
 """Reglas puras de context/07, reutilizadas por importación y listado."""
 import unicodedata
+from functools import lru_cache
 
 SEVERITY={'sin_datos':0,'correcto':1,'preventivo':2,'critico':3}
 
@@ -64,25 +65,30 @@ def summary(items,u):
 def thresholds(db):
     return {r['clave']:float(r['valor']) for r in db.execute('SELECT clave,valor FROM configuracion')}
 
+COMPOUND_SURNAMES={('montes','de','oca'),('gutierrez','de','velasco'),('rubin','de','celis'),('ruiz','de','velasco'),('ponce','de','leon')}
+PARTICLES={'de','del','la','las','los','y','san','santa','mc','van','von'}
+
+@lru_cache(maxsize=8192)
 def split_name(name):
+    """context/07 §8: dos unidades de apellido; las partículas se unen a la palabra
+    siguiente y los apellidos compuestos conocidos cuentan como una unidad."""
     words=name.split()
     if len(words)<2:return '',name
-    # Dos unidades de apellido; partículas se unen a la siguiente palabra.
+    plain=[unaccent(w) for w in words]  # una sola vez por nombre (#26)
     units=[];i=0
-    compounds={('montes','de','oca'),('gutierrez','de','velasco'),('rubin','de','celis'),('ruiz','de','velasco'),('ponce','de','leon')}
     while i<len(words):
-        matched=next((len(c) for c in compounds if tuple(unaccent(w) for w in words[i:i+len(c)])==c),0)
+        matched=next((len(c) for c in COMPOUND_SURNAMES if tuple(plain[i:i+len(c)])==c),0)
         if matched:
             units.append(' '.join(words[i:i+matched]));i+=matched;continue
         start=i
-        while i<len(words)-1 and words[i].lower() in {'de','del','la','las','los','y','san','santa','mc','van','von'}:i+=1
+        while i<len(words)-1 and plain[i] in PARTICLES:i+=1
         units.append(' '.join(words[start:i+1]));i+=1
     n=2 if len(units)>2 else 1
     return ' '.join(units[:n]),' '.join(units[n:])
 
 def records_for_period(db,period,lista=None):
     sql="""SELECT i.id AS inscripcion_id,i.alumno_id,i.origen,i.es_baja,i.faltas,i.ne,i.calificacion,i.calificacion_codigo,
-    c.limite_faltas,c.limite_ne,m.nombre AS materia
+    c.limite_faltas,c.limite_ne,m.nombre AS materia,m.clave AS materia_clave
     FROM inscripciones i JOIN cursos c ON c.id=i.curso_id JOIN materias m ON m.id=c.materia_id
     WHERE c.periodo_id=?"""
     args=[period]

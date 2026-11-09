@@ -10,6 +10,14 @@ from .db import ROOT, open_db
 from .auth import router as auth_router, load_secret, seed_user
 from .imports import router as imports_router
 from .students import router as students_router
+from .exportar import router as exportar_router
+from .cuenta import router as cuenta_router
+from .resumen import router as resumen_router
+from .configuracion import router as configuracion_router
+from .listas import router as listas_router
+from .manual import router as manual_router
+from .catalogos import router as catalogos_router
+from .datos import router as datos_router
 
 load_dotenv(ROOT / '.env')
 
@@ -23,13 +31,31 @@ def create_app(db_path=None, secret_path=None):
     def validation_error(request: Request, exc: RequestValidationError):
         # Contrato context/06: errores como {error, code}; el 422 queda reservado al formato del Excel.
         return JSONResponse(status_code=400, content={'error':'Datos incompletos o inválidos.','code':'VALIDACION'})
+    @app.middleware('http')
+    async def no_cache_static(request: Request, call_next):
+        # Sin esto el navegador sigue usando el JS/CSS viejo después de actualizar SEMA
+        # (cambiar de rama o instalar una versión nueva). Con no-cache revalida con
+        # ETag/Last-Modified en cada carga: si el archivo no cambió responde 304.
+        response = await call_next(request)
+        if not request.url.path.startswith('/api/'):
+            response.headers['Cache-Control'] = 'no-cache'
+        return response
     app.state.secret_path = secret_path
     app.state.jwt_secret = load_secret(secret_path)
     app.state.login_attempts = {}
     seed_user(app.state.db)
     app.include_router(auth_router)
+    app.include_router(cuenta_router)
     app.include_router(imports_router)
+    # /api/alumnos/exportar va antes que /api/alumnos/{matricula} para que no lo capture el detalle.
+    app.include_router(exportar_router)
     app.include_router(students_router)
+    app.include_router(manual_router)
+    app.include_router(listas_router)
+    app.include_router(resumen_router)
+    app.include_router(configuracion_router)
+    app.include_router(catalogos_router)
+    app.include_router(datos_router)
     @app.get('/api/health')
     def health():
         return {'status':'online','app':'SEMA','version':'0.1.0','timestamp':datetime.now(timezone.utc).isoformat()}

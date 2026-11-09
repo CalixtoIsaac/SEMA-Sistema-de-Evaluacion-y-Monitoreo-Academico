@@ -1,33 +1,41 @@
 # Backend FastAPI local
 
-```bash
-python3 -m venv .venv
-.venv/bin/python -m pip install -r requirements.txt
-.venv/bin/python -m uvicorn sema.main:app --host 127.0.0.1 --port 3000
-.venv/bin/python -m pytest -q tests
+En PowerShell, crea el entorno e instala las dependencias:
+
+```powershell
+py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-La base de desarrollo se crea en `data/app.db`. `DB_PATH` permite una base aislada
-para pruebas. Un solo servidor FastAPI sirve `/`, `/app`, `public/` y `/api`.
-El código Node permanece como referencia de transición; su retiro será un cambio separado.
+Inicia la aplicación desde la raíz del repositorio:
 
-Restablecimiento de la contraseña D-04:
-
-```bash
-.venv/bin/python -m scripts.reset_password
+```powershell
+npm run dev
 ```
 
-El secreto se conserva en `data/jwt.secret` (modo 0600), o se toma de
-`JWT_SECRET` cuando tiene al menos 32 caracteres.
+El comando usa el Python de `.venv`, inicia FastAPI en `127.0.0.1:3000` y recarga
+al guardar cambios. Para ejecución normal usa `npm start`. La aplicación sirve
+`/`, `/app`, `public/` y `/api`; los datos se guardan en `data/app.db`.
+`DB_PATH` permite usar otra base para pruebas. El código Node permanece durante
+la transición y ya no es el servidor de la aplicación.
 
-## Peticiones de ejemplo (valores ficticios)
+Pruebas del backend y restablecimiento de la contraseña:
 
-```bash
-curl -s http://127.0.0.1:3000/api/health
-curl -s -X POST http://127.0.0.1:3000/api/auth/login -H 'Content-Type: application/json' -d '{"usuario":"UsuarioPrueba","password":"ClaveFicticia123"}'
-curl -s -X POST http://127.0.0.1:3000/api/importaciones/monitoreo -H 'Authorization: Bearer TOKEN_FICTICIO' -F 'archivo=@/ruta/fixture-sintetico.xlsx'
-curl -s -X POST http://127.0.0.1:3000/api/importaciones/7/confirmar -H 'Authorization: Bearer TOKEN_FICTICIO' -H 'Content-Type: application/json' -d '{"modo":"fusionar"}'
-curl -s http://127.0.0.1:3000/api/alumnos?periodo=202660 -H 'Authorization: Bearer TOKEN_FICTICIO'
+```powershell
+.\.venv\Scripts\python.exe -m pytest -q tests
+.\.venv\Scripts\python.exe -m scripts.reset_password
+```
+
+El secreto JWT persistente se guarda localmente en `data\jwt.secret`. También
+puede configurarse `JWT_SECRET` con al menos 32 caracteres.
+
+## Peticiones de ejemplo
+
+```powershell
+$login = @{ usuario = "USUARIO"; password = "CONTRASENA" } | ConvertTo-Json
+$token = (Invoke-RestMethod -Uri "http://127.0.0.1:3000/api/auth/login" -Method Post -ContentType "application/json" -Body $login).token
+curl.exe -X POST http://127.0.0.1:3000/api/importaciones/monitoreo -H "Authorization: Bearer $token" -F "archivo=@test\fixtures\monitoreo-muestra.xlsx"
+curl.exe http://127.0.0.1:3000/api/alumnos -H "Authorization: Bearer $token"
 ```
 
 Use un token real obtenido mediante inicio de sesión local para las rutas protegidas.

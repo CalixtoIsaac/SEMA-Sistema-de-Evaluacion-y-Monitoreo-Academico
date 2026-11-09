@@ -1,5 +1,7 @@
 # Cierre de auditoría local · backend SEMA
 
+> **Archivado (9 nov 2026, G5):** informe histórico de la migración a FastAPI. Ya no describe el estado actual del código.
+
 Fecha: 3 de noviembre de 2026. Rama base remota observada: `origin/develop` en `20ad569`. Las cinco ramas locales se reubicaron sobre esa base; no se hizo merge a `develop` ni se abrió PR.
 
 ## Alcance y limitación de la skill
@@ -40,7 +42,7 @@ Comandos de verificación:
 
 ```bash
 .venv/bin/python -m pytest -q tests
-.venv/bin/python -m scripts.capturas_backend
+(script retirado en la limpieza del 9 nov 2026)
 git diff --check origin/develop..feature/19-api-alumnos
 ```
 
@@ -50,9 +52,7 @@ Las 25 pruebas de la rama final pasaron; se observan advertencias de deprecació
 
 Las imágenes son **vistas de evidencia generadas a partir de respuestas HTTP reales de TestClient**, no capturas de la interfaz de producto. Se intentó capturar el navegador local; Firefox headless falló al crear el framebuffer y el navegador de automatización no estaba disponible. El script reproducible usa una BD temporal y dos matrículas ficticias.
 
-- [Acceso API y dependencia del frontend](evidencias/01-login-api.png)
-- [Previa y exclusión de columnas](evidencias/02-previa.png)
-- [Listado, estados y totales](evidencias/03-listado.png)
+- Las capturas técnicas de esta auditoría se retiraron del repositorio en la limpieza del 9 nov 2026 (G5).
 
 ## Pendientes de integración
 

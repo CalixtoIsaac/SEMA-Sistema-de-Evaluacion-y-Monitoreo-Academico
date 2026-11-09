@@ -1,5 +1,7 @@
 # Informe local de auditoría · backend SEMA · 3 nov 2026
 
+> **Archivado (9 nov 2026, G5):** informe histórico de la migración a FastAPI. Ya no describe el estado actual del código.
+
 > Histórico previo al rebase. La auditoría y los commits vigentes están en [INFORME_CIERRE_SPRINT_BACKEND.md](INFORME_CIERRE_SPRINT_BACKEND.md).
 
 ## Estado de partida y ramas

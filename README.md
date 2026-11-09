@@ -4,7 +4,7 @@ Sistema de seguimiento académico que permite monitorear las **calificaciones**,
 
 SEMA es una aplicación web **local y de un solo usuario**: corre en la computadora de la escuela, se abre con un acceso directo y funciona **sin internet**.
 
-> **Estado:** en desarrollo. El repositorio ya tiene la base de SEMA (Express + SQLite, inicio de sesión, tema claro/oscuro con la paleta institucional azul); las funciones se construyen en 2 sprints, del **26 de octubre al 6 de noviembre de 2026**. La documentación completa está en [`context/`](context/).
+> **Estado:** Sprint 2 completo en código (pendiente de validación de la PO y pruebas con el cliente). El backend usa FastAPI + SQLite; el frontend conserva HTML, CSS y JavaScript sin frameworks. La documentación completa está en [`context/`](context/).
 
 ---
 
@@ -34,60 +34,64 @@ El estado del alumno es **el peor entre promedio y faltas**. La calificación of
 
 | Capa | Tecnología |
 |---|---|
-| Servidor | Node.js ≥ 20 · Express 4 |
-| Base de datos | SQLite con `better-sqlite3` (archivo `data/app.db`) |
-| Autenticación | `jsonwebtoken` (JWT, 8 h) · `bcryptjs` |
+| Servidor | Python ≥ 3.12 · FastAPI · Uvicorn |
+| Base de datos | SQLite (archivo `data/app.db`) |
+| Autenticación | JWT · bcrypt |
 | Frontend | HTML, CSS y JavaScript **sin frameworks** (módulos IIFE y UI kit propio) |
-| Excel y gráficas | `exceljs` · `multer` · Chart.js 4.6.1 y fuente Inter (servidos localmente desde `public/vendor/`) |
-| Pruebas | `node:test` |
+| Excel y gráficas | `openpyxl` · Chart.js y fuente Inter (servidos localmente desde `public/vendor/`) |
+| Pruebas | `pytest` para backend · `node:test` para herramientas |
 
 ---
 
 ## Instalación y arranque
 
-**Requisitos:** Node.js 20 o superior (recomendado 22 LTS). SQLite no se instala aparte.
+**Requisitos:** Python 3.12 o superior. Node.js 20 o superior solo se necesita para las herramientas auxiliares y sus pruebas (el backend ya no usa Node). SQLite no se instala aparte.
 
-```bash
+**En la computadora del cliente:** doble clic en `SEMA.bat`. La primera vez crea el entorno de Python e instala las dependencias; después arranca el servidor y abre el navegador.
+
+```powershell
 git clone https://github.com/CalixtoIsaac/SEMA-Sistema-de-Evaluacion-y-Monitoreo-Academico.git
 cd SEMA-Sistema-de-Evaluacion-y-Monitoreo-Academico
+py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
 npm install
-copy .env.example .env      # macOS / Linux: cp .env.example .env
-npm run dev                 # desarrollo: se reinicia al guardar cambios
+npm run dev
 ```
 
-Abre **http://localhost:3000**. La primera vez que entras, la pantalla de inicio te pide crear la cuenta *(en el Sprint 1 se reemplaza por la cuenta por defecto, D-04)*.
+Abre **http://localhost:3000**. La aplicación inicia sesión con la cuenta local definida en D-04; consulta [`context/00_Indice_y_Decisiones.md`](context/00_Indice_y_Decisiones.md).
 
-Variables de entorno (`.env`): `PORT` (3000), `JWT_SECRET`, `NODE_ENV`, `DB_PATH` y `OPEN_BROWSER`. Ver `.env.example`.
+Para iniciar el servidor en modo normal usa `npm start`. Ambos comandos de npm ejecutan FastAPI con el Python del entorno `.venv`.
 
 | Script | Para qué |
 |---|---|
-| `npm run dev` | Desarrollo: reinicia el servidor al guardar y no abre el navegador (`OPEN_BROWSER=false`). |
-| `npm start` | Ejecución normal. |
-| `npm test` | Pruebas con `node:test` (archivos `test/*.test.js`). |
-| `npm run reset-password` | Restablece la cuenta por defecto *(se agrega en el Sprint 1)*. |
+| `npm run dev` | Desarrollo: ejecuta Uvicorn y recarga al guardar cambios. |
+| `npm start` | Ejecuta el servidor FastAPI. |
+| `.\.venv\Scripts\python.exe -m pytest -q tests` | Pruebas del backend. |
+| `npm test` | Pruebas de herramientas auxiliares con `node:test`. |
+| `.\.venv\Scripts\python.exe -m scripts.reset_password` | Restablece la contraseña de la cuenta local. |
+| `.\.venv\Scripts\python.exe scripts\rendimiento_5000.py` | Prueba de rendimiento con 5,000 alumnos sintéticos ([resultados](docs/rendimiento-5000.md)). |
+| `npm run anonimizar` | Regenera los fixtures de `test/fixtures/` a partir de un Excel real (local; requiere Node 20+). |
 
-**Para el usuario final** (al terminar el Sprint 1): doble clic en **`SEMA.bat`**. Instala lo necesario la primera vez, arranca el servidor y abre el navegador.
-
-**Cuenta:** SEMA tiene una sola cuenta, creada automáticamente al primer arranque con el usuario `Chuchito` (credenciales en [`context/00_Indice_y_Decisiones.md`](context/00_Indice_y_Decisiones.md), D-04). Cambia la contraseña en **Perfil** después del primer inicio de sesión.
+Para regenerar los fixtures se necesita Node 20+: `node scripts/anonimizar-excel.js`. El Excel real nunca se sube.
 
 ---
 
 ## Estructura del proyecto
 
 ```
-├── SEMA.bat              # acceso directo (Sprint 1)
-├── server.js             # Express: seguridad, rutas y arranque
-├── lib/                  # db, auth, indicadores (reglas puras), nombres, texto
-├── services/             # importar Excel, alumnos, listas, resumen
-├── routes/               # API REST (/api/...)
+├── sema/                 # API FastAPI, autenticación, SQLite, Excel e indicadores
+├── lib/schema.sql        # esquema SQLite v1 (las migraciones nuevas van en sema/db.py)
+├── SEMA.bat              # acceso directo: instala, arranca y abre el navegador
 ├── public/               # login.html, app.html, css/, js/, vendor/
-├── scripts/              # reset-password, anonimizar Excel, crear tablero de GitHub
-├── test/                 # pruebas (node:test) y fixtures con datos FICTICIOS
-├── data/                 # app.db y jwt.secret (no se suben a git)
+├── scripts/              # utilidades y herramientas auxiliares
+├── tests/                # pruebas Python del backend
+├── test/                 # pruebas Node y fixtures con datos FICTICIOS
+├── data/                 # app.db y jwt.secret locales
+├── docs/                 # resultados de rendimiento e informes históricos
 └── context/              # documentación del proyecto (fuente de verdad)
 ```
 
-Arquitectura por capas: `routes/` → `services/` → `lib/`. El frontend nunca calcula estados; usa los que manda la API. Más detalle en [`context/03_Arquitectura_Convenciones.md`](context/03_Arquitectura_Convenciones.md).
+El frontend nunca calcula estados; usa los que manda la API. Más detalle en [`context/03_Arquitectura_Convenciones.md`](context/03_Arquitectura_Convenciones.md).
 
 ---
 
