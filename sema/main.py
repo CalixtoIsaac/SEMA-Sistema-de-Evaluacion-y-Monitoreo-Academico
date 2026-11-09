@@ -13,6 +13,7 @@ from .students import router as students_router
 from .exportar import router as exportar_router
 from .cuenta import router as cuenta_router
 from .resumen import router as resumen_router
+from .configuracion import router as configuracion_router
 
 load_dotenv(ROOT / '.env')
 
@@ -37,6 +38,7 @@ def create_app(db_path=None, secret_path=None):
     app.include_router(exportar_router)
     app.include_router(students_router)
     app.include_router(resumen_router)
+    app.include_router(configuracion_router)
     @app.get('/api/health')
     def health():
         return {'status':'online','app':'SEMA','version':'0.1.0','timestamp':datetime.now(timezone.utc).isoformat()}
