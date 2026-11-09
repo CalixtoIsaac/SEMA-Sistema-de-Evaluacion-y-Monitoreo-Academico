@@ -4,6 +4,8 @@
  *   #15 · HU-05  Zona para arrastrar o seleccionar el Excel de monitoreo
  *   #16 · HU-06  Previsualización antes de guardar (resumen, 20 filas, advertencias, modo)
  *   #17 · HU-07  Notificación "Datos cargados correctamente · N alumnos"
+ *   #31 · HU-08  Pestaña "Formulario" (formulario.js)
+ *   #39 · HU-09  Pestaña "Historial" de cargas (GET /api/importaciones)
  *
  * API (context/06): POST /importaciones/monitoreo · GET /importaciones/:id/muestra
  *                   POST /importaciones/:id/confirmar · DELETE /importaciones/:id
@@ -37,13 +39,7 @@ const Cargar = (() => {
   function renderDropzone(error) {
     previa = null;
     root.innerHTML = `
-      <section class="page-header">
-        <div>
-          <h2>Cargar datos</h2>
-          <p class="muted">Sube el Excel de monitoreo que descargas de la plataforma escolar.</p>
-        </div>
-      </section>
-
+      <p class="muted tab-intro">Sube el Excel de monitoreo que descargas de la plataforma escolar.</p>
       <div class="dropzone" id="dropzone" role="button" tabindex="0"
            aria-describedby="dropzoneHint" aria-label="Seleccionar el Excel de monitoreo">
         <span class="dropzone-icon">${UI.icon('upload')}</span>
@@ -314,10 +310,76 @@ const Cargar = (() => {
     }
   }
 
-  function mount(container) {
+  // ---------- Historial (#39) ----------
+  const ESTADOS_CARGA = { aplicada: ['Aplicada', 'badge-success'], descartada: ['Descartada', ''], previa: ['En revisión', 'badge-info'] };
+  const MODOS = { fusionar: 'Actualizar', reemplazar: 'Reemplazar' };
+
+  async function renderHistorial(panel) {
+    panel.innerHTML = `<section class="card"><div class="table-skeleton" aria-busy="true">${'<span class="skeleton"></span>'.repeat(5)}</div></section>`;
+    try {
+      const { importaciones } = await UI.api('/importaciones');
+      if (!panel.isConnected) return;
+      if (!importaciones.length) {
+        panel.innerHTML = `<section class="card"><div class="empty-state">
+          <span class="empty-icon">${UI.icon('history')}</span><h3>Todavía no hay cargas</h3>
+          <p class="muted">Aquí verás cada Excel de monitoreo y cada lista que cargues.</p>
+          <a class="btn btn-primary" href="#cargar">${UI.icon('upload')}Subir Excel</a></div></section>`;
+        return;
+      }
+      panel.innerHTML = `
+        <section class="card">
+          <div class="table-wrap"><table class="data-table">
+            <thead><tr>
+              <th scope="col">Fecha</th><th scope="col">Archivo</th><th scope="col">Tipo</th>
+              <th scope="col" class="num">Alumnos</th><th scope="col" class="num col-opt">Filas</th>
+              <th scope="col" class="col-opt">Modo</th><th scope="col">Estado</th>
+            </tr></thead>
+            <tbody>${importaciones.map((i) => {
+              const [txt, cls] = ESTADOS_CARGA[i.estado] || [i.estado, ''];
+              return `<tr>
+                <td>${UI.escape(UI.formatDate(i.aplicadoEn || i.creadoEn))}</td>
+                <td class="wrap"><span class="cell-name">${UI.escape(i.archivo)}</span>${i.periodo ? `<span class="muted small">${UI.escape(i.periodo.nombre)}</span>` : ''}</td>
+                <td>${i.tipo === 'lista' ? 'Lista' : 'Monitoreo'}</td>
+                <td class="num">${i.totalAlumnos == null ? '—' : fmt(i.totalAlumnos)}</td>
+                <td class="num col-opt">${i.totalFilas == null ? '—' : fmt(i.totalFilas)}</td>
+                <td class="col-opt">${UI.escape(MODOS[i.modo] || '—')}</td>
+                <td><span class="badge ${cls}">${txt}</span></td>
+              </tr>`;
+            }).join('')}</tbody>
+          </table></div>
+          <div class="table-footer"><span>${fmt(importaciones.length)} ${importaciones.length === 1 ? 'carga' : 'cargas'}</span></div>
+        </section>`;
+    } catch (err) {
+      if (!panel.isConnected) return;
+      panel.innerHTML = `<section class="card"><div class="empty-state"><span class="empty-icon">${UI.icon('alert')}</span>
+        <h3>No se pudo cargar</h3><p class="muted">${UI.escape(err.message)}</p>
+        <button class="btn btn-outline" type="button" id="retryBtn">${UI.icon('refresh')}Reintentar</button></div></section>`;
+      panel.querySelector('#retryBtn').addEventListener('click', () => renderHistorial(panel));
+    }
+  }
+
+  const TABS = [
+    { key: 'excel', label: 'Subir Excel', icon: 'upload', href: '#cargar' },
+    { key: 'formulario', label: 'Formulario', icon: 'form', href: '#cargar/formulario' },
+    { key: 'historial', label: 'Historial', icon: 'history', href: '#cargar/historial' }
+  ];
+
+  function mount(container, param) {
     // Si había una previa abierta y el usuario cambió de vista, se descarta.
     if (previa) discardQuietly(previa.importacion.id);
-    root = container;
+    const tab = TABS.some((t) => t.key === param) ? param : 'excel';
+    container.innerHTML = `
+      <section class="page-header">
+        <div><h2>Cargar datos</h2></div>
+      </section>
+      <nav class="tabs" aria-label="Formas de cargar datos">
+        ${TABS.map((t) => `<a class="tab" href="${t.href}" ${t.key === tab ? 'aria-current="page"' : ''}>${UI.icon(t.icon)}${t.label}</a>`).join('')}
+      </nav>
+      <div id="cargarPanel"></div>`;
+    const panel = container.querySelector('#cargarPanel');
+    if (tab === 'formulario') return Formulario.mount(panel);
+    if (tab === 'historial') return renderHistorial(panel);
+    root = panel;
     renderDropzone();
   }
 
