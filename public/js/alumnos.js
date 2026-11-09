@@ -5,8 +5,11 @@
  *                con conteo (M-02), ⚠ alertas (M-06), paginación de 50 y fila clicable.
  *   #22 · HU-16  Semáforo con texto e ícono (UI.badgeEstado, css/semaforo.css).
  *   (+ búsqueda por palabras sin acentos, base de #23 · HU-14)
+ *   #28/#29/#30  "Mostrar: Todos / lista", "Cargar lista" y menú ⋯ de la lista (listas.js).
+ *   M-07         Exportar a Excel/CSV exactamente lo que se ve (#42).
+ *   #25          El detalle vive en detalle.js.
  *
- * API: GET /api/alumnos → { alumnos, totales, periodo } (context/06 §6).
+ * API: GET /api/alumnos?lista= → { alumnos, totales, periodo } (context/06 §6) · GET /api/listas
  * Búsqueda, filtro y página se conservan al volver del detalle (sessionStorage).
  */
 const Alumnos = (() => {
@@ -33,6 +36,7 @@ const Alumnos = (() => {
 
   let root = null;
   let datos = null;
+  let listas = [];
   let vista = loadState();
   let searchTimer = null;
 
@@ -81,8 +85,98 @@ const Alumnos = (() => {
           <h2>Alumnos</h2>
           <p class="muted period-tag" id="periodoTag">&nbsp;</p>
         </div>
+        <div class="header-actions" id="headerActions"></div>
       </section>
+      <div class="lista-bar" id="listaBar"></div>
       <div id="alumnosBody"></div>`;
+  }
+
+  function listaActual() {
+    return listas.find((l) => l.id === UI.getLista()) || null;
+  }
+
+  // ---------- Listas de seguimiento (#28, #29, #30) ----------
+  function renderListaBar() {
+    const bar = root.querySelector('#listaBar');
+    const actual = listaActual();
+    bar.innerHTML = `
+      ${listas.length ? `<label class="mostrar">
+        <span>Mostrar:</span>
+        <span class="select-wrap"><select class="input select" id="listaSel" aria-label="Mostrar alumnos de">
+          <option value="">Todos los alumnos</option>
+          ${listas.map((l) => `<option value="${l.id}" ${actual && l.id === actual.id ? 'selected' : ''}>${UI.escape(l.nombre)} (${fmt(l.encontrados)}${l.total !== l.encontrados ? ` de ${fmt(l.total)}` : ''})</option>`).join('')}
+        </select></span>
+      </label>` : ''}
+      ${actual ? `<details class="menu" id="listaMenu">
+        <summary class="btn btn-ghost btn-icon" aria-label="Opciones de la lista «${UI.escape(actual.nombre)}»" title="Opciones de la lista">${UI.icon('dots')}</summary>
+        <div class="menu-items" role="menu">
+          <button type="button" role="menuitem" data-accion="renombrar">${UI.icon('pencil')}Renombrar</button>
+          <button type="button" role="menuitem" data-accion="reemplazar">${UI.icon('upload')}Reemplazar con otro Excel</button>
+          <button type="button" role="menuitem" class="peligro" data-accion="eliminar">${UI.icon('trash')}Eliminar lista</button>
+        </div>
+      </details>` : ''}
+      <button type="button" class="btn btn-outline btn-sm" id="cargarLista">${UI.icon('list')}Cargar lista</button>`;
+
+    const sel = bar.querySelector('#listaSel');
+    if (sel) sel.addEventListener('change', () => {
+      UI.setLista(sel.value ? Number(sel.value) : null);
+      vista.pagina = 1; saveState(); load();
+    });
+    bar.querySelector('#cargarLista').addEventListener('click', async () => {
+      const lista = await Listas.cargar();
+      if (!lista) return;
+      UI.setLista(lista.id); vista.pagina = 1; saveState();
+      UI.toast(`Lista «${lista.nombre}» guardada · ${fmt(lista.encontrados)} de ${fmt(lista.total)} alumnos encontrados`, 'success');
+      load();
+    });
+    const menu = bar.querySelector('#listaMenu');
+    if (menu) {
+      menu.addEventListener('click', async (e) => {
+        const b = e.target.closest('[data-accion]');
+        if (!b) return;
+        menu.open = false;
+        try {
+          if (b.dataset.accion === 'renombrar') {
+            const l = await Listas.renombrar(actual);
+            if (l) { UI.toast('Lista renombrada', 'success'); load(); }
+          } else if (b.dataset.accion === 'reemplazar') {
+            const l = await Listas.cargar(actual);
+            if (l) { UI.toast(`Lista «${l.nombre}» actualizada · ${fmt(l.total)} matrículas`, 'success'); load(); }
+          } else if (await Listas.eliminar(actual)) {
+            UI.setLista(null); UI.toast('Lista eliminada; los alumnos se conservan', 'success'); load();
+          }
+        } catch (err) { UI.toast(err.message, 'error'); }
+      });
+    }
+  }
+
+  // ---------- Exportar (M-07, #42) ----------
+  function renderExportar() {
+    const box = root.querySelector('#headerActions');
+    if (!datos || !datos.alumnos.length) { box.innerHTML = ''; return; }
+    box.innerHTML = `
+      <details class="menu" id="exportMenu">
+        <summary class="btn btn-outline">${UI.icon('download')}Exportar</summary>
+        <div class="menu-items right" role="menu">
+          <button type="button" role="menuitem" data-formato="xlsx">${UI.icon('file')}Excel (.xlsx)</button>
+          <button type="button" role="menuitem" data-formato="csv">${UI.icon('file')}CSV</button>
+        </div>
+      </details>`;
+    const menu = box.querySelector('#exportMenu');
+    menu.addEventListener('click', async (e) => {
+      const b = e.target.closest('[data-formato]');
+      if (!b) return;
+      menu.open = false;
+      // Mismos filtros, búsqueda y orden que la tabla (context/05 §7).
+      const params = new URLSearchParams({ formato: b.dataset.formato, estado: vista.estado, q: vista.q.trim() });
+      const orden = [vista.promedio && 'promedio', vista.faltas && 'faltas'].filter(Boolean).join(',');
+      if (orden) params.set('orden', orden);
+      if (listaActual()) params.set('lista', listaActual().id);
+      try {
+        const nombre = await UI.download(`/alumnos/exportar?${params}`, `SEMA_alumnos.${b.dataset.formato}`);
+        UI.toast(`Descargado ${nombre}`, 'success');
+      } catch (err) { UI.toast(err.message, 'error'); }
+    });
   }
 
   function renderLoading() {
@@ -104,6 +198,18 @@ const Alumnos = (() => {
   }
 
   function renderEmpty() {
+    const actual = listaActual();
+    if (actual) {
+      root.querySelector('#alumnosBody').innerHTML = `
+      <section class="card"><div class="empty-state">
+        <span class="empty-icon">${UI.icon('list')}</span>
+        <h3>Ningún alumno de «${UI.escape(actual.nombre)}» tiene datos en este periodo</h3>
+        <p class="muted">La lista tiene ${fmt(actual.total)} matrículas; aparecerán cuando el Excel de monitoreo las incluya.</p>
+        <button class="btn btn-outline" type="button" id="verTodosLista">Ver todos los alumnos</button>
+      </div></section>`;
+      root.querySelector('#verTodosLista').addEventListener('click', () => { UI.setLista(null); load(); });
+      return;
+    }
     root.querySelector('#alumnosBody').innerHTML = `
       <section class="card"><div class="empty-state">
         <span class="empty-icon">${UI.icon('inbox')}</span>
@@ -278,32 +384,18 @@ const Alumnos = (() => {
     location.hash = `#alumnos/${encodeURIComponent(matricula)}`;
   }
 
-  // ---------- Detalle (temporal hasta #20 / #25) ----------
-  function mountDetalle(container, matricula) {
-    const a = datos && datos.alumnos.find((x) => x.matricula === matricula);
-    container.innerHTML = `
-      <section class="page-header">
-        <div>
-          <a href="#alumnos" class="btn btn-ghost btn-sm" style="margin-bottom:8px">${UI.icon('chevronLeft')}Volver a Alumnos</a>
-          <h2>${UI.escape(a ? a.nombreMostrar : matricula)}</h2>
-          <p class="muted">${UI.escape(matricula)}</p>
-        </div>
-        ${a ? UI.badgeEstado(a.estado, { motivo: a.motivoEstado }) : ''}
-      </section>
-      <section class="card"><div class="empty-state">
-        <span class="empty-icon">${UI.icon('clock')}</span>
-        <h3>El detalle por materia llega en el Sprint 2</h3>
-        <p class="muted">Aquí se verán sus materias, actividades, faltas por materia y evolución (HU-17).</p>
-      </div></section>`;
-  }
-
   async function load() {
     renderLoading();
     try {
-      datos = await UI.api('/alumnos');
+      listas = (await UI.api('/listas').catch(() => ({ listas: [] }))).listas || [];
+      if (UI.getLista() && !listaActual()) UI.setLista(null);
+      const actual = listaActual();
+      datos = await UI.api('/alumnos' + (actual ? `?lista=${actual.id}` : ''));
       if (!root.isConnected) return;
       const p = datos.periodo;
-      root.querySelector('#periodoTag').textContent = p ? `Periodo ${p.nombre}` : '';
+      root.querySelector('#periodoTag').textContent = p ? `Periodo ${p.nombre}${actual ? ` · Lista «${actual.nombre}»` : ''}` : '';
+      renderListaBar();
+      renderExportar();
       if (!datos.alumnos.length) return renderEmpty();
       renderData();
     } catch (err) {
@@ -314,7 +406,7 @@ const Alumnos = (() => {
   function mount(container, matricula) {
     root = container;
     vista = loadState(); // otra vista (p. ej. "Ver todos" del Menú) pudo cambiar el estado guardado
-    if (matricula) return mountDetalle(container, matricula);
+    if (matricula) return Detalle.mount(container, matricula);
     renderShell();
     load();
   }
