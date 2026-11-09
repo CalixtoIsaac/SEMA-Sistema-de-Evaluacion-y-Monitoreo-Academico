@@ -1,10 +1,9 @@
 /**
  * #26 · Rendimiento de la búsqueda y el orden del navegador con 5,000 alumnos (RNF-01: < 200 ms).
  *   node scripts/rendimiento_busqueda.js
- * Usa el mismo orden (public/js/orden-busqueda.js) y la misma normalización que public/js/alumnos.js.
+ * Usa las mismas funciones que la vista Alumnos (public/js/orden-busqueda.js, #23).
  */
-const { ordenarAlumnos } = require('../public/js/orden-busqueda.js');
-const normalizar = (s) => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+const { normalizar, ordenarAlumnos } = require('../public/js/orden-busqueda.js');
 
 const APELLIDOS = ['Pérez', 'López', 'García', 'Hernández', 'Martínez', 'Muñoz', 'Gómez', 'Díaz', 'Cruz', 'Ruiz', 'Ríos', 'Silva'];
 const NOMBRES = ['Ana', 'Luis', 'María José', 'Diego', 'Karla', 'Mateo', 'Regina', 'Santiago'];
