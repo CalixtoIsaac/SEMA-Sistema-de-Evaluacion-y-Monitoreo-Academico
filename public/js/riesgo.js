@@ -48,7 +48,61 @@ const Riesgo = (() => {
     location.hash = '#alumnos';
   }
 
-  async function mount(container) {
+  function tabla(top) {
+    return `
+        <div class="table-wrap"><table class="data-table">
+          <thead><tr>
+            <th scope="col">Nombre</th><th scope="col" class="col-opt">Matrícula</th>
+            <th scope="col" class="num">Promedio</th><th scope="col" class="num">Faltas</th>
+            <th scope="col">Estado</th>
+          </tr></thead>
+          <tbody>${top.map(fila).join('')}</tbody>
+        </table></div>`;
+  }
+
+  function enlazar(cuerpo) {
+    const abrir = (tr) => {
+      location.hash = `#alumnos/${encodeURIComponent(tr.dataset.matricula)}`;
+    };
+    cuerpo.addEventListener('click', (e) => {
+      const tr = e.target.closest('tr[data-matricula]');
+      if (tr) abrir(tr);
+    });
+    cuerpo.addEventListener('keydown', (e) => {
+      const tr = e.target.closest('tr[data-matricula]');
+      if (tr && (e.key === 'Enter' || e.key === ' ')) {
+        e.preventDefault();
+        abrir(tr);
+      }
+    });
+  }
+
+  function vacio() {
+    return `<div class="empty-state">
+          <span class="empty-icon">${UI.icon('checkCircle')}</span>
+          <h3>Ningún alumno en riesgo</h3>
+          <p class="muted">Nadie está en estado Crítico ni Preventivo.</p></div>`;
+  }
+
+  /**
+   * Con `top` (topRiesgo de GET /api/resumen, #34) solo dibuja; sin él, consulta /alumnos.
+   * El Menú principal pasa `top` para respetar la lista elegida (M-03).
+   */
+  async function mount(container, top) {
+    if (Array.isArray(top)) {
+      container.innerHTML = `
+      <section class="card" aria-labelledby="riesgoTitulo">
+        <div class="card-header">
+          <h3 id="riesgoTitulo">Alumnos con mayor riesgo</h3>
+          ${top.length ? '<button type="button" class="btn btn-ghost btn-sm" id="verTodos">Ver todos →</button>' : ''}
+        </div>
+        <div id="riesgoCuerpo">${top.length ? tabla(top) : vacio()}</div>
+      </section>`;
+      const ver = container.querySelector('#verTodos');
+      if (ver) ver.addEventListener('click', verTodos);
+      enlazar(container.querySelector('#riesgoCuerpo'));
+      return;
+    }
     container.innerHTML = `
       <section class="card" aria-labelledby="riesgoTitulo">
         <div class="card-header">
@@ -69,40 +123,15 @@ const Riesgo = (() => {
         return;
       }
 
-      const top = topRiesgo(datos.alumnos);
-      if (!top.length) {
-        cuerpo.innerHTML = `<div class="empty-state">
-          <span class="empty-icon">${UI.icon('checkCircle')}</span>
-          <h3>Ningún alumno en riesgo</h3>
-          <p class="muted">Nadie está en estado Crítico ni Preventivo.</p></div>`;
+      const lista = topRiesgo(datos.alumnos);
+      if (!lista.length) {
+        cuerpo.innerHTML = vacio();
         return;
       }
 
       container.querySelector('#verTodos').hidden = false;
-      cuerpo.innerHTML = `
-        <div class="table-wrap"><table class="data-table">
-          <thead><tr>
-            <th scope="col">Nombre</th><th scope="col" class="col-opt">Matrícula</th>
-            <th scope="col" class="num">Promedio</th><th scope="col" class="num">Faltas</th>
-            <th scope="col">Estado</th>
-          </tr></thead>
-          <tbody>${top.map(fila).join('')}</tbody>
-        </table></div>`;
-
-      const abrir = (tr) => {
-        location.hash = `#alumnos/${encodeURIComponent(tr.dataset.matricula)}`;
-      };
-      cuerpo.addEventListener('click', (e) => {
-        const tr = e.target.closest('tr[data-matricula]');
-        if (tr) abrir(tr);
-      });
-      cuerpo.addEventListener('keydown', (e) => {
-        const tr = e.target.closest('tr[data-matricula]');
-        if (tr && (e.key === 'Enter' || e.key === ' ')) {
-          e.preventDefault();
-          abrir(tr);
-        }
-      });
+      cuerpo.innerHTML = tabla(lista);
+      enlazar(cuerpo);
     } catch (err) {
       if (!container.isConnected) return;
       cuerpo.innerHTML = `<div class="empty-state">
