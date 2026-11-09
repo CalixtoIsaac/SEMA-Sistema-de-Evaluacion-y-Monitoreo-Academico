@@ -24,3 +24,14 @@ def test_migration_preserves_existing_user(tmp_path):
     assert upgraded.execute("SELECT 1 FROM sqlite_master WHERE name='idx_cortes_alumno'").fetchone()
     assert upgraded.execute('SELECT usuario FROM usuarios').fetchone()[0]=='existente'
     upgraded.close()
+
+def test_archivos_estaticos_sin_cache_vieja(tmp_path):
+    """Tras actualizar SEMA, el navegador debe revalidar el JS/CSS en lugar de usar su copia."""
+    app = create_app(tmp_path/'app.db', tmp_path/'secret')
+    with TestClient(app) as c:
+        for ruta in ('/', '/app', '/js/app.js', '/css/app.css'):
+            r = c.get(ruta)
+            assert r.status_code == 200 and r.headers['cache-control'] == 'no-cache', ruta
+        etag = c.get('/js/app.js').headers['etag']
+        assert c.get('/js/app.js', headers={'If-None-Match': etag}).status_code == 304
+    app.state.db.close()
