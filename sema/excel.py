@@ -138,3 +138,41 @@ def parse(data:bytes):
     wb.close()
     return {'rows':rows,'preview':previews,'columns':columns,'warnings':warnings,
             'total':total,'omitted':omitted,'sheet':sheet,'duplicates':total-omitted-len(rows)}
+
+# ---------- Excel de lista de seguimiento (#27 · context/08 §2) ----------
+
+def parse_list(data:bytes):
+    """Lee la primera hoja: encabezado en las primeras 10 filas con una columna que
+    contenga «matr» (obligatoria) y otra «nombre» (opcional). Devuelve matrículas únicas."""
+    try:
+        wb=load_workbook(BytesIO(data),read_only=True,data_only=True)
+    except Exception as e:
+        raise FormatError(['No es un archivo XLSX legible']) from e
+    try:
+        ws=wb.worksheets[0]
+        it=ws.iter_rows(values_only=True)
+        mat_col=name_col=None
+        for header_row,header in enumerate(it,1):
+            if header_row>10:break
+            keys=[key(x) for x in header]
+            mats=[i for i,k in enumerate(keys) if 'matr' in k]
+            if mats:
+                mat_col=mats[0]
+                names=[i for i,k in enumerate(keys) if 'nombre' in k and i!=mat_col]
+                name_col=names[0] if names else None
+                break
+        if mat_col is None:
+            raise FormatError(['Falta la columna «Matrícula» en las primeras 10 filas'])
+        rows=[];seen=set();total=0
+        for cells in it:
+            mat=clean(cells[mat_col]) if mat_col<len(cells) else None
+            if not mat:continue
+            total+=1
+            mat=mat.upper()
+            if mat in seen:continue
+            seen.add(mat)
+            name=clean(cells[name_col]) if name_col is not None and name_col<len(cells) else None
+            rows.append({'matricula':mat,'nombre':name})
+        return {'rows':rows,'total':total,'sheet':ws.title}
+    finally:
+        wb.close()
