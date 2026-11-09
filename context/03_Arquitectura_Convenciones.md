@@ -127,12 +127,12 @@ Secreto JWT: si no se define `JWT_SECRET`, se genera uno y se guarda en
 ## 5. Flujo de trabajo en Git
 
 ```
-main      ●───────────────●──────────────●   (entregas: v0.1, v0.2 … v1.0, protegida)
-           \             /              /
-develop     ●──●──●──●──●──●──●──●──●──●     (integración, protegida)
-              \    /      \    /
-feature/12-…   ●──●        ●──●               (una rama por issue)
+main      ●──────●──────●──────●──────●   (trabajo y entregas hasta v1.0, protegida)
+           \    /  \    /  \    /
+fix/47-…    ●──●    ●──●    ●──●          (una rama por issue)
 ```
+
+> **D-23 (9 nov 2026):** desde el cierre del Sprint 2 las ramas salen de **`main`** y los PR van a **`main`**. `develop` se sincronizó con `main` y queda solo como respaldo; no se trabaja sobre ella.
 
 - **Ramas:** `feature/<n°issue>-<descripcion-corta>`, `fix/<n°issue>-…`, `docs/…`, `chore/…`. Ej.: `feature/14-previsualizar-excel`.
 - **Commits:** [Conventional Commits](https://www.conventionalcommits.org/es/) en español, en presente:
@@ -140,9 +140,9 @@ feature/12-…   ●──●        ●──●               (una rama por is
   - `fix(importacion): ignorar celdas con espacios`
   - `docs(context): actualizar reglas de faltas`
   - Tipos: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`. Ámbitos: `auth`, `cuenta`, `importacion`, `listas`, `alumnos`, `detalle`, `resumen`, `config`, `ui`, `db`, `infra`.
-- **Pull Requests** hacia `develop`, con `Closes #<n°>` en la descripción, capturas si hay cambios visuales y la plantilla llena.
-- **Solo el Scrum Master** aprueba y hace *merge* (*Squash and merge*). Reglas de protección en `main` y `develop`: requerir PR, 1 aprobación de *Code Owners*, sin *push* directo.
-- Al cerrar cada sprint: PR `develop → main` y etiqueta `v0.<n°sprint>` con notas de la versión.
+- **Pull Requests** hacia `main`, con `Closes #<n°>` en la descripción, capturas si hay cambios visuales y la plantilla llena.
+- **Solo el Scrum Master** aprueba y hace *merge* (*Squash and merge*). Reglas de protección en `main`: requerir PR, 1 aprobación de *Code Owners*, sin *push* directo.
+- Al entregar: etiqueta `v1.0` en `main` con notas de la versión.
 
 **Plantilla de PR (`.github/pull_request_template.md`)**
 

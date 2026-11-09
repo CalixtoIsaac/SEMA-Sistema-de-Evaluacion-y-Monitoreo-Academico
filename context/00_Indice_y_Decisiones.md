@@ -92,3 +92,5 @@ Todas las decisiones están **cerradas**; no hay preguntas pendientes. No se cam
 | D-19 | "Lógica de descuentos" en el brief | Era texto accidental de otro proyecto. Backend = API + Excel + indicadores. | — |
 | D-20 | Mejoras de diseño | Aprobadas **todas: M-01 a M-13**, incluida M-05 (evolución del desempeño) tras su explicación. | `05` §11–12 · `07` §9 |
 | D-21 | Responsable de Frontend | Se integra **Matías Hernández Garrido** como responsable de Frontend. Calixto queda solo como Scrum Master (apoyo reducido en código y suplente en caso de inconvenientes o bajas). | `Sprints.md` §6–7 |
+| D-22 | Alumno sin calificaciones y con 0 faltas (#13) | Queda en **Sin datos** aunque sus materias tengan límite de faltas; con al menos una falta, el estado es el de faltas. **Pendiente de confirmar con la PO** (9 nov 2026). | `07` §4.3 |
+| D-23 | Rama de trabajo | **`main` es la base de trabajo y de entrega hasta la v1.0.** El Sprint 2 se integró directo a `main` (PR #68). Las ramas nuevas salen de `main` y sus PR van a `main`; `develop` se sincronizó con `main` y queda solo como respaldo (9 nov 2026). | `03` §5 |
