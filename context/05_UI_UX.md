@@ -82,7 +82,7 @@ Se cambia solo el acento; el semáforo (`--success-*`, `--warning-*`, `--danger-
             │ Sistema de Evaluación y        │
             │ Monitoreo Académico            │
             │                                │
-            │ Usuario     [ Chuchito       ] │
+            │ Usuario     [ JesusSanJuan   ] │
             │ Contraseña  [ ••••••••    👁 ] │
             │                                │
             │ [        Iniciar sesión       ]│
@@ -287,7 +287,7 @@ Materia: Inglés Nivel 4                                           🟡 77
 ```
 Cuenta                                  Contraseña
 Nombre   [Administrador        ]        Actual     [••••••••]
-Usuario  [Chuchito             ]        Nueva      [••••••••]
+Usuario  [JesusSanJuan         ]        Nueva      [••••••••]
 Contraseña actual [••••••••]            Confirmar  [••••••••]
 [ Guardar cambios ]                     [ Cambiar contraseña ]
 

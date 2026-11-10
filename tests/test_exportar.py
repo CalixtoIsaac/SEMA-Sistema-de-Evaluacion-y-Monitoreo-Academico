@@ -25,7 +25,7 @@ FILAS = [
 def cliente(tmp_path):
     app = create_app(tmp_path / 'app.db', tmp_path / 'secret')
     c = TestClient(app)
-    token = c.post('/api/auth/login', json={'usuario': 'Chuchito', 'password': INITIAL_PASSWORD}).json()['token']
+    token = c.post('/api/auth/login', json={'usuario': 'JesusSanJuan', 'password': INITIAL_PASSWORD}).json()['token']
     c.headers.update({'Authorization': 'Bearer ' + token})
     p = c.post('/api/importaciones/monitoreo', files={'archivo': ('x.xlsx', workbook(FILAS))}).json()
     assert c.post(f"/api/importaciones/{p['importacion']['id']}/confirmar", json={'modo': 'fusionar'}).status_code == 200
@@ -136,7 +136,7 @@ def test_errores(cliente, params, codigo):
 def test_sin_datos_exporta_solo_encabezados(tmp_path):
     app = create_app(tmp_path / 'app.db', tmp_path / 'secret')
     c = TestClient(app)
-    token = c.post('/api/auth/login', json={'usuario': 'Chuchito', 'password': INITIAL_PASSWORD}).json()['token']
+    token = c.post('/api/auth/login', json={'usuario': 'JesusSanJuan', 'password': INITIAL_PASSWORD}).json()['token']
     r = c.get('/api/alumnos/exportar', headers={'Authorization': 'Bearer ' + token})
     assert r.status_code == 200 and len(tabla(r)) == 1
     app.state.db.close()

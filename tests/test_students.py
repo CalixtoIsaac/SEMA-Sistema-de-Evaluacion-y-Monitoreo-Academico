@@ -6,7 +6,7 @@ from tests.test_imports import workbook
 def test_listing(tmp_path):
     app=create_app(tmp_path/'app.db',tmp_path/'secret');c=TestClient(app)
     assert c.get('/api/alumnos').status_code==401
-    t=c.post('/api/auth/login',json={'usuario':'Chuchito','password':INITIAL_PASSWORD}).json()['token'];h={'Authorization':'Bearer '+t}
+    t=c.post('/api/auth/login',json={'usuario':'JesusSanJuan','password':INITIAL_PASSWORD}).json()['token'];h={'Authorization':'Bearer '+t}
     assert c.get('/api/alumnos',headers=h).json()['periodo'] is None
     data=workbook([['202660','T00000001','Pérez López Ana','Química','Q1','1',4,90,90,5,'RW'],['202660','T00000001','Pérez López Ana','Física','F1','2',0,80,80,5,'RW']])
     p=c.post('/api/importaciones/monitoreo',headers=h,files={'archivo':('x.xlsx',data)}).json()
@@ -20,7 +20,7 @@ def test_listing(tmp_path):
 
 def test_period_and_list(tmp_path):
     app=create_app(tmp_path/'app.db',tmp_path/'secret');c=TestClient(app)
-    t=c.post('/api/auth/login',json={'usuario':'Chuchito','password':INITIAL_PASSWORD}).json()['token'];h={'Authorization':'Bearer '+t}
+    t=c.post('/api/auth/login',json={'usuario':'JesusSanJuan','password':INITIAL_PASSWORD}).json()['token'];h={'Authorization':'Bearer '+t}
     for period,mat in [('202660','T00000001'),('202710','T00000002')]:
         data=workbook([[period,mat,'Ruiz Soto Eva','Física','F1','1',0,80,80,5,'RW']])
         p=c.post('/api/importaciones/monitoreo',headers=h,files={'archivo':('x.xlsx',data)}).json()
@@ -35,7 +35,7 @@ def test_period_and_list(tmp_path):
 
 def test_threshold_and_sd(tmp_path):
     app=create_app(tmp_path/'app.db',tmp_path/'secret');c=TestClient(app)
-    t=c.post('/api/auth/login',json={'usuario':'Chuchito','password':INITIAL_PASSWORD}).json()['token'];h={'Authorization':'Bearer '+t}
+    t=c.post('/api/auth/login',json={'usuario':'JesusSanJuan','password':INITIAL_PASSWORD}).json()['token'];h={'Authorization':'Bearer '+t}
     data=workbook([['202660','T00000001','Ruiz Soto Eva','Física','F1','1',0,90,'SD',5,'RW']])
     p=c.post('/api/importaciones/monitoreo',headers=h,files={'archivo':('x.xlsx',data)}).json()
     c.post(f"/api/importaciones/{p['importacion']['id']}/confirmar",headers=h,json={'modo':'fusionar'})
@@ -49,7 +49,7 @@ def test_threshold_and_sd(tmp_path):
 
 def test_manual_grade_in_listing(tmp_path):
     app=create_app(tmp_path/'app.db',tmp_path/'secret');c=TestClient(app)
-    token=c.post('/api/auth/login',json={'usuario':'Chuchito','password':INITIAL_PASSWORD}).json()['token']
+    token=c.post('/api/auth/login',json={'usuario':'JesusSanJuan','password':INITIAL_PASSWORD}).json()['token']
     db=app.state.db
     db.execute("INSERT INTO periodos(clave,nombre) VALUES ('202660','Prueba')")
     db.execute("INSERT INTO materias(clave,nombre) VALUES ('Q1','Química')")

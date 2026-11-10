@@ -9,7 +9,10 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 from .db import DATA_DIR, transaction
 
-INITIAL_PASSWORD = 'Administrador*Chuchito*123'
+INITIAL_USER = 'JesusSanJuan'
+INITIAL_PASSWORD = 'ContraseñaJesus123*'
+# Cuenta por defecto anterior (D-04 original). Se migra a la nueva si nunca se cambió.
+LEGACY_USER = 'Chuchito'
 router = APIRouter(prefix='/api/auth')
 
 def load_secret(path=None):
@@ -39,10 +42,20 @@ def seed_user(db):
     # BEGIN IMMEDIATE serializa arranques concurrentes; el SELECT está dentro.
     with transaction(db):
         if db.execute('SELECT 1 FROM usuarios LIMIT 1').fetchone():
+            # Bases creadas con la cuenta anterior: si sigue siendo Chuchito con la
+            # contraseña por defecto (nadie la personalizó), pasa a la cuenta nueva.
+            # Si el usuario ya cambió su usuario o contraseña, no se toca.
+            viejo = db.execute('SELECT id FROM usuarios WHERE usuario=? AND password_por_defecto=1',
+                               (LEGACY_USER,)).fetchone()
+            libre = not db.execute('SELECT 1 FROM usuarios WHERE usuario=?', (INITIAL_USER,)).fetchone()
+            if viejo and libre:
+                hashed = bcrypt.hashpw(INITIAL_PASSWORD.encode(), bcrypt.gensalt(rounds=10)).decode()
+                db.execute("UPDATE usuarios SET usuario=?,password_hash=?,actualizado_en=datetime('now','localtime') WHERE id=?",
+                           (INITIAL_USER, hashed, viejo['id']))
             return
         hashed = bcrypt.hashpw(INITIAL_PASSWORD.encode(), bcrypt.gensalt(rounds=10)).decode()
         db.execute('INSERT INTO usuarios(nombre,usuario,password_hash,password_por_defecto) VALUES (?,?,?,1)',
-                   ('Administrador','Chuchito',hashed))
+                   ('Administrador',INITIAL_USER,hashed))
 
 def public_user(row):
     return {'id':row['id'],'nombre':row['nombre'],'usuario':row['usuario'],

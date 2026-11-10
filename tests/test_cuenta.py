@@ -35,7 +35,7 @@ def test_cambiar_password(tmp_path):
     assert put(INITIAL_PASSWORD, INITIAL_PASSWORD).status_code == 400
     assert put('incorrecta', 'NuevaClave2026').json()['code'] == 'BAD_PASSWORD'
     assert put(INITIAL_PASSWORD, 'NuevaClave2026').json() == {'status': 'ok'}
-    assert c.post('/api/auth/login', json={'usuario': 'Chuchito', 'password': INITIAL_PASSWORD}).status_code == 401
+    assert c.post('/api/auth/login', json={'usuario': 'JesusSanJuan', 'password': INITIAL_PASSWORD}).status_code == 401
     h2 = login(c, 'NuevaClave2026')
     assert c.get('/api/auth/me', headers=h2).json()['user']['passwordPorDefecto'] is False
     app.state.db.close()

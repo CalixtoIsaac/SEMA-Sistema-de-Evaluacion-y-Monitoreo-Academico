@@ -12,7 +12,7 @@ def client(tmp_path):
     app = create_app(tmp_path/'app.db', tmp_path/'secret')
     return app, TestClient(app)
 
-def login(c, password=INITIAL_PASSWORD, usuario='Chuchito'):
+def login(c, password=INITIAL_PASSWORD, usuario='JesusSanJuan'):
     r = c.post('/api/auth/login', json={'usuario': usuario, 'password': password})
     assert r.status_code == 200, r.text
     return {'Authorization': 'Bearer ' + r.json()['token']}

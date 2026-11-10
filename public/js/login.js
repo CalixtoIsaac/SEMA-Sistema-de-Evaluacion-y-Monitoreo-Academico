@@ -1,6 +1,6 @@
 /**
  * Pantalla de inicio de sesión.
- * La cuenta por defecto (Chuchito) la crea el servidor al arrancar,
+ * La cuenta por defecto (JesusSanJuan) la crea el servidor al arrancar,
  * así que aquí solo se muestra el formulario para entrar.
  */
 (() => {

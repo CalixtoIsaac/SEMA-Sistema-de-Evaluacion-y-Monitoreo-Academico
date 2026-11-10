@@ -64,7 +64,7 @@ SEMA-Sistema-de-Evaluacion-y-Monitoreo-Academico/
 │   ├── vendor/ chart.umd.min.js · inter/ (fuente local)
 │   └── img/   logo.svg · favicon.ico
 ├── scripts/
-│   ├── reset_password.py         # vuelve a Chuchito / contraseña por defecto
+│   ├── reset_password.py         # vuelve a JesusSanJuan / contraseña por defecto
 │   ├── rendimiento_5000.py       # prueba de rendimiento con 5,000 alumnos (#26)
 │   ├── rendimiento_busqueda.js   # búsqueda y orden del navegador con 5,000 alumnos (#26)
 │   ├── github/crear-tablero.mjs  # crea labels, milestones, Project e issues a partir de context/Sprints.md

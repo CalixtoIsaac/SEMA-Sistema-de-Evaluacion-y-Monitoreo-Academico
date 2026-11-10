@@ -8,7 +8,7 @@ from tests.test_imports import workbook
 FIXTURE = Path(__file__).resolve().parents[1] / 'test/fixtures/monitoreo-muestra.xlsx'
 
 def login(c):
-    t = c.post('/api/auth/login', json={'usuario': 'Chuchito', 'password': INITIAL_PASSWORD}).json()['token']
+    t = c.post('/api/auth/login', json={'usuario': 'JesusSanJuan', 'password': INITIAL_PASSWORD}).json()['token']
     return {'Authorization': 'Bearer ' + t}
 
 def cargar(c, h, data, modo='fusionar'):
@@ -19,7 +19,7 @@ def cargar(c, h, data, modo='fusionar'):
 
 def test_c1_validacion_con_formato_error_code(tmp_path):
     app = create_app(tmp_path/'a.db', tmp_path/'s'); c = TestClient(app)
-    r = c.post('/api/auth/login', json={'usuario': 'Chuchito'})
+    r = c.post('/api/auth/login', json={'usuario': 'JesusSanJuan'})
     assert r.status_code == 400 and r.json() == {'error': 'Datos incompletos o inválidos.', 'code': 'VALIDACION'}
     h = login(c)
     r = c.get('/api/alumnos?lista=abc', headers=h)
@@ -31,13 +31,13 @@ def test_c1_validacion_con_formato_error_code(tmp_path):
 def test_c3_logins_correctos_no_cuentan(tmp_path):
     app = create_app(tmp_path/'a.db', tmp_path/'s'); c = TestClient(app)
     for _ in range(11):
-        assert c.post('/api/auth/login', json={'usuario': 'Chuchito', 'password': INITIAL_PASSWORD}).status_code == 200
+        assert c.post('/api/auth/login', json={'usuario': 'JesusSanJuan', 'password': INITIAL_PASSWORD}).status_code == 200
     # Un login correcto limpia los fallidos anteriores.
     for _ in range(9):
-        assert c.post('/api/auth/login', json={'usuario': 'Chuchito', 'password': 'x'}).status_code == 401
-    assert c.post('/api/auth/login', json={'usuario': 'Chuchito', 'password': INITIAL_PASSWORD}).status_code == 200
+        assert c.post('/api/auth/login', json={'usuario': 'JesusSanJuan', 'password': 'x'}).status_code == 401
+    assert c.post('/api/auth/login', json={'usuario': 'JesusSanJuan', 'password': INITIAL_PASSWORD}).status_code == 200
     for _ in range(9):
-        assert c.post('/api/auth/login', json={'usuario': 'Chuchito', 'password': 'x'}).status_code == 401
+        assert c.post('/api/auth/login', json={'usuario': 'JesusSanJuan', 'password': 'x'}).status_code == 401
     app.state.db.close()
 
 def test_c2_tendencia_contra_corte_anterior_del_periodo(tmp_path):

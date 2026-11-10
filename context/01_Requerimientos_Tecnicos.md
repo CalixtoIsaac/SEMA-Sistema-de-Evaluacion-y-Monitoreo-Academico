@@ -31,7 +31,7 @@ Que el líder de generación pueda, en pocos clics, **cargar el Excel de monitor
 |---|---|---|
 | **RF-01** | **Acceso directo.** Un archivo `SEMA.bat` (y un acceso directo `.lnk` con ícono) instala dependencias si faltan, arranca el servidor (`npm start`) y abre el navegador en `http://localhost:3000`. Si el servidor ya está corriendo, solo abre el navegador. | Must |
 | **RF-02** | **Login** con usuario y contraseña. Al iniciar sesión se redirige al Resumen Administrativo. Sesión de 8 h. | Must |
-| **RF-03** | **Cuenta por defecto** `Chuchito` / `Administrador*Chuchito*123`, creada automáticamente si la base de datos no tiene usuarios. | Must |
+| **RF-03** | **Cuenta por defecto** `JesusSanJuan` / `ContraseñaJesus123*`, creada automáticamente si la base de datos no tiene usuarios. | Must |
 | **RF-04** | **Perfil → Cuenta:** cambiar nombre y usuario (pide la contraseña actual) y cambiar contraseña. **No hay correo** (D-17). | Must |
 | **RF-05** | **Sidebar** con: Menú principal (Resumen), Cargar datos, Alumnos, Perfil y Cerrar sesión. | Must |
 | **RF-06** | **Resumen administrativo** con indicadores y gráficas (ver `05_UI_UX.md` §5). Sin datos: gráficas vacías, mensaje "Aún no hay datos en el sistema" y botón a Cargar datos. | Must |
@@ -88,7 +88,7 @@ Que el líder de generación pueda, en pocos clics, **cargar el Excel de monitor
 ```
 SEMA.bat ──► npm start ──► servidor en 127.0.0.1:3000 ──► abre el navegador
                                                               │
-                                                       Login (Chuchito)
+                                                       Login (JesusSanJuan)
                                                               │
                                                 Resumen administrativo
                                     ┌──────────────┬──────────┴───────┬────────────┐

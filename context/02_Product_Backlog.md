@@ -37,7 +37,7 @@ Las historias **HU-10, HU-13 y HU-16** vienen de `User_Stories.md` (historias or
 |---|---|---|
 | T-01 | Limpieza del repositorio: borrar la carpeta duplicada `plantilla-express-sqlite/`, quitar el módulo de ejemplo *Notas*, renombrar "Mi Proyecto" → "SEMA" y `package.json` → `sema`, aplicar la paleta institucional azul (M-10, `05` §3.1), agregar `.gitattributes` (finales de línea), `CODEOWNERS` y proteger `main`/`develop`. | Scrum Master |
 | T-02 | Esquema de base de datos v1 según `04_Modelo_Datos.md` (con `PRAGMA user_version` para migraciones). | Base de datos |
-| T-03 | Usuario por defecto `Chuchito` y secreto JWT persistente en `data/jwt.secret`; script `npm run reset-password`. | Backend |
+| T-03 | Usuario por defecto `JesusSanJuan` y secreto JWT persistente en `data/jwt.secret`; script `npm run reset-password`. | Backend |
 | T-06 | Excel de prueba **anonimizado** en `test/fixtures/monitoreo-muestra.xlsx` (mismas columnas, nombres y matrículas falsos, ~200 filas, incluye NE/SD/SC/DA/BT) y Excel de lista con el formato del cliente. | Base de datos |
 | T-07 | Copiar Chart.js y la fuente Inter a `public/vendor/` (funcionamiento sin internet). | Frontend |
 | T-08 | Prototipos de vistas (Login, Resumen, Cargar datos, Alumnos, Detalle, Perfil) y validación con el cliente. | Product Owner |
@@ -49,7 +49,7 @@ Las historias **HU-10, HU-13 y HU-16** vienen de `User_Stories.md` (historias or
 ### HU-02 · Iniciar sesión — *Must · 3 pts*
 **Como** líder de generación **quiero** entrar con usuario y contraseña **para** que una persona ajena no vea información confidencial.
 
-- [ ] La primera vez, la cuenta `Chuchito` / `Administrador*Chuchito*123` ya existe (no se pide crear cuenta).
+- [ ] La primera vez, la cuenta `JesusSanJuan` / `ContraseñaJesus123*` ya existe (no se pide crear cuenta).
 - [ ] Con datos correctos se redirige al **Resumen administrativo**.
 - [ ] Con datos incorrectos aparece "Usuario o contraseña incorrectos." (sin decir cuál falló).
 - [ ] Tras 10 intentos fallidos en 15 min se bloquea temporalmente con mensaje claro.

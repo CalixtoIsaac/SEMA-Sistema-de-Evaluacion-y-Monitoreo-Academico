@@ -14,7 +14,7 @@ def test_flow(tmp_path):
     app=create_app(tmp_path/'app.db',tmp_path/'secret')
     c=TestClient(app)
     assert c.post('/api/importaciones/monitoreo',files={'archivo':('x.xlsx',b'no')}).status_code==401
-    token=c.post('/api/auth/login',json={'usuario':'Chuchito','password':INITIAL_PASSWORD}).json()['token']
+    token=c.post('/api/auth/login',json={'usuario':'JesusSanJuan','password':INITIAL_PASSWORD}).json()['token']
     headers={'Authorization':'Bearer '+token}
     data=workbook([['202660','T00000001','Pérez López Ana','Química','Q1','1',4,90,90,5,'RW'],['202660','T00000001','Pérez López Ana','Física','F1','2',0,80,'SD',5,'BT']])
     p=c.post('/api/importaciones/monitoreo',headers=headers,files={'archivo':('x.xlsx',data)})
@@ -32,7 +32,7 @@ def test_flow(tmp_path):
 
 def test_replace_and_rollback(tmp_path):
     app=create_app(tmp_path/'app.db',tmp_path/'secret');c=TestClient(app,raise_server_exceptions=False)
-    token=c.post('/api/auth/login',json={'usuario':'Chuchito','password':INITIAL_PASSWORD}).json()['token'];h={'Authorization':'Bearer '+token}
+    token=c.post('/api/auth/login',json={'usuario':'JesusSanJuan','password':INITIAL_PASSWORD}).json()['token'];h={'Authorization':'Bearer '+token}
     def stage(rows):
         p=c.post('/api/importaciones/monitoreo',headers=h,files={'archivo':('x.xlsx',workbook(rows))})
         assert p.status_code==201,p.text
@@ -54,7 +54,7 @@ def test_replace_and_rollback(tmp_path):
 def test_manual_enrollment_unchanged(tmp_path):
     app=create_app(tmp_path/'app.db',tmp_path/'secret')
     c=TestClient(app)
-    token=c.post('/api/auth/login',json={'usuario':'Chuchito','password':INITIAL_PASSWORD}).json()['token']
+    token=c.post('/api/auth/login',json={'usuario':'JesusSanJuan','password':INITIAL_PASSWORD}).json()['token']
     h={'Authorization':'Bearer '+token}
     db=app.state.db
     with db:
@@ -77,7 +77,7 @@ def test_manual_enrollment_unchanged(tmp_path):
 
 def test_all_baja_cut_and_pagination(tmp_path):
     app=create_app(tmp_path/'app.db',tmp_path/'secret');c=TestClient(app)
-    token=c.post('/api/auth/login',json={'usuario':'Chuchito','password':INITIAL_PASSWORD}).json()['token']
+    token=c.post('/api/auth/login',json={'usuario':'JesusSanJuan','password':INITIAL_PASSWORD}).json()['token']
     h={'Authorization':'Bearer '+token}
     rows=[['202660',f'T{i:08d}','Ruiz Soto Eva','Física','F1',str(i),0,80,None,5,'BT'] for i in range(52)]
     p=c.post('/api/importaciones/monitoreo',headers=h,files={'archivo':('x.xlsx',workbook(rows))})
@@ -92,7 +92,7 @@ def test_all_baja_cut_and_pagination(tmp_path):
 
 def test_upload_errors(tmp_path):
     app=create_app(tmp_path/'app.db',tmp_path/'secret');c=TestClient(app)
-    token=c.post('/api/auth/login',json={'usuario':'Chuchito','password':INITIAL_PASSWORD}).json()['token'];h={'Authorization':'Bearer '+token}
+    token=c.post('/api/auth/login',json={'usuario':'JesusSanJuan','password':INITIAL_PASSWORD}).json()['token'];h={'Authorization':'Bearer '+token}
     assert c.post('/api/importaciones/monitoreo',headers=h,files={'archivo':('bad.txt',b'x')}).status_code==415
     assert c.post('/api/importaciones/monitoreo',headers=h,files={'archivo':('bad.xlsx',b'x')}).status_code==422
     assert c.post('/api/importaciones/monitoreo',headers=h,files={'archivo':('large.xlsx',b'x'*(15*1024*1024+1))}).status_code==413

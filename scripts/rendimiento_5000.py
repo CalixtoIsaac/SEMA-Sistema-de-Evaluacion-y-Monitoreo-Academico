@@ -71,7 +71,7 @@ def main():
     with tempfile.TemporaryDirectory() as d:
         app = create_app(Path(d) / 'app.db', Path(d) / 'secret')
         c = TestClient(app)
-        h = {'Authorization': 'Bearer ' + c.post('/api/auth/login', json={'usuario': 'Chuchito', 'password': INITIAL_PASSWORD}).json()['token']}
+        h = {'Authorization': 'Bearer ' + c.post('/api/auth/login', json={'usuario': 'JesusSanJuan', 'password': INITIAL_PASSWORD}).json()['token']}
         res = []
         for n, data in ((1, datos1), (2, datos2)):
             p = medir(f'Carga {n} · previsualizar (POST monitoreo)', lambda: c.post('/api/importaciones/monitoreo', headers=h, files={'archivo': ('sintetico.xlsx', data)}), res)

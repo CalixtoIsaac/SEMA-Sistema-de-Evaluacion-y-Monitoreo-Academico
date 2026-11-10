@@ -50,6 +50,7 @@ El estado del alumno es **el peor entre promedio y faltas**. La calificación of
 1. Entra a [**Releases**](https://github.com/CalixtoIsaac/SEMA-Sistema-de-Evaluacion-y-Monitoreo-Academico/releases/latest) y descarga `SEMA-Setup-<versión>.exe`.
 2. Ábrelo. Si aparece «Windows protegió su PC», elige **Más información → Ejecutar de todas formas** (el instalador no está firmado).
 3. Sigue el asistente y abre SEMA desde el escritorio o el menú Inicio.
+4. Inicia sesión con el usuario **`JesusSanJuan`** y la contraseña **`ContraseñaJesus123*`**, y cámbiala desde **Perfil**.
 
 No necesita Python, internet ni permisos de administrador (Windows 10/11 de 64 bits). Los datos se guardan en `%LOCALAPPDATA%\SEMA` y se conservan al instalar una versión nueva; al desinstalar, SEMA pregunta si también se borran.
 
@@ -68,7 +69,7 @@ npm install
 npm run dev
 ```
 
-Abre **http://localhost:3000**. La aplicación inicia sesión con la cuenta local definida en D-04; consulta [`context/00_Indice_y_Decisiones.md`](context/00_Indice_y_Decisiones.md).
+Abre **http://localhost:3000**. La cuenta inicial es **`JesusSanJuan`** / **`ContraseñaJesus123*`** (decisión D-04); consulta [`context/00_Indice_y_Decisiones.md`](context/00_Indice_y_Decisiones.md).
 
 Para iniciar el servidor en modo normal usa `npm start`. Ambos comandos de npm ejecutan FastAPI con el Python del entorno `.venv`.
 
