@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv
-from .db import ROOT, open_db
+from .db import ROOT, DATA_DIR, open_db
 from .auth import router as auth_router, load_secret, seed_user
 from .imports import router as imports_router
 from .students import router as students_router
@@ -20,6 +20,9 @@ from .catalogos import router as catalogos_router
 from .datos import router as datos_router
 
 load_dotenv(ROOT / '.env')
+if DATA_DIR.parent != ROOT:
+    # Instalado: el .env opcional vive junto a los datos (%LOCALAPPDATA%/SEMA/.env).
+    load_dotenv(DATA_DIR / '.env')
 
 def create_app(db_path=None, secret_path=None):
     app = FastAPI(title='SEMA', version='0.1.0')

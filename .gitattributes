@@ -5,3 +5,5 @@
 *.xlsx binary
 *.png binary
 *.ico binary
+*.iss text eol=crlf
+*.spec text eol=lf

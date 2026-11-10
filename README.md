@@ -45,6 +45,16 @@ El estado del alumno es **el peor entre promedio y faltas**. La calificación of
 
 ## Instalación y arranque
 
+### Opción 1 · Instalador para Windows (recomendada para el cliente)
+
+1. Entra a [**Releases**](https://github.com/CalixtoIsaac/SEMA-Sistema-de-Evaluacion-y-Monitoreo-Academico/releases/latest) y descarga `SEMA-Setup-<versión>.exe`.
+2. Ábrelo. Si aparece «Windows protegió su PC», elige **Más información → Ejecutar de todas formas** (el instalador no está firmado).
+3. Sigue el asistente y abre SEMA desde el escritorio o el menú Inicio.
+
+No necesita Python, internet ni permisos de administrador (Windows 10/11 de 64 bits). Los datos se guardan en `%LOCALAPPDATA%\SEMA` y se conservan al instalar una versión nueva; al desinstalar, SEMA pregunta si también se borran.
+
+### Opción 2 · Desde el repositorio (`git clone`)
+
 **Requisitos:** Python 3.12 o superior. Node.js 20 o superior solo se necesita para las herramientas auxiliares y sus pruebas (el backend ya no usa Node). SQLite no se instala aparte.
 
 **En la computadora del cliente:** doble clic en `SEMA.bat`. La primera vez crea el entorno de Python e instala las dependencias; después arranca el servidor y abre el navegador.
@@ -74,6 +84,19 @@ Para iniciar el servidor en modo normal usa `npm start`. Ambos comandos de npm e
 
 Para regenerar los fixtures se necesita Node 20+: `node scripts/anonimizar-excel.js`. El Excel real nunca se sube.
 
+### Publicar una versión nueva del instalador (Scrum Master)
+
+El workflow [`.github/workflows/release.yml`](.github/workflows/release.yml) corre las pruebas, empaqueta SEMA con PyInstaller, prueba el `SEMA.exe` y genera el instalador con Inno Setup en un Windows de GitHub. Para publicarlo en Releases basta con crear una etiqueta desde `main` actualizado:
+
+```powershell
+git checkout main
+git pull
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+En unos minutos aparece la versión en **Releases** con `SEMA-Setup-1.0.0.exe`. En cada Pull Request el workflow también compila el instalador y lo deja como artefacto (pestaña **Actions**) para probarlo antes de fusionar. Para generarlo en tu computadora: instala [Inno Setup 6](https://jrsoftware.org/isdl.php) y ejecuta `installer\build.bat 1.0.0`.
+
 ---
 
 ## Estructura del proyecto
@@ -82,6 +105,7 @@ Para regenerar los fixtures se necesita Node 20+: `node scripts/anonimizar-excel
 ├── sema/                 # API FastAPI, autenticación, SQLite, Excel e indicadores
 ├── lib/schema.sql        # esquema SQLite v1 (las migraciones nuevas van en sema/db.py)
 ├── SEMA.bat              # acceso directo: instala, arranca y abre el navegador
+├── installer/            # instalador .exe: PyInstaller (sema.spec), Inno Setup (SEMA.iss) e ícono
 ├── public/               # login.html, app.html, css/, js/, vendor/
 ├── scripts/              # utilidades y herramientas auxiliares
 ├── tests/                # pruebas Python del backend

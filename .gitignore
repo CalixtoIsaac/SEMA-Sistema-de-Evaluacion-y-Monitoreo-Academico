@@ -23,3 +23,8 @@ __pycache__/
 
 # Paquetes de git para mover ramas sin push (git bundle)
 *.bundle
+
+# Instalador de Windows (se genera en GitHub Actions o con installer\build.bat)
+/build/
+/dist/
+installer/Output/

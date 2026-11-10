@@ -7,7 +7,7 @@ import bcrypt
 import jwt
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
-from .db import ROOT, transaction
+from .db import DATA_DIR, transaction
 
 INITIAL_PASSWORD = 'Administrador*Chuchito*123'
 router = APIRouter(prefix='/api/auth')
@@ -16,7 +16,7 @@ def load_secret(path=None):
     env = os.environ.get('JWT_SECRET', '')
     if len(env) >= 32:
         return env
-    path = Path(path or ROOT/'data/jwt.secret')
+    path = Path(path or DATA_DIR/'jwt.secret')
     path.parent.mkdir(parents=True, exist_ok=True)
     try:
         fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
