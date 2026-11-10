@@ -1,0 +1,104 @@
+# Genera el instalador SEMA-Setup-<versión>.exe en Windows.
+# - Al publicar una etiqueta v* (por ejemplo v1.0.0) lo sube a GitHub Releases.
+# - En Pull Requests y a mano (Actions > Instalador de Windows > Run workflow)
+#   solo lo compila y lo deja como artefacto descargable para probarlo.
+name: Instalador de Windows
+
+on:
+  push:
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  instalador:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt pyinstaller==6.11.1
+
+      - name: Pruebas del backend
+        run: python -m pytest -q tests
+
+      - name: Versión
+        id: version
+        shell: pwsh
+        run: |
+          if ("${{ github.ref_type }}" -eq "tag") { $v = "${{ github.ref_name }}".TrimStart('v') }
+          else { $v = "0.0.0-dev.${{ github.run_number }}" }
+          "valor=$v" >> $env:GITHUB_OUTPUT
+          # VersionInfoVersion de Inno solo acepta números: 1.2.3
+          $num = ($v -split '[-+]')[0]
+          "numerica=$num" >> $env:GITHUB_OUTPUT
+
+      - name: Empaquetar con PyInstaller
+        run: python -m PyInstaller installer\sema.spec --noconfirm
+
+      - name: Probar el ejecutable
+        shell: pwsh
+        run: |
+          $env:SEMA_DATA_DIR = "$env:RUNNER_TEMP\sema-datos"
+          $env:SEMA_NO_BROWSER = "1"
+          $env:PORT = "3999"
+          $p = Start-Process -FilePath "dist\SEMA\SEMA.exe" -PassThru -NoNewWindow
+          $ok = $false
+          for ($i = 0; $i -lt 60; $i++) {
+            Start-Sleep -Seconds 1
+            try {
+              $r = Invoke-RestMethod "http://127.0.0.1:3999/api/health"
+              if ($r.app -eq "SEMA") { $ok = $true; break }
+            } catch {}
+          }
+          if ($ok) {
+            $login = Invoke-WebRequest "http://127.0.0.1:3999/" -UseBasicParsing
+            if ($login.StatusCode -ne 200) { $ok = $false }
+          }
+          Stop-Process -Id $p.Id -Force
+          if (-not $ok) { throw "SEMA.exe no respondió en /api/health" }
+          if (-not (Test-Path "$env:SEMA_DATA_DIR\app.db")) { throw "No se creó app.db" }
+          Write-Host "SEMA.exe arrancó y respondió correctamente."
+
+      - name: Instalar Inno Setup
+        run: |
+          if (-not (Test-Path "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe")) { choco install innosetup -y --no-progress }
+
+      - name: Compilar instalador
+        shell: pwsh
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          & $iscc "/DMyAppVersion=${{ steps.version.outputs.valor }}" "/DMyAppVersionNum=${{ steps.version.outputs.numerica }}" installer\SEMA.iss
+          if ($LASTEXITCODE -ne 0) { throw "ISCC falló" }
+
+      - name: Guardar instalador como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: SEMA-Setup-${{ steps.version.outputs.valor }}
+          path: installer/Output/*.exe
+
+      - name: Publicar en Releases
+        if: github.ref_type == 'tag'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: installer/Output/*.exe
+          generate_release_notes: true
+          body: |
+            ## Instalar SEMA en Windows
+            1. Descarga **SEMA-Setup-${{ steps.version.outputs.valor }}.exe** (abajo, en *Assets*).
+            2. Ábrelo. Si Windows muestra «Windows protegió su PC», haz clic en **Más información → Ejecutar de todas formas** (el instalador no está firmado digitalmente).
+            3. Sigue el asistente. No necesitas instalar Python ni permisos de administrador.
+            4. Abre SEMA desde el acceso directo del escritorio o del menú Inicio.
+
+            Tus datos se guardan en `%LOCALAPPDATA%\SEMA` y se conservan al actualizar a una versión nueva.
