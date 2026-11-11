@@ -24,6 +24,7 @@ Etiquetas = {'correcto': 'Correcto', 'preventivo': 'Preventivo', 'critico': 'Cr�
 
 Filtros_Estado = {'todos', 'empeora', *Etiquetas}
 Criterios_Orden = {'promedio', 'faltas'}
+Sentidos = {'peor', 'mejor'}
 Tipos = {
     'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     'csv': 'text/csv; charset=utf-8',
@@ -42,12 +43,14 @@ def coincide(alumno, palabras):
 def clave_nombre(texto):
     return unaccent((texto or '').replace('ñ', 'n\uffff').replace('Ñ', 'n\uffff'))
 
-def ordenar(alumnos, promedio, faltas):
+def ordenar(alumnos, promedio, faltas, sentido='peor'):
+    # 'peor': promedio menor→mayor y faltas mayor→menor; 'mejor': al revés.
+    s = -1 if sentido == 'mejor' else 1
     def clave(a):
         sin_promedio = a['estado'] == 'baja' or a['promedioGeneral'] is None
         return (1 if sin_promedio else 0,
-                (r1(a['promedioGeneral']) or 0) if promedio else 0,
-                -a['faltasTotal'] if faltas else 0,
+                s * (r1(a['promedioGeneral']) or 0) if promedio else 0,
+                -s * a['faltasTotal'] if faltas else 0,
                 clave_nombre(a['nombreMostrar']),
                 a['matricula'])
     return sorted(alumnos, key=clave)
@@ -107,7 +110,7 @@ def nombreArchivo(db, lista, extension):
 
 @router.get('/exportar')
 def exportar(request: Request, lista: int | None = None, periodo: str | None = None,
-             formato: str = 'xlsx', orden: str = '', estado: str = 'todos', q: str = ''):
+             formato: str = 'xlsx', orden: str = '', sentido: str = 'peor', estado: str = 'todos', q: str = ''):
 
     if formato not in Tipos:
         raise error('El formato debe ser xlsx o csv.')
@@ -116,6 +119,8 @@ def exportar(request: Request, lista: int | None = None, periodo: str | None = N
     criterios = {c for c in orden.split(',') if c}
     if not criterios <= Criterios_Orden:
         raise error('El orden solo puede ser promedio, faltas o ambos.')
+    if sentido not in Sentidos:
+        raise error('El sentido del orden debe ser peor o mejor.')
 
     listado = list_students(request, lista=lista, periodo=periodo)
     palabras = unaccent(q).split()
@@ -124,7 +129,7 @@ def exportar(request: Request, lista: int | None = None, periodo: str | None = N
         alumnos = [a for a in alumnos if a['tendencia'] == 'empeora']
     elif estado != 'todos':
         alumnos = [a for a in alumnos if a['estado'] == estado]
-    alumnos = ordenar(alumnos, 'promedio' in criterios, 'faltas' in criterios)
+    alumnos = ordenar(alumnos, 'promedio' in criterios, 'faltas' in criterios, sentido)
 
     contenido = _xlsx(alumnos) if formato == 'xlsx' else _csv(alumnos)
     simple, completo = nombreArchivo(request.app.state.db, lista, formato)

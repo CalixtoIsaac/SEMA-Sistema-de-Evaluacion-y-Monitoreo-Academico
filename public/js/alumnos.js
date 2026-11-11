@@ -43,9 +43,9 @@ const Alumnos = (() => {
   function loadState() {
     try {
       const saved = JSON.parse(sessionStorage.getItem(STATE_KEY));
-      if (saved && typeof saved === 'object') return { q: '', estado: 'todos', pagina: 1, promedio: false, faltas: false, ...saved };
+      if (saved && typeof saved === 'object') return { q: '', estado: 'todos', pagina: 1, promedio: false, faltas: false, sentido: 'peor', ...saved };
     } catch { /* sin almacenamiento */ }
-    return { q: '', estado: 'todos', pagina: 1, promedio: false, faltas: false };
+    return { q: '', estado: 'todos', pagina: 1, promedio: false, faltas: false, sentido: 'peor' };
   }
   function saveState() {
     try { sessionStorage.setItem(STATE_KEY, JSON.stringify(vista)); } catch { /* sin almacenamiento */ }
@@ -72,7 +72,7 @@ const Alumnos = (() => {
     const filtrados = porBusqueda.filter((a) => vista.estado === 'todos'
       || (vista.estado === 'empeora' ? a.tendencia === 'empeora' : a.estado === vista.estado));
     // Primero se filtra y después se ordena (context/07 §6).
-    const lista = OrdenBusqueda.ordenarAlumnos(filtrados, { promedio: vista.promedio, faltas: vista.faltas });
+    const lista = OrdenBusqueda.ordenarAlumnos(filtrados, { promedio: vista.promedio, faltas: vista.faltas, sentido: vista.sentido });
     return { lista, conteo };
   }
 
@@ -170,6 +170,7 @@ const Alumnos = (() => {
       const params = new URLSearchParams({ formato: b.dataset.formato, estado: vista.estado, q: vista.q.trim() });
       const orden = [vista.promedio && 'promedio', vista.faltas && 'faltas'].filter(Boolean).join(',');
       if (orden) params.set('orden', orden);
+      if (orden && vista.sentido === 'mejor') params.set('sentido', 'mejor');
       if (listaActual()) params.set('lista', listaActual().id);
       try {
         const nombre = await UI.download(`/alumnos/exportar?${params}`, `SEMA_alumnos.${b.dataset.formato}`);
@@ -228,9 +229,10 @@ const Alumnos = (() => {
           <input class="input" type="search" id="buscar" placeholder="Buscar por nombre o matrícula…" autocomplete="off" value="${UI.escape(vista.q)}">
         </label>
         <fieldset class="orden">
-          <legend>Ordenar (peor → mejor):</legend>
+          <legend>Ordenar por:</legend>
           <label><input type="checkbox" id="ordenPromedio" ${vista.promedio ? 'checked' : ''}>Promedio</label>
           <label><input type="checkbox" id="ordenFaltas" ${vista.faltas ? 'checked' : ''}>Faltas</label>
+          <div class="sentido" id="ordenSentido" role="group" aria-label="Sentido del orden"></div>
         </fieldset>
       </div>
       <div class="chips" id="chips" role="group" aria-label="Filtrar por estado"></div>
@@ -246,11 +248,18 @@ const Alumnos = (() => {
     });
     // Casillas de orden (#24)
     body.querySelector('#ordenPromedio').addEventListener('change', (e) => {
-      vista.promedio = e.target.checked; vista.pagina = 1; saveState(); renderTable();
+      vista.promedio = e.target.checked; vista.pagina = 1; saveState(); renderSentido(); renderTable();
     });
     body.querySelector('#ordenFaltas').addEventListener('change', (e) => {
-      vista.faltas = e.target.checked; vista.pagina = 1; saveState(); renderTable();
+      vista.faltas = e.target.checked; vista.pagina = 1; saveState(); renderSentido(); renderTable();
     });
+    // Sentido del orden: peor → mejor o mejor → peor
+    body.querySelector('#ordenSentido').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-sentido]');
+      if (!b || b.disabled || vista.sentido === b.dataset.sentido) return;
+      vista.sentido = b.dataset.sentido; vista.pagina = 1; saveState(); renderSentido(); renderTable();
+    });
+    renderSentido();
     body.querySelector('#chips').addEventListener('click', (e) => {
       const chip = e.target.closest('[data-estado]');
       if (!chip) return;
@@ -274,6 +283,14 @@ const Alumnos = (() => {
       root.scrollIntoView({ block: 'start' });
     });
     renderTable();
+  }
+
+  // Solo aplica si hay alguna casilla marcada; sin casillas el orden es alfabético.
+  function renderSentido() {
+    const activo = vista.promedio || vista.faltas;
+    root.querySelector('#ordenSentido').innerHTML = [['peor', 'Peor → mejor'], ['mejor', 'Mejor → peor']]
+      .map(([k, label]) => `<button type="button" class="sentido-btn" data-sentido="${k}" aria-pressed="${vista.sentido === k}" ${activo ? '' : 'disabled title="Marca Promedio o Faltas para elegir el sentido"'}>${label}</button>`)
+      .join('');
   }
 
   function renderChips(conteo) {
@@ -346,13 +363,14 @@ const Alumnos = (() => {
       return;
     }
 
+    const mejor = vista.sentido === 'mejor';
     tabla.innerHTML = `
       <table class="data-table">
         <thead><tr>
           <th scope="col">Nombre</th>
           <th scope="col" class="col-opt">Matrícula</th>
-          <th scope="col" class="num" ${vista.promedio ? 'aria-sort="ascending"' : ''}>Promedio${vista.promedio ? ' <span class="orden-flecha" aria-hidden="true">▲</span>' : ''}</th>
-          <th scope="col" class="num" ${vista.faltas ? 'aria-sort="descending"' : ''}>Faltas${vista.faltas ? ' <span class="orden-flecha" aria-hidden="true">▼</span>' : ''}</th>
+          <th scope="col" class="num" ${vista.promedio ? `aria-sort="${mejor ? 'descending' : 'ascending'}"` : ''}>Promedio</th>
+          <th scope="col" class="num" ${vista.faltas ? `aria-sort="${mejor ? 'ascending' : 'descending'}"` : ''}>Faltas</th>
           <th scope="col">Estado</th>
         </tr></thead>
         <tbody>${pagina.map(fila).join('')}</tbody>

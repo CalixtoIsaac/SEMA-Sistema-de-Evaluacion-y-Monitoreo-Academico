@@ -96,6 +96,14 @@ def test_orden_promedio_y_faltas(cliente):
     assert promedios == [60, 75, 85, 90, 95, None]          # menor→mayor, la baja (sin promedio) al final
     r = cliente.get('/api/alumnos/exportar', params={'orden': 'faltas'})
     assert nombres(r)[0] == 'Carla Murillo Soto'             # 4 faltas, la mayor
+
+
+def test_orden_mejor_a_peor(cliente):
+    r = cliente.get('/api/alumnos/exportar', params={'orden': 'promedio', 'sentido': 'mejor'})
+    promedios = [f[2] for f in tabla(r)[1:]]
+    assert promedios == [95, 90, 85, 75, 60, None]          # mayor→menor, la baja sigue al final
+    r = cliente.get('/api/alumnos/exportar', params={'orden': 'faltas', 'sentido': 'mejor'})
+    assert nombres(r)[-2] == 'Carla Murillo Soto'            # la de más faltas, justo antes de la baja
  
  
 def test_csv_con_bom_y_sin_formulas(cliente):
@@ -125,7 +133,7 @@ def test_nombre_de_archivo_con_lista(cliente):
  
  
 @pytest.mark.parametrize('params, codigo', [
-    ({'formato': 'pdf'}, 400), ({'estado': 'rojo'}, 400), ({'orden': 'nombre'}, 400),
+    ({'formato': 'pdf'}, 400), ({'estado': 'rojo'}, 400), ({'orden': 'nombre'}, 400), ({'sentido': 'arriba'}, 400),
     ({'lista': 999}, 404), ({'periodo': '209999'}, 404),
 ])
 def test_errores(cliente, params, codigo):

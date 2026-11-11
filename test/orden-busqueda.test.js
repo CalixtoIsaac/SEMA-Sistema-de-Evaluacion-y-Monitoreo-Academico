@@ -41,6 +41,24 @@ test('sin datos y bajas van al final', () => {
   assert.deepEqual(nombres(ordenarAlumnos(lista, { promedio: true })), ['Beto', 'Carla', 'Abel', 'Ana']);
 });
 
+test('mejor → peor: promedio de mayor a menor', () => {
+  const lista = [alumno('Ana', 70, 0), alumno('Beto', 95, 0), alumno('Carla', 82, 0)];
+  assert.deepEqual(nombres(ordenarAlumnos(lista, { promedio: true, sentido: 'mejor' })), ['Beto', 'Carla', 'Ana']);
+});
+
+test('mejor → peor: faltas de menos a más', () => {
+  const lista = [alumno('Ana', 90, 1), alumno('Beto', 90, 8), alumno('Carla', 90, 4)];
+  assert.deepEqual(nombres(ordenarAlumnos(lista, { faltas: true, sentido: 'mejor' })), ['Ana', 'Carla', 'Beto']);
+});
+
+test('mejor → peor: empates por nombre A→Z y sin datos/bajas al final', () => {
+  const lista = [
+    alumno('Beto', 90, 0), alumno('Ana', 90, 0),
+    alumno('Abel', null, 0, { estado: 'baja' }), alumno('Carla', 60, 2)
+  ];
+  assert.deepEqual(nombres(ordenarAlumnos(lista, { promedio: true, faltas: true, sentido: 'mejor' })), ['Ana', 'Beto', 'Carla', 'Abel']);
+});
+
 test('no modifica la lista original', () => {
   const lista = [alumno('Beto', 90, 0), alumno('Ana', 80, 0)];
   ordenarAlumnos(lista);

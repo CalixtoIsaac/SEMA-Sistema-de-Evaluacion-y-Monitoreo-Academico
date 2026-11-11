@@ -6,6 +6,9 @@
  *   FALTAS               → faltas mayor → menor, luego nombre
  *   PROMEDIO + FALTAS    → promedio menor → mayor, faltas mayor → menor, luego nombre
  *
+ *   Con sentido 'mejor' se invierte: promedio mayor → menor y faltas menor → mayor
+ *   (el desempate por nombre sigue siendo A→Z).
+ *
  * Los alumnos sin promedio (Sin datos) y las bajas van siempre al final.
  *
  * Búsqueda (#23 · HU-14), igual que context/07 §7:
@@ -30,11 +33,13 @@ const OrdenBusqueda = (() => {
     String(a.nombreMostrar || '').localeCompare(String(b.nombreMostrar || ''), 'es', { sensitivity: 'base' })
     || String(a.matricula || '').localeCompare(String(b.matricula || ''));
 
-  function ordenarAlumnos(alumnos, { promedio = false, faltas = false } = {}) {
+  // sentido: 'peor' (peor → mejor, por defecto) o 'mejor' (mejor → peor).
+  function ordenarAlumnos(alumnos, { promedio = false, faltas = false, sentido = 'peor' } = {}) {
+    const s = sentido === 'mejor' ? -1 : 1;
     return [...alumnos].sort((a, b) =>
       (alFinal(a) - alFinal(b))
-      || (promedio ? redondear(a.promedioGeneral) - redondear(b.promedioGeneral) : 0)
-      || (faltas ? (b.faltasTotal || 0) - (a.faltasTotal || 0) : 0)
+      || (promedio ? s * (redondear(a.promedioGeneral) - redondear(b.promedioGeneral)) : 0)
+      || (faltas ? s * ((b.faltasTotal || 0) - (a.faltasTotal || 0)) : 0)
       || porNombre(a, b));
   }
 
