@@ -81,6 +81,13 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .brand-mark .icon { width: 22px; height: 22px; }
 .brand-mark.sm { width: 32px; height: 32px; border-radius: 9px; }
 .brand-mark.sm .icon { width: 18px; height: 18px; }
+/* Logo oficial (S con semáforo). drop-shadow sigue el contorno redondeado del PNG. */
+.brand-logo {
+  display: block; flex-shrink: 0;
+  width: 40px; height: 40px;
+  filter: drop-shadow(0 4px 10px rgba(37, 99, 235, .25));
+}
+.brand-logo.sm { width: 32px; height: 32px; }
 .brand-name { font-weight: 700; font-size: 16px; letter-spacing: -0.02em; }
 
 /* ---------- Botones ---------- */

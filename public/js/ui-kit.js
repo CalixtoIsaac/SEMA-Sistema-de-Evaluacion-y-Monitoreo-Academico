@@ -106,7 +106,6 @@ const UI = (() => {
 
   // ---------- Iconos (trazos de 24×24) ----------
   const ICONS = {
-    logo: '<path d="M12 3 3 8l9 5 9-5z"/><path d="m3 13 9 5 9-5"/>',
     users: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.5a6.5 6.5 0 0 1 3.5 5.5"/>',
     chart: '<path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 6-6"/>',
     upload: '<path d="M12 15V3"/><path d="m7 8 5-5 5 5"/><path d="M5 15v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/>',
