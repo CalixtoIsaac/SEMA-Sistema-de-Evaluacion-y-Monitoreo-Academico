@@ -139,33 +139,6 @@ El frontend nunca calcula estados; usa los que manda la API. Más detalle en [`c
 
 ---
 
-## Plan de trabajo
-
-Scrum con **2 sprints de 1 semana** (lunes a viernes). Planning el lunes; Review con el cliente, Retrospectiva y release a `main` el viernes.
-
-| Sprint | Fechas | Entregas |
-|---|---|---|
-| **Sprint 1** | 26 – 30 oct 2026 | v0.1 Base del proyecto · v0.2 Carga de Excel · v0.3 Monitoreo de alumnos |
-| **Sprint 2** | 2 – 6 nov 2026 | v0.4 Seguimiento y cuenta · v0.5 Resumen administrativo · **v1.0 Entrega final** |
-
-Tablero: GitHub Project «SEMA · Tablero Scrum» (Backlog → Por hacer → En progreso → En revisión → Validación PO → Hecho).
-
----
-
-## Cómo contribuir
-
-1. Toma un issue asignado a ti en el tablero (máximo 2 en progreso por persona).
-2. Crea una rama desde `main` actualizado (`git checkout main && git pull`): `feature/<n°issue>-<descripcion-corta>` (también `fix/`, `docs/`, `chore/`).
-3. Commits con [Conventional Commits](https://www.conventionalcommits.org/es/) en español: `feat(alumnos): ordenar por promedio y faltas`.
-4. Abre un Pull Request hacia **`main`** con `Closes #<n°>` y llena la plantilla.
-5. Solo el **Scrum Master** revisa y hace *Squash and merge*. Después, la Product Owner valida y cierra el issue.
-
-Antes de abrir el PR: probaste con `test/fixtures/monitoreo-muestra.xlsx`, `npm test` pasa, revisaste tema claro y oscuro, y actualizaste `context/` si cambió una regla o un endpoint.
-
-> ⚠️ **Nunca subas Excel con datos reales de alumnos** (son menores de edad). Para pruebas usa solo los archivos anonimizados de `test/fixtures/`.
-
----
-
 ## Equipo
 
 | Rol | Integrante |
